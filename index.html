@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ryan games 2.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #e0e0e0;
+            background-color: #1a0033;
+            background-image: url("https://i.imgur.com/fb42c0.png");
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            text-align: center;
+            padding: 40px 25px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+            max-width: 700px;
+            width: 90%;
+            animation: fadeIn 1s ease-out;
+            margin-bottom: 40px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: 3.5em;
+            margin-bottom: 30px;
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3), 0 0 20px rgba(255, 255, 255, 0.1);
+            letter-spacing: 2px;
+        }
+
+        .links-container {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            width: 100%;
+            margin-top: 30px;
+        }
+
+        .link-item {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            padding: 18px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #ffffff;
+            font-size: 1.3em;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            border: none;
+            cursor: pointer;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .link-item:hover {
+            background: linear-gradient(135deg, #2575fc 0%, #6a11cb 100%);
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .link-item:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        #snake-game-wrapper {
+            text-align: center;
+            padding: 40px 25px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+            max-width: 700px;
+            width: 90%;
+            margin-top: 40px;
+        }
+
+        #snake-game-wrapper h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #ffffff;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+        }
+
+        #score {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #ffcc00;
+            text-shadow: 1px 1px 2px #000;
+        }
+
+        canvas {
+            border: 4px solid #6a11cb;
+            background-color: #0d0d0d;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        #game-over-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #game-over-screen h2 {
+            margin-top: 0;
+            font-size: 2.5em;
+        }
+
+        #game-over-screen p {
+            font-size: 1.2em;
+        }
+
+        #restart-button {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        #restart-button:hover {
+            background: linear-gradient(135deg, #2575fc 0%, #6a11cb 100%);
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2.5em;
+            }
+            .link-item {
+                font-size: 1.1em;
+                padding: 15px 20px;
+            }
+            #snake-game-wrapper h1 {
+                 font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ryan games 2.0</h1>
+        <div class="links-container">
+            <a href="https://andrewclark3244.github.io/games/" class="link-item">andrewclark3244 games</a>
+            <a href="https://githubgames.gitlab.io/game/superhot-prototype.html" class="link-item">Superhot Prototype</a>
+            <a href="https://stickmanclimb2.github.io/" class="link-item">Stickman Climb 2</a>
+            <a href="https://3kh0s.github.io/games/index.html" class="link-item">3kh0s Games</a>
+            <a href="https://buttertoasty.github.io/Bowl/" class="link-item">Bowl Game</a>
+            <a href="https://ucbg.github.io/" class="link-item">UCBG</a>
+            <a href="https://gamedump.github.io/pc.html" class="link-item">Game Dump</a>
+            <a href="https://freezenova.github.io/index.html" class="link-item">Freeze Nova</a>
+            <a href="https://games-site.github.io/index.html" class="link-item">Retro Games</a>
+            <a href="https://quiz-40.github.io/" class="link-item">Quiz-40</a>
+            <a href="https://sites.google.com/view/drive-u-7-home/flash-games/bleach-vs-naruto" class="link-item">animeeeeee</a>
+        </div>
+    </div>
+    
+    <div id="snake-game-wrapper" class="container">
+        <h1>Jogo do Cachorrinho</h1>
+        <div id="score">Pontos: 0</div>
+        <canvas id="snake-game" width="400" height="400"></canvas>
+    </div>
+    
+    <div id="game-over-screen">
+        <h2>Fim de Jogo</h2>
+        <p>Sua pontuação final é: <span id="final-score">0</span></p>
+        <button id="restart-button">Jogar Novamente</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('snake-game');
+        const ctx = canvas.getContext('2d');
+        const scoreDisplay = document.getElementById('score');
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const finalScoreDisplay = document.getElementById('final-score');
+        const restartButton = document.getElementById('restart-button');
+
+        const gridSize = 20;
+        let snake = [{ x: 10, y: 10 }];
+        let food = {};
+        let dx = gridSize;
+        let dy = 0;
+        let score = 0;
+        let gameInterval;
+        let isGameOver = false;
+
+        const dogSprite = new Image();
+        // A imagem do cachorro deve estar na mesma pasta que o arquivo HTML
+        dogSprite.src = 'JK4EiTy.jpg'; 
+
+        function generateFood() {
+            let newFood;
+            do {
+                newFood = {
+                    x: Math.floor(Math.random() * (canvas.width / gridSize)),
+                    y: Math.floor(Math.random() * (canvas.height / gridSize))
+                };
+            } while (snake.some(segment => segment.x === newFood.x && segment.y === newFood.y));
+            food = newFood;
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#ffcc00';
+            ctx.beginPath();
+            ctx.arc(food.x * gridSize + gridSize / 2, food.y * gridSize + gridSize / 2, gridSize / 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            snake.forEach(segment => {
+                if (dogSprite.complete) {
+                    ctx.drawImage(dogSprite,
+                                  segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
+                }
+            });
+        }
+
+        function update() {
+            if (isGameOver) return;
+
+            const head = { x: snake[0].x + (dx / gridSize), y: snake[0].y + (dy / gridSize) };
+            snake.unshift(head);
+
+            if (head.x === food.x && head.y === food.y) {
+                score++;
+                scoreDisplay.textContent = `Pontos: ${score}`;
+                generateFood();
+            } else {
+                snake.pop();
+            }
+
+            if (checkCollision()) {
+                endGame();
+            }
+            draw();
+        }
+
+        function checkCollision() {
+            const head = snake[0];
+            if (head.x < 0 || head.x >= canvas.width / gridSize || head.y < 0 || head.y >= canvas.height / gridSize) {
+                return true;
+            }
+            for (let i = 1; i < snake.length; i++) {
+                if (head.x === snake[i].x && head.y === snake[i].y) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function changeDirection(event) {
+            const key = event.keyCode;
+            const LEFT = 37, UP = 38, RIGHT = 39, DOWN = 40;
+
+            if (key === LEFT && dx === 0) { dx = -gridSize; dy = 0; }
+            else if (key === UP && dy === 0) { dx = 0; dy = -gridSize; }
+            else if (key === RIGHT && dx === 0) { dx = gridSize; dy = 0; }
+            else if (key === DOWN && dy === 0) { dx = 0; dy = gridSize; }
+        }
+
+        function startGame() {
+            snake = [{ x: 10, y: 10 }];
+            dx = gridSize;
+            dy = 0;
+            score = 0;
+            scoreDisplay.textContent = `Pontos: ${score}`;
+            isGameOver = false;
+            gameOverScreen.style.display = 'none';
+            generateFood();
+            
+            dogSprite.onload = () => {
+                draw();
+                if (gameInterval) clearInterval(gameInterval);
+                gameInterval = setInterval(update, 120);
+            };
+            if (dogSprite.complete) {
+                draw();
+                if (gameInterval) clearInterval(gameInterval);
+                gameInterval = setInterval(update, 120);
+            }
+        }
+
+        function endGame() {
+            isGameOver = true;
+            clearInterval(gameInterval);
+            finalScoreDisplay.textContent = score;
+            gameOverScreen.style.display = 'flex';
+        }
+
+        document.addEventListener('keydown', changeDirection);
+        restartButton.addEventListener('click', startGame);
+
+        startGame();
+    </script>
+</body>
+</html>
