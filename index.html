@@ -86,6 +86,7 @@
         }
 
         #snake-game-wrapper {
+            position: relative; /* Adicionado para posicionamento absoluto da tela de fim de jogo */
             text-align: center;
             padding: 60px 40px;
             background-color: rgba(0, 0, 0, 0.75);
@@ -94,6 +95,7 @@
             max-width: 800px;
             width: 90%;
             margin-top: 40px;
+            box-sizing: border-box; /* Para manter o padding e a borda ao expandir */
         }
 
         #snake-game-wrapper h1 {
@@ -103,11 +105,19 @@
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
         }
 
-        #score {
+        #score, #high-score {
             font-size: 1.8em;
             margin-bottom: 15px;
             color: #ffcc00;
             text-shadow: 1px 1px 3px #000;
+        }
+
+        #game-info {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
         }
 
         canvas {
@@ -116,6 +126,19 @@
             border-radius: 10px;
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6);
             display: none; /* Inicia escondido */
+            transition: transform 0.5s ease-in-out;
+        }
+
+        /* Expande o canvas em modo fullscreen */
+        #snake-game-wrapper:fullscreen canvas {
+            width: 100vw;
+            height: 100vh;
+            border-radius: 0;
+            transform: scale(1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            border: none;
         }
 
         .game-buttons {
@@ -141,22 +164,31 @@
             transform: scale(1.05);
         }
 
+        #start-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
         #game-over-screen {
             display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
+            position: absolute; /* Posição absoluta dentro do wrapper */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.95);
+            background-color: rgba(0, 0, 0, 0.9);
             color: white;
             padding: 30px;
             text-align: center;
             box-shadow: 0 0 25px rgba(255, 255, 255, 0.3);
-            z-index: 1000;
+            z-index: 100;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            border-radius: 15px;
         }
 
         #game-over-screen h2 {
@@ -177,7 +209,7 @@
             .container, #snake-game-wrapper { padding: 40px 20px; }
             .link-item { font-size: 1.2em; padding: 20px 25px; }
             #snake-game-wrapper h1 { font-size: 2.2em; }
-            #score { font-size: 1.6em; }
+            #score, #high-score { font-size: 1.6em; }
             .game-buttons { flex-direction: column; }
         }
     </style>
@@ -202,7 +234,10 @@
     
     <div id="snake-game-wrapper" class="container">
         <h1>Jogo do Cachorrinho</h1>
-        <div id="score">Pontos: 0</div>
+        <div id="game-info">
+            <div id="score">Pontos: 0</div>
+            <div id="high-score">Recorde: 0</div>
+        </div>
         <canvas id="snake-game" width="600" height="600"></canvas>
         <div id="start-screen">
             <div class="game-buttons">
@@ -210,37 +245,44 @@
                 <button id="fullscreen-button" class="game-button">Tela Cheia</button>
             </div>
         </div>
+        <div id="game-over-screen">
+            <h2>Fim de Jogo</h2>
+            <p>Sua pontuação final é: <span id="final-score">0</span></p>
+            <p id="new-high-score-message" style="color: #ffcc00; display: none;">NOVO RECORDE!</p>
+            <button id="restart-button" class="game-button">Jogar Novamente</button>
+        </div>
     </div>
     
-    <div id="game-over-screen">
-        <h2>Fim de Jogo</h2>
-        <p>Sua pontuação final é: <span id="final-score">0</span></p>
-        <button id="restart-button" class="game-button">Jogar Novamente</button>
-    </div>
-
     <script>
         const canvas = document.getElementById('snake-game');
         const ctx = canvas.getContext('2d');
         const scoreDisplay = document.getElementById('score');
+        const highScoreDisplay = document.getElementById('high-score');
         const startScreen = document.getElementById('start-screen');
         const startGameButton = document.getElementById('start-button');
         const fullscreenButton = document.getElementById('fullscreen-button');
         const gameOverScreen = document.getElementById('game-over-screen');
         const finalScoreDisplay = document.getElementById('final-score');
+        const newHighScoreMessage = document.getElementById('new-high-score-message');
         const restartButton = document.getElementById('restart-button');
         
-        const gridSize = 30;
+        let gridSize = 30;
         let snake = [{ x: 10, y: 10 }];
         let food = {};
         let dx = gridSize;
         let dy = 0;
         let score = 0;
+        let highScore = localStorage.getItem('highScore') || 0;
         let gameInterval;
         let isGameOver = false;
         
         const dogSprite = new Image();
         dogSprite.src = 'https://i.imgur.com/JK4EiTy.png';
 
+        function updateHighScore() {
+            highScoreDisplay.textContent = `Recorde: ${highScore}`;
+        }
+        
         function generateFood() {
             let newFood;
             do {
@@ -301,6 +343,7 @@
         }
 
         function changeDirection(event) {
+            if (isGameOver) return; // Impede movimento após o fim do jogo
             const key = event.keyCode;
             const LEFT = 37, UP = 38, RIGHT = 39, DOWN = 40;
 
@@ -314,6 +357,8 @@
             startScreen.style.display = 'none';
             canvas.style.display = 'block';
             scoreDisplay.style.display = 'block';
+            highScoreDisplay.style.display = 'block';
+            gameOverScreen.style.display = 'none';
 
             snake = [{ x: 10, y: 10 }];
             dx = gridSize;
@@ -321,7 +366,6 @@
             score = 0;
             scoreDisplay.textContent = `Pontos: ${score}`;
             isGameOver = false;
-            gameOverScreen.style.display = 'none';
             generateFood();
             
             if (gameInterval) clearInterval(gameInterval);
@@ -332,6 +376,15 @@
             isGameOver = true;
             clearInterval(gameInterval);
             finalScoreDisplay.textContent = score;
+            newHighScoreMessage.style.display = 'none';
+
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('highScore', highScore);
+                updateHighScore();
+                newHighScoreMessage.style.display = 'block';
+            }
+            
             gameOverScreen.style.display = 'flex';
         }
 
@@ -345,10 +398,24 @@
             }
         }
         
-        // Esconde o score e o canvas no início
-        scoreDisplay.style.display = 'none';
-        canvas.style.display = 'none';
+        // Event listener para redimensionamento em fullscreen
+        document.addEventListener('fullscreenchange', () => {
+            if (document.fullscreenElement) {
+                // Ao entrar em fullscreen, ajuste as dimensões do canvas para a tela
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            } else {
+                // Ao sair de fullscreen, volte para as dimensões originais
+                canvas.width = 600;
+                canvas.height = 600;
+            }
+            // Ajeita o posicionamento dos elementos após a mudança
+            draw();
+        });
 
+        // Inicialização
+        updateHighScore();
+        
         // Listeners para os botões
         startGameButton.addEventListener('click', startGame);
         restartButton.addEventListener('click', startGame);
