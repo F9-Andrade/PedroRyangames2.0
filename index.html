@@ -82,11 +82,10 @@
 
         .link-item:active {
             transform: translateY(0);
-            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         }
 
         #snake-game-wrapper {
-            position: relative;
             text-align: center;
             padding: 60px 40px;
             background-color: rgba(0, 0, 0, 0.75);
@@ -95,7 +94,6 @@
             max-width: 800px;
             width: 90%;
             margin-top: 40px;
-            box-sizing: border-box;
         }
 
         #snake-game-wrapper h1 {
@@ -105,19 +103,11 @@
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
         }
 
-        #score, #high-score, #lives-display {
+        #score {
             font-size: 1.8em;
             margin-bottom: 15px;
             color: #ffcc00;
             text-shadow: 1px 1px 3px #000;
-        }
-
-        #game-info {
-            display: flex;
-            justify-content: space-around;
-            width: 100%;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
         }
 
         canvas {
@@ -125,19 +115,7 @@
             background-color: #0d0d0d;
             border-radius: 10px;
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6);
-            display: none;
-            transition: transform 0.5s ease-in-out;
-        }
-
-        #snake-game-wrapper:fullscreen canvas {
-            width: 100vw;
-            height: 100vh;
-            border-radius: 0;
-            transform: scale(1);
-            position: fixed;
-            top: 0;
-            left: 0;
-            border: none;
+            display: none; /* Inicia escondido */
         }
 
         .game-buttons {
@@ -163,31 +141,22 @@
             transform: scale(1.05);
         }
 
-        #start-screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-        }
-
         #game-over-screen {
             display: none;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
+            background-color: rgba(0, 0, 0, 0.95);
             color: white;
             padding: 30px;
             text-align: center;
             box-shadow: 0 0 25px rgba(255, 255, 255, 0.3);
-            z-index: 100;
+            z-index: 1000;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            border-radius: 15px;
         }
 
         #game-over-screen h2 {
@@ -208,7 +177,7 @@
             .container, #snake-game-wrapper { padding: 40px 20px; }
             .link-item { font-size: 1.2em; padding: 20px 25px; }
             #snake-game-wrapper h1 { font-size: 2.2em; }
-            #score, #high-score, #lives-display { font-size: 1.6em; }
+            #score { font-size: 1.6em; }
             .game-buttons { flex-direction: column; }
         }
     </style>
@@ -233,11 +202,7 @@
     
     <div id="snake-game-wrapper" class="container">
         <h1>Jogo do Cachorrinho</h1>
-        <div id="game-info">
-            <div id="score">Pontos: 0</div>
-            <div id="high-score">Recorde: 0</div>
-            <div id="lives-display">Vidas: 3</div>
-        </div>
+        <div id="score">Pontos: 0</div>
         <canvas id="snake-game" width="600" height="600"></canvas>
         <div id="start-screen">
             <div class="game-buttons">
@@ -245,26 +210,23 @@
                 <button id="fullscreen-button" class="game-button">Tela Cheia</button>
             </div>
         </div>
-        <div id="game-over-screen">
-            <h2>Fim de Jogo</h2>
-            <p>Sua pontuação final é: <span id="final-score">0</span></p>
-            <p id="new-high-score-message" style="color: #ffcc00; display: none;">NOVO RECORDE!</p>
-            <button id="restart-button" class="game-button">Jogar Novamente</button>
-        </div>
     </div>
     
+    <div id="game-over-screen">
+        <h2>Fim de Jogo</h2>
+        <p>Sua pontuação final é: <span id="final-score">0</span></p>
+        <button id="restart-button" class="game-button">Jogar Novamente</button>
+    </div>
+
     <script>
         const canvas = document.getElementById('snake-game');
         const ctx = canvas.getContext('2d');
         const scoreDisplay = document.getElementById('score');
-        const highScoreDisplay = document.getElementById('high-score');
-        const livesDisplay = document.getElementById('lives-display');
         const startScreen = document.getElementById('start-screen');
         const startGameButton = document.getElementById('start-button');
         const fullscreenButton = document.getElementById('fullscreen-button');
         const gameOverScreen = document.getElementById('game-over-screen');
         const finalScoreDisplay = document.getElementById('final-score');
-        const newHighScoreMessage = document.getElementById('new-high-score-message');
         const restartButton = document.getElementById('restart-button');
         
         const gridSize = 30;
@@ -273,16 +235,125 @@
         let dx = gridSize;
         let dy = 0;
         let score = 0;
-        let highScore = localStorage.getItem('highScore') || 0;
-        let lives = 3;
         let gameInterval;
         let isGameOver = false;
-        let isInvulnerable = false;
-        let isSpeedBoosted = false;
-        let tongue = null;
-        const baseSpeed = 100;
-        const boostedSpeed = 50;
-
-        // Imagens em Base64 para garantir o carregamento offline
+        
         const dogSprite = new Image();
-        dogSprite.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABhWlDQ1BJQ0MgUHJvZmlsZQAAKJFjYGFySS5JssxSjEzPjM7FSy0sFqYxMDCSgXmJ+iTJyAueJDUxYGIg/5mAnuB/s4iB2iYIEOJgYmBgiCJAEkQxMAgACkKGRjYg0AAxMgoIMhgfHn8P9x25p8x9/L+/P354/2H23/zH17/+M+/fP1j/9+/+f9/yTfG/vJ2y/3H2b/zH2/+x+V/jH15d//h9n/+4+w//n+f/1L4V9D3p+8f/335d//h+v//L4V/D3p+9P/99+ffwz//n8/+/h+n///+/f/+/r//9/8T+F/Hn8P/x+v//H+f/4L8T+/fP/j/+9+P//z/9/f3/f/3D/d/d+w/xP/h/Hn8P/+n+f//x+f/+//+v/+n+f/yTfHn8P/x+f//x+f/x/+n+f//j/9///8/+/f//T/d/f33/d+H/d+x/+d/N+T/d+X//x/P/d+P//x/P/f/j/zH1//+H/x/+n//f//f/j/9///8/v/4/4//z/9//x/+d//f//h//x/P/f/P/j/+d/v/4///8/f/j//x/d+H/d+H/T/d+f//f/f/j/zH//x/+H//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z/9//x/+n//f//f/j/9///8/v/4/4//z
+        dogSprite.src = 'https://i.imgur.com/JK4EiTy.png';
+
+        function generateFood() {
+            let newFood;
+            do {
+                newFood = {
+                    x: Math.floor(Math.random() * (canvas.width / gridSize)),
+                    y: Math.floor(Math.random() * (canvas.height / gridSize))
+                };
+            } while (snake.some(segment => segment.x === newFood.x && segment.y === newFood.y));
+            food = newFood;
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#ffcc00';
+            ctx.beginPath();
+            ctx.arc(food.x * gridSize + gridSize / 2, food.y * gridSize + gridSize / 2, gridSize / 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            snake.forEach(segment => {
+                if (dogSprite.complete) {
+                    ctx.drawImage(dogSprite, segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
+                }
+            });
+        }
+
+        function update() {
+            if (isGameOver) return;
+
+            const head = { x: snake[0].x + (dx / gridSize), y: snake[0].y + (dy / gridSize) };
+            snake.unshift(head);
+
+            if (head.x === food.x && head.y === food.y) {
+                score++;
+                scoreDisplay.textContent = `Pontos: ${score}`;
+                generateFood();
+            } else {
+                snake.pop();
+            }
+
+            if (checkCollision()) {
+                endGame();
+            }
+            draw();
+        }
+
+        function checkCollision() {
+            const head = snake[0];
+            if (head.x < 0 || head.x >= canvas.width / gridSize || head.y < 0 || head.y >= canvas.height / gridSize) {
+                return true;
+            }
+            for (let i = 1; i < snake.length; i++) {
+                if (head.x === snake[i].x && head.y === snake[i].y) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function changeDirection(event) {
+            const key = event.keyCode;
+            const LEFT = 37, UP = 38, RIGHT = 39, DOWN = 40;
+
+            if (key === LEFT && dx === 0) { dx = -gridSize; dy = 0; }
+            else if (key === UP && dy === 0) { dx = 0; dy = -gridSize; }
+            else if (key === RIGHT && dx === 0) { dx = gridSize; dy = 0; }
+            else if (key === DOWN && dy === 0) { dx = 0; dy = gridSize; }
+        }
+
+        function startGame() {
+            startScreen.style.display = 'none';
+            canvas.style.display = 'block';
+            scoreDisplay.style.display = 'block';
+
+            snake = [{ x: 10, y: 10 }];
+            dx = gridSize;
+            dy = 0;
+            score = 0;
+            scoreDisplay.textContent = `Pontos: ${score}`;
+            isGameOver = false;
+            gameOverScreen.style.display = 'none';
+            generateFood();
+            
+            if (gameInterval) clearInterval(gameInterval);
+            gameInterval = setInterval(update, 100);
+        }
+
+        function endGame() {
+            isGameOver = true;
+            clearInterval(gameInterval);
+            finalScoreDisplay.textContent = score;
+            gameOverScreen.style.display = 'flex';
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.getElementById('snake-game-wrapper').requestFullscreen().catch(err => {
+                    alert(`Erro ao tentar ativar tela cheia: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+        
+        // Esconde o score e o canvas no início
+        scoreDisplay.style.display = 'none';
+        canvas.style.display = 'none';
+
+        // Listeners para os botões
+        startGameButton.addEventListener('click', startGame);
+        restartButton.addEventListener('click', startGame);
+        fullscreenButton.addEventListener('click', toggleFullscreen);
+        document.addEventListener('keydown', changeDirection);
+    </script>
+</body>
+</html>
