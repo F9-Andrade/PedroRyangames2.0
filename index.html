@@ -105,19 +105,19 @@
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
         }
 
-        #score, #high-score {
-            font-size: 1.8em;
-            margin-bottom: 15px;
-            color: #ffcc00;
-            text-shadow: 1px 1px 3px #000;
-        }
-
         #game-info {
             display: flex;
             justify-content: space-around;
             width: 100%;
             margin-bottom: 10px;
             flex-wrap: wrap;
+        }
+
+        #score, #high-score, #lives {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            color: #ffcc00;
+            text-shadow: 1px 1px 3px #000;
         }
 
         canvas {
@@ -140,11 +140,6 @@
             top: 0;
             left: 0;
             border: none;
-        }
-        
-        #snake-game-wrapper:fullscreen .game-info,
-        #snake-game-wrapper:fullscreen .game-buttons {
-            display: none;
         }
 
         .game-buttons {
@@ -210,12 +205,28 @@
             margin-top: 25px;
         }
 
+        /* Classes para aparecer e sumir em tela cheia */
+        #snake-game-wrapper:fullscreen #start-screen,
+        #snake-game-wrapper:fullscreen #game-over-screen {
+            display: flex; /* Mantém visível em tela cheia */
+        }
+        
+        #snake-game-wrapper:fullscreen .game-info {
+            position: fixed;
+            top: 20px;
+            width: auto;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 50px;
+        }
+
         @media (max-width: 768px) {
             h1 { font-size: 3em; }
             .container, #snake-game-wrapper { padding: 40px 20px; }
             .link-item { font-size: 1.2em; padding: 20px 25px; }
             #snake-game-wrapper h1 { font-size: 2.2em; }
-            #score, #high-score { font-size: 1.6em; }
+            #score, #high-score, #lives { font-size: 1.6em; }
             .game-buttons { flex-direction: column; }
         }
     </style>
@@ -243,6 +254,7 @@
         <div id="game-info">
             <div id="score">Pontos: 0</div>
             <div id="high-score">Recorde: 0</div>
+            <div id="lives">Vidas: 3</div>
         </div>
         <canvas id="snake-game" width="600" height="600"></canvas>
         <div id="start-screen">
@@ -264,6 +276,7 @@
         const ctx = canvas.getContext('2d');
         const scoreDisplay = document.getElementById('score');
         const highScoreDisplay = document.getElementById('high-score');
+        const livesDisplay = document.getElementById('lives');
         const startScreen = document.getElementById('start-screen');
         const startGameButton = document.getElementById('start-button');
         const fullscreenButton = document.getElementById('fullscreen-button');
@@ -292,6 +305,7 @@
         let dx = 0;
         let dy = 0;
         let score = 0;
+        let lives = 3;
         let highScore = localStorage.getItem('highScore') || 0;
         let gameInterval;
         let isGameOver = false;
@@ -303,26 +317,38 @@
         let rainbowBlinkTimer = null;
         let enemySpawnTimer = 0;
         let powerupSpawnTimer = 0;
+        let invulnerableTimer = 0;
 
         function updateHighScore() {
             highScoreDisplay.textContent = `Recorde: ${highScore}`;
         }
+        
+        function updateLivesDisplay() {
+            livesDisplay.textContent = `Vidas: ${lives}`;
+        }
 
         function drawPlayer() {
+            let opacity = 1;
+            if (invulnerableTimer > 0) {
+                opacity = Math.sin(Date.now() / 100) * 0.5 + 0.5; // Efeito de piscar
+            }
             if (rainbowBlinkActive) {
                 const colors = ['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#9400d3'];
-                const color = colors[Math.floor(Math.random() * colors.length)];
+                const color = colors[Math.floor(Date.now() / 100) % colors.length];
                 ctx.fillStyle = color;
+                ctx.globalAlpha = opacity;
                 ctx.fillRect(player.x, player.y, player.size, player.size);
             }
             if (dogSprite.complete && !rainbowBlinkActive) {
+                ctx.globalAlpha = opacity;
                 ctx.drawImage(dogSprite, player.x, player.y, player.size, player.size);
             }
+            ctx.globalAlpha = 1;
         }
         
         function drawEnemies() {
             enemies.forEach(enemy => {
-                ctx.fillStyle = enemy.blinking ? 'red' : 'darkred';
+                ctx.fillStyle = 'darkred';
                 ctx.fillRect(enemy.x, enemy.y, enemy.size, enemy.size);
                 ctx.fillStyle = 'black';
                 ctx.fillRect(enemy.x + enemy.size * 0.2, enemy.y + enemy.size * 0.2, enemy.size * 0.2, enemy.size * 0.2);
@@ -345,7 +371,7 @@
             const size = 30;
             const x = Math.random() * (canvas.width - size);
             const y = Math.random() * (canvas.height - size);
-            enemies.push({ x, y, size, speedX: (Math.random() - 0.5) * 2, speedY: (Math.random() - 0.5) * 2, blinking: false });
+            enemies.push({ x, y, size, speedX: (Math.random() - 0.5) * 2, speedY: (Math.random() - 0.5) * 2 });
         }
         
         function spawnPowerup() {
@@ -372,6 +398,11 @@
         function update() {
             if (isGameOver) return;
             
+            // Diminui o timer de invulnerabilidade
+            if (invulnerableTimer > 0) {
+                invulnerableTimer--;
+            }
+
             // Incrementa pontuação por movimento
             if (dx !== 0 || dy !== 0) {
                 score += doubleScoreActive ? 0.02 : 0.01;
@@ -396,14 +427,20 @@
                 if (enemy.x <= 0 || enemy.x + enemy.size >= canvas.width) enemy.speedX *= -1;
                 if (enemy.y <= 0 || enemy.y + enemy.size >= canvas.height) enemy.speedY *= -1;
 
-                if (checkCollision(player, enemy)) {
+                if (checkCollision(player, enemy) && invulnerableTimer === 0) {
                     if (lifePowerupActive) {
                         lifePowerupActive = false;
                         score += 5;
                         return false; // Remove enemy
                     } else {
-                        endGame();
-                        return false;
+                        lives--;
+                        updateLivesDisplay();
+                        if (lives <= 0) {
+                            endGame();
+                        } else {
+                            invulnerableTimer = 180; // Invulnerabilidade por 3 segundos (180 frames)
+                        }
+                        return true;
                     }
                 }
                 return true;
@@ -475,14 +512,14 @@
         function startGame() {
             startScreen.style.display = 'none';
             canvas.style.display = 'block';
-            scoreDisplay.style.display = 'block';
-            highScoreDisplay.style.display = 'block';
+            document.getElementById('game-info').style.display = 'flex';
             gameOverScreen.style.display = 'none';
             
             player = { x: canvas.width / 2 - 20, y: canvas.height / 2 - 20, size: 40, speed: 3 };
             dx = 0;
             dy = 0;
             score = 0;
+            lives = 3;
             enemies = [];
             powerups = [];
             isGameOver = false;
@@ -492,6 +529,9 @@
             rainbowBlinkActive = false;
             enemySpawnTimer = 0;
             powerupSpawnTimer = 0;
+            invulnerableTimer = 0;
+
+            updateLivesDisplay();
 
             if (gameInterval) clearInterval(gameInterval);
             gameInterval = setInterval(update, 1000 / 60); // 60 FPS
@@ -528,9 +568,11 @@
             if (document.fullscreenElement) {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
+                startScreen.style.display = 'flex';
             } else {
                 canvas.width = 600;
                 canvas.height = 600;
+                startScreen.style.display = 'flex';
             }
             draw();
         });
