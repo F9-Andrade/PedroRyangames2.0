@@ -86,7 +86,7 @@
         }
 
         #snake-game-wrapper {
-            position: relative; /* Adicionado para posicionamento absoluto da tela de fim de jogo */
+            position: relative;
             text-align: center;
             padding: 60px 40px;
             background-color: rgba(0, 0, 0, 0.75);
@@ -95,7 +95,7 @@
             max-width: 800px;
             width: 90%;
             margin-top: 40px;
-            box-sizing: border-box; /* Para manter o padding e a borda ao expandir */
+            box-sizing: border-box;
         }
 
         #snake-game-wrapper h1 {
@@ -125,11 +125,12 @@
             background-color: #0d0d0d;
             border-radius: 10px;
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6);
-            display: none; /* Inicia escondido */
+            display: none;
             transition: transform 0.5s ease-in-out;
+            width: 600px;
+            height: 600px;
         }
 
-        /* Expande o canvas em modo fullscreen */
         #snake-game-wrapper:fullscreen canvas {
             width: 100vw;
             height: 100vh;
@@ -139,6 +140,11 @@
             top: 0;
             left: 0;
             border: none;
+        }
+        
+        #snake-game-wrapper:fullscreen .game-info,
+        #snake-game-wrapper:fullscreen .game-buttons {
+            display: none;
         }
 
         .game-buttons {
@@ -173,7 +179,7 @@
 
         #game-over-screen {
             display: none;
-            position: absolute; /* Posição absoluta dentro do wrapper */
+            position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -266,91 +272,204 @@
         const newHighScoreMessage = document.getElementById('new-high-score-message');
         const restartButton = document.getElementById('restart-button');
         
-        let gridSize = 30;
-        let snake = [{ x: 10, y: 10 }];
-        let food = {};
-        let dx = gridSize;
+        const dogSprite = new Image();
+        dogSprite.src = 'https://i.imgur.com/JK4EiTy.png';
+        
+        const powerupImages = {
+            'speed': 'https://i.imgur.com/3q1j3rW.png', 
+            'life': 'https://i.imgur.com/jE1l92B.png', 
+            'rainbow': 'https://i.imgur.com/2s4f7jD.png' 
+        };
+        const loadedPowerupImages = {};
+        for (const type in powerupImages) {
+            loadedPowerupImages[type] = new Image();
+            loadedPowerupImages[type].src = powerupImages[type];
+        }
+
+        let player = { x: 300, y: 300, size: 40, speed: 3 };
+        let enemies = [];
+        let powerups = [];
+        let dx = 0;
         let dy = 0;
         let score = 0;
         let highScore = localStorage.getItem('highScore') || 0;
         let gameInterval;
         let isGameOver = false;
-        
-        const dogSprite = new Image();
-        dogSprite.src = 'https://i.imgur.com/JK4EiTy.png';
+        let lifePowerupActive = false;
+        let doubleScoreActive = false;
+        let speedBoostActive = false;
+        let rainbowBlinkActive = false;
+        let doubleScoreTimer = null;
+        let rainbowBlinkTimer = null;
+        let enemySpawnTimer = 0;
+        let powerupSpawnTimer = 0;
 
         function updateHighScore() {
             highScoreDisplay.textContent = `Recorde: ${highScore}`;
         }
-        
-        function generateFood() {
-            let newFood;
-            do {
-                newFood = {
-                    x: Math.floor(Math.random() * (canvas.width / gridSize)),
-                    y: Math.floor(Math.random() * (canvas.height / gridSize))
-                };
-            } while (snake.some(segment => segment.x === newFood.x && segment.y === newFood.y));
-            food = newFood;
+
+        function drawPlayer() {
+            if (rainbowBlinkActive) {
+                const colors = ['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#9400d3'];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                ctx.fillStyle = color;
+                ctx.fillRect(player.x, player.y, player.size, player.size);
+            }
+            if (dogSprite.complete && !rainbowBlinkActive) {
+                ctx.drawImage(dogSprite, player.x, player.y, player.size, player.size);
+            }
         }
-
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            ctx.fillStyle = '#ffcc00';
-            ctx.beginPath();
-            ctx.arc(food.x * gridSize + gridSize / 2, food.y * gridSize + gridSize / 2, gridSize / 2, 0, Math.PI * 2);
-            ctx.fill();
-
-            snake.forEach(segment => {
-                if (dogSprite.complete) {
-                    ctx.drawImage(dogSprite, segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
+        
+        function drawEnemies() {
+            enemies.forEach(enemy => {
+                ctx.fillStyle = enemy.blinking ? 'red' : 'darkred';
+                ctx.fillRect(enemy.x, enemy.y, enemy.size, enemy.size);
+                ctx.fillStyle = 'black';
+                ctx.fillRect(enemy.x + enemy.size * 0.2, enemy.y + enemy.size * 0.2, enemy.size * 0.2, enemy.size * 0.2);
+                ctx.fillRect(enemy.x + enemy.size * 0.6, enemy.y + enemy.size * 0.2, enemy.size * 0.2, enemy.size * 0.2);
+            });
+        }
+        
+        function drawPowerups() {
+            powerups.forEach(powerup => {
+                if (loadedPowerupImages[powerup.type].complete) {
+                    ctx.drawImage(loadedPowerupImages[powerup.type], powerup.x, powerup.y, powerup.size, powerup.size);
+                } else {
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(powerup.x, powerup.y, powerup.size, powerup.size);
                 }
             });
         }
 
+        function spawnEnemy() {
+            const size = 30;
+            const x = Math.random() * (canvas.width - size);
+            const y = Math.random() * (canvas.height - size);
+            enemies.push({ x, y, size, speedX: (Math.random() - 0.5) * 2, speedY: (Math.random() - 0.5) * 2, blinking: false });
+        }
+        
+        function spawnPowerup() {
+            const size = 30;
+            const x = Math.random() * (canvas.width - size);
+            const y = -size;
+            let type = 'speed';
+            const rarity = Math.random();
+            if (rarity < 0.02) {
+                type = 'rainbow';
+            } else if (rarity < 0.2) {
+                type = 'life';
+            }
+            powerups.push({ x, y, size, type, speed: 2 });
+        }
+
+        function checkCollision(obj1, obj2) {
+            return obj1.x < obj2.x + obj2.size &&
+                   obj1.x + obj1.size > obj2.x &&
+                   obj1.y < obj2.y + obj2.size &&
+                   obj1.y + obj1.size > obj2.y;
+        }
+
         function update() {
             if (isGameOver) return;
-
-            const head = { x: snake[0].x + (dx / gridSize), y: snake[0].y + (dy / gridSize) };
-            snake.unshift(head);
-
-            if (head.x === food.x && head.y === food.y) {
-                score++;
-                scoreDisplay.textContent = `Pontos: ${score}`;
-                generateFood();
-            } else {
-                snake.pop();
+            
+            // Incrementa pontuação por movimento
+            if (dx !== 0 || dy !== 0) {
+                score += doubleScoreActive ? 0.02 : 0.01;
+                scoreDisplay.textContent = `Pontos: ${Math.floor(score)}`;
             }
 
-            if (checkCollision()) {
-                endGame();
+            // Move player
+            player.x += dx * player.speed;
+            player.y += dy * player.speed;
+
+            // Restringe o player na tela
+            if (player.x < 0) player.x = 0;
+            if (player.x + player.size > canvas.width) player.x = canvas.width - player.size;
+            if (player.y < 0) player.y = 0;
+            if (player.y + player.size > canvas.height) player.y = canvas.height - player.size;
+
+            // Move e verifica inimigos
+            enemies = enemies.filter(enemy => {
+                enemy.x += enemy.speedX;
+                enemy.y += enemy.speedY;
+
+                if (enemy.x <= 0 || enemy.x + enemy.size >= canvas.width) enemy.speedX *= -1;
+                if (enemy.y <= 0 || enemy.y + enemy.size >= canvas.height) enemy.speedY *= -1;
+
+                if (checkCollision(player, enemy)) {
+                    if (lifePowerupActive) {
+                        lifePowerupActive = false;
+                        score += 5;
+                        return false; // Remove enemy
+                    } else {
+                        endGame();
+                        return false;
+                    }
+                }
+                return true;
+            });
+            
+            // Move e verifica poderes
+            powerups = powerups.filter(powerup => {
+                powerup.y += powerup.speed;
+                if (checkCollision(player, powerup)) {
+                    if (powerup.type === 'speed') {
+                        player.speed = 5;
+                        speedBoostActive = true;
+                        doubleScoreActive = true;
+                        clearTimeout(doubleScoreTimer);
+                        doubleScoreTimer = setTimeout(() => {
+                            player.speed = 3;
+                            speedBoostActive = false;
+                            doubleScoreActive = false;
+                        }, 5000);
+                    } else if (powerup.type === 'life') {
+                        lifePowerupActive = true;
+                    } else if (powerup.type === 'rainbow') {
+                        doubleScoreActive = true;
+                        rainbowBlinkActive = true;
+                        clearTimeout(doubleScoreTimer);
+                        clearTimeout(rainbowBlinkTimer);
+                        doubleScoreTimer = setTimeout(() => doubleScoreActive = false, 5000);
+                        rainbowBlinkTimer = setTimeout(() => rainbowBlinkActive = false, 5000);
+                    }
+                    return false; // Remove powerup
+                }
+                return powerup.y < canvas.height;
+            });
+
+            // Timers para spawn de inimigos e poderes
+            enemySpawnTimer++;
+            if (enemySpawnTimer > 180) {
+                spawnEnemy();
+                enemySpawnTimer = 0;
             }
+            
+            powerupSpawnTimer++;
+            if (powerupSpawnTimer > 600) {
+                spawnPowerup();
+                powerupSpawnTimer = 0;
+            }
+            
             draw();
         }
 
-        function checkCollision() {
-            const head = snake[0];
-            if (head.x < 0 || head.x >= canvas.width / gridSize || head.y < 0 || head.y >= canvas.height / gridSize) {
-                return true;
-            }
-            for (let i = 1; i < snake.length; i++) {
-                if (head.x === snake[i].x && head.y === snake[i].y) {
-                    return true;
-                }
-            }
-            return false;
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawPlayer();
+            drawEnemies();
+            drawPowerups();
         }
 
         function changeDirection(event) {
-            if (isGameOver) return; // Impede movimento após o fim do jogo
+            if (isGameOver) return;
             const key = event.keyCode;
-            const LEFT = 37, UP = 38, RIGHT = 39, DOWN = 40;
-
-            if (key === LEFT && dx === 0) { dx = -gridSize; dy = 0; }
-            else if (key === UP && dy === 0) { dx = 0; dy = -gridSize; }
-            else if (key === RIGHT && dx === 0) { dx = gridSize; dy = 0; }
-            else if (key === DOWN && dy === 0) { dx = 0; dy = gridSize; }
+            const speed = 1;
+            dx = 0; dy = 0;
+            if (key === 37) dx = -speed;
+            else if (key === 38) dy = -speed;
+            else if (key === 39) dx = speed;
+            else if (key === 40) dy = speed;
         }
 
         function startGame() {
@@ -359,27 +478,33 @@
             scoreDisplay.style.display = 'block';
             highScoreDisplay.style.display = 'block';
             gameOverScreen.style.display = 'none';
-
-            snake = [{ x: 10, y: 10 }];
-            dx = gridSize;
+            
+            player = { x: canvas.width / 2 - 20, y: canvas.height / 2 - 20, size: 40, speed: 3 };
+            dx = 0;
             dy = 0;
             score = 0;
-            scoreDisplay.textContent = `Pontos: ${score}`;
+            enemies = [];
+            powerups = [];
             isGameOver = false;
-            generateFood();
-            
+            lifePowerupActive = false;
+            doubleScoreActive = false;
+            speedBoostActive = false;
+            rainbowBlinkActive = false;
+            enemySpawnTimer = 0;
+            powerupSpawnTimer = 0;
+
             if (gameInterval) clearInterval(gameInterval);
-            gameInterval = setInterval(update, 100);
+            gameInterval = setInterval(update, 1000 / 60); // 60 FPS
         }
 
         function endGame() {
             isGameOver = true;
             clearInterval(gameInterval);
-            finalScoreDisplay.textContent = score;
+            finalScoreDisplay.textContent = Math.floor(score);
             newHighScoreMessage.style.display = 'none';
 
             if (score > highScore) {
-                highScore = score;
+                highScore = Math.floor(score);
                 localStorage.setItem('highScore', highScore);
                 updateHighScore();
                 newHighScoreMessage.style.display = 'block';
@@ -389,8 +514,9 @@
         }
 
         function toggleFullscreen() {
+            const gameWrapper = document.getElementById('snake-game-wrapper');
             if (!document.fullscreenElement) {
-                document.getElementById('snake-game-wrapper').requestFullscreen().catch(err => {
+                gameWrapper.requestFullscreen().catch(err => {
                     alert(`Erro ao tentar ativar tela cheia: ${err.message}`);
                 });
             } else {
@@ -398,25 +524,21 @@
             }
         }
         
-        // Event listener para redimensionamento em fullscreen
         document.addEventListener('fullscreenchange', () => {
             if (document.fullscreenElement) {
-                // Ao entrar em fullscreen, ajuste as dimensões do canvas para a tela
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
             } else {
-                // Ao sair de fullscreen, volte para as dimensões originais
                 canvas.width = 600;
                 canvas.height = 600;
             }
-            // Ajeita o posicionamento dos elementos após a mudança
             draw();
         });
 
         // Inicialização
         updateHighScore();
         
-        // Listeners para os botões
+        // Listeners para os botões e teclas
         startGameButton.addEventListener('click', startGame);
         restartButton.addEventListener('click', startGame);
         fullscreenButton.addEventListener('click', toggleFullscreen);
