@@ -23,6 +23,7 @@
             min-height: 100vh;
             overflow-x: hidden;
             padding: 40px 0;
+            transition: background-color 0.1s ease; /* Transição para o efeito arco-íris */
         }
 
         .container {
@@ -40,6 +41,24 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-20px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+        
+        #legendary-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3em;
+            color: white;
+            text-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff;
+            animation: pulse 1s infinite alternate;
+            z-index: 200;
+            display: none;
+        }
+
+        @keyframes pulse {
+            from { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            to { transform: translate(-50%, -50%) scale(1.1); opacity: 0.8; }
         }
 
         h1 {
@@ -141,7 +160,7 @@
             left: 0;
             border: none;
         }
-
+        
         .game-buttons {
             display: flex;
             justify-content: center;
@@ -271,6 +290,8 @@
         </div>
     </div>
     
+    <div id="legendary-message" style="display: none;">O PODER LENDÁRIO APARECEU!!!</div>
+    
     <script>
         const canvas = document.getElementById('snake-game');
         const ctx = canvas.getContext('2d');
@@ -284,10 +305,13 @@
         const finalScoreDisplay = document.getElementById('final-score');
         const newHighScoreMessage = document.getElementById('new-high-score-message');
         const restartButton = document.getElementById('restart-button');
-        
+        const legendaryMessage = document.getElementById('legendary-message');
+
         const dogSprite = new Image();
         dogSprite.src = 'https://i.imgur.com/JK4EiTy.png';
-        
+        const tongueSprite = new Image();
+        tongueSprite.src = 'https://i.imgur.com/k9v9i2Y.png'; // Imagem da língua (exemplo)
+
         const powerupImages = {
             'speed': 'https://i.imgur.com/3q1j3rW.png', 
             'life': 'https://i.imgur.com/jE1l92B.png', 
@@ -313,6 +337,7 @@
         let doubleScoreActive = false;
         let speedBoostActive = false;
         let rainbowBlinkActive = false;
+        let showTongue = false;
         let doubleScoreTimer = null;
         let rainbowBlinkTimer = null;
         let enemySpawnTimer = 0;
@@ -330,7 +355,7 @@
         function drawPlayer() {
             let opacity = 1;
             if (invulnerableTimer > 0) {
-                opacity = Math.sin(Date.now() / 100) * 0.5 + 0.5; // Efeito de piscar
+                opacity = Math.sin(Date.now() / 100) * 0.5 + 0.5;
             }
             if (rainbowBlinkActive) {
                 const colors = ['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#9400d3'];
@@ -342,6 +367,11 @@
             if (dogSprite.complete && !rainbowBlinkActive) {
                 ctx.globalAlpha = opacity;
                 ctx.drawImage(dogSprite, player.x, player.y, player.size, player.size);
+            }
+            if (showTongue) {
+                if (tongueSprite.complete) {
+                    ctx.drawImage(tongueSprite, player.x + player.size, player.y + player.size / 2, player.size / 2, player.size / 4);
+                }
             }
             ctx.globalAlpha = 1;
         }
@@ -368,6 +398,7 @@
         }
 
         function spawnEnemy() {
+            if (enemies.length >= 15) return; // Limite de 15 inimigos
             const size = 30;
             const x = Math.random() * (canvas.width - size);
             const y = Math.random() * (canvas.height - size);
@@ -398,28 +429,23 @@
         function update() {
             if (isGameOver) return;
             
-            // Diminui o timer de invulnerabilidade
             if (invulnerableTimer > 0) {
                 invulnerableTimer--;
             }
 
-            // Incrementa pontuação por movimento
             if (dx !== 0 || dy !== 0) {
                 score += doubleScoreActive ? 0.02 : 0.01;
                 scoreDisplay.textContent = `Pontos: ${Math.floor(score)}`;
             }
 
-            // Move player
             player.x += dx * player.speed;
             player.y += dy * player.speed;
 
-            // Restringe o player na tela
             if (player.x < 0) player.x = 0;
             if (player.x + player.size > canvas.width) player.x = canvas.width - player.size;
             if (player.y < 0) player.y = 0;
             if (player.y + player.size > canvas.height) player.y = canvas.height - player.size;
 
-            // Move e verifica inimigos
             enemies = enemies.filter(enemy => {
                 enemy.x += enemy.speedX;
                 enemy.y += enemy.speedY;
@@ -431,14 +457,14 @@
                     if (lifePowerupActive) {
                         lifePowerupActive = false;
                         score += 5;
-                        return false; // Remove enemy
+                        return false;
                     } else {
                         lives--;
                         updateLivesDisplay();
                         if (lives <= 0) {
                             endGame();
                         } else {
-                            invulnerableTimer = 180; // Invulnerabilidade por 3 segundos (180 frames)
+                            invulnerableTimer = 180;
                         }
                         return true;
                     }
@@ -446,7 +472,6 @@
                 return true;
             });
             
-            // Move e verifica poderes
             powerups = powerups.filter(powerup => {
                 powerup.y += powerup.speed;
                 if (checkCollision(player, powerup)) {
@@ -465,17 +490,32 @@
                     } else if (powerup.type === 'rainbow') {
                         doubleScoreActive = true;
                         rainbowBlinkActive = true;
+                        legendaryMessage.style.display = 'block';
+                        document.body.style.transition = 'background-color 0.1s ease';
+                        
+                        const rainbowColors = ['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#9400d3'];
+                        let colorIndex = 0;
+                        const rainbowInterval = setInterval(() => {
+                            document.body.style.backgroundColor = rainbowColors[colorIndex];
+                            colorIndex = (colorIndex + 1) % rainbowColors.length;
+                        }, 100);
+
                         clearTimeout(doubleScoreTimer);
                         clearTimeout(rainbowBlinkTimer);
                         doubleScoreTimer = setTimeout(() => doubleScoreActive = false, 5000);
-                        rainbowBlinkTimer = setTimeout(() => rainbowBlinkActive = false, 5000);
+                        rainbowBlinkTimer = setTimeout(() => {
+                            rainbowBlinkActive = false;
+                            legendaryMessage.style.display = 'none';
+                            clearInterval(rainbowInterval);
+                            document.body.style.backgroundColor = '#1a0033';
+                            document.body.style.transition = 'none';
+                        }, 5000);
                     }
-                    return false; // Remove powerup
+                    return false;
                 }
                 return powerup.y < canvas.height;
             });
 
-            // Timers para spawn de inimigos e poderes
             enemySpawnTimer++;
             if (enemySpawnTimer > 180) {
                 spawnEnemy();
@@ -502,6 +542,12 @@
             if (isGameOver) return;
             const key = event.keyCode;
             const speed = 1;
+            
+            if (key === 88) { // Tecla 'X'
+                showTongue = true;
+                setTimeout(() => showTongue = false, 200);
+            }
+            
             dx = 0; dy = 0;
             if (key === 37) dx = -speed;
             else if (key === 38) dy = -speed;
@@ -534,7 +580,7 @@
             updateLivesDisplay();
 
             if (gameInterval) clearInterval(gameInterval);
-            gameInterval = setInterval(update, 1000 / 60); // 60 FPS
+            gameInterval = setInterval(update, 1000 / 60);
         }
 
         function endGame() {
@@ -577,10 +623,8 @@
             draw();
         });
 
-        // Inicialização
         updateHighScore();
         
-        // Listeners para os botões e teclas
         startGameButton.addEventListener('click', startGame);
         restartButton.addEventListener('click', startGame);
         fullscreenButton.addEventListener('click', toggleFullscreen);
