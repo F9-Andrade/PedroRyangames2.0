@@ -23,7 +23,6 @@
             min-height: 100vh;
             overflow-x: hidden;
             padding: 40px 0;
-            transition: background-color 0.1s ease; /* Transição para o efeito arco-íris */
             transition: background-color 0.1s ease;
         }
 
@@ -228,7 +227,6 @@
         /* Classes para aparecer e sumir em tela cheia */
         #snake-game-wrapper:fullscreen #start-screen,
         #snake-game-wrapper:fullscreen #game-over-screen {
-            display: flex; /* Mantém visível em tela cheia */
             display: flex;
         }
 
@@ -312,25 +310,22 @@
         const dogSprite = new Image();
         dogSprite.src = 'https://i.imgur.com/JK4EiTy.png';
         const tongueSprite = new Image();
-        tongueSprite.src = 'https://i.imgur.com/k9v9i2Y.png'; // Imagem da língua (exemplo)
-
         tongueSprite.src = 'https://i.imgur.com/k9v9i2Y.png';
-        
-        // --- CÓDIGO ATUALIZADO PARA AS IMAGENS ---
+
+        // --- CÓDIGO CORRIGIDO PARA AS IMAGENS ---
+        // A sintaxe estava errada (chaves duplicadas sem vírgula), o que impedia o script de rodar.
         const powerupImages = {
-            'speed': 'https://i.imgur.com/3q1j3rW.png', 
-            'life': 'https://i.imgur.com/jE1l92B.png', 
-            'rainbow': 'https://i.imgur.com/2s4f7jD.png' 
-            'speed': 'imagens/New Piskel (1).png', // Caminho para a imagem de velocidade
-            'life': 'imagens/New Piskel.png',     // Caminho para a imagem de vida
-            'rainbow': 'imagens/New Piskel (2).png' // Caminho para a imagem rara
+            'speed': 'imagens/speed.png', // Caminho para a imagem de velocidade
+            'life': 'imagens/rainbow.png',     // Caminho para a imagem de vida
+            'rainbow': 'imagens/life.png' // Caminho para a imagem rara
         };
+        // ------------------------------------------
+
         const loadedPowerupImages = {};
         for (const type in powerupImages) {
             loadedPowerupImages[type] = new Image();
             loadedPowerupImages[type].src = powerupImages[type];
         }
-        // ------------------------------------------
 
         let player = { x: 300, y: 300, size: 40, speed: 3 };
         let enemies = [];
@@ -408,7 +403,6 @@
         }
 
         function spawnEnemy() {
-            if (enemies.length >= 15) return; // Limite de 15 inimigos
             if (enemies.length >= 15) return;
             const size = 30;
             const x = Math.random() * (canvas.width - size);
@@ -432,9 +426,9 @@
 
         function checkCollision(obj1, obj2) {
             return obj1.x < obj2.x + obj2.size &&
-                   obj1.x + obj1.size > obj2.x &&
-                   obj1.y < obj2.y + obj2.size &&
-                   obj1.y + obj1.size > obj2.y;
+                       obj1.x + obj1.size > obj2.x &&
+                       obj1.y < obj2.y + obj2.size &&
+                       obj1.y + obj1.size > obj2.y;
         }
 
         function update() {
@@ -554,7 +548,6 @@
             const key = event.keyCode;
             const speed = 1;
 
-            if (key === 88) { // Tecla 'X'
             if (key === 88) {
                 showTongue = true;
                 setTimeout(() => showTongue = false, 200);
