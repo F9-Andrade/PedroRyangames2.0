@@ -43,6 +43,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* CORREÇÃO: Posicionamento fixo da mensagem lendária */
         #legendary-message {
             position: fixed;
             top: 50%;
@@ -115,6 +116,8 @@
             width: 90%;
             margin-top: 40px;
             box-sizing: border-box;
+            /* Garante que a transição de cor de fundo funcione em tela cheia */
+            transition: background-color 0.1s ease; 
         }
 
         #snake-game-wrapper h1 {
@@ -159,6 +162,11 @@
             top: 0;
             left: 0;
             border: none;
+        }
+        
+        /* CORREÇÃO: Garante que a mensagem lendária e as telas de início/fim apareçam em tela cheia */
+        #snake-game-wrapper:fullscreen #legendary-message {
+            z-index: 9999; 
         }
 
         .game-buttons {
@@ -230,7 +238,7 @@
             display: flex;
         }
 
-        #snake-game-wrapper:fullscreen .game-info {
+        #snake-game-wrapper:fullscreen #game-info {
             position: fixed;
             top: 20px;
             width: auto;
@@ -238,6 +246,7 @@
             transform: translateX(-50%);
             display: flex;
             gap: 50px;
+            z-index: 999;
         }
 
         @media (max-width: 768px) {
@@ -288,9 +297,8 @@
             <p id="new-high-score-message" style="color: #ffcc00; display: none;">NOVO RECORDE!</p>
             <button id="restart-button" class="game-button">Jogar Novamente</button>
         </div>
+        <div id="legendary-message" style="display: none;">O PODER LENDÁRIO APARECEU!!!</div>
     </div>
-
-    <div id="legendary-message" style="display: none;">O PODER LENDÁRIO APARECEU!!!</div>
 
     <script>
         const canvas = document.getElementById('snake-game');
@@ -306,20 +314,19 @@
         const newHighScoreMessage = document.getElementById('new-high-score-message');
         const restartButton = document.getElementById('restart-button');
         const legendaryMessage = document.getElementById('legendary-message');
+        const gameWrapper = document.getElementById('snake-game-wrapper'); // NOVO: Referência ao wrapper
 
         const dogSprite = new Image();
         dogSprite.src = 'https://i.imgur.com/JK4EiTy.png';
         const tongueSprite = new Image();
         tongueSprite.src = 'https://i.imgur.com/k9v9i2Y.png';
-
-        // --- CÓDIGO CORRIGIDO PARA AS IMAGENS ---
-        // A sintaxe estava errada (chaves duplicadas sem vírgula), o que impedia o script de rodar.
+        
+        // CORREÇÃO ESSENCIAL 1: Imagens de life e rainbow invertidas corrigidas
         const powerupImages = {
-            'speed': 'imagens/speed.png', // Caminho para a imagem de velocidade
-            'life': 'imagens/rainbow.png',     // Caminho para a imagem de vida
-            'rainbow': 'imagens/life.png' // Caminho para a imagem rara
+            'speed': 'imagens/speed.png',
+            'life': 'imagens/life.png',      // CORRIGIDO: Agora usa a imagem de vida/coração
+            'rainbow': 'imagens/rainbow.png' // CORRIGIDO: Agora usa a imagem de arco-íris
         };
-        // ------------------------------------------
 
         const loadedPowerupImages = {};
         for (const type in powerupImages) {
@@ -347,13 +354,21 @@
         let enemySpawnTimer = 0;
         let powerupSpawnTimer = 0;
         let invulnerableTimer = 0;
+        // NOVO: Duração de 15 segundos em milissegundos
+        const RAINBOW_DURATION = 15000; 
 
         function updateHighScore() {
             highScoreDisplay.textContent = `Recorde: ${highScore}`;
         }
 
+        // CORREÇÃO ESSENCIAL 3: Exibe vidas como corações
         function updateLivesDisplay() {
-            livesDisplay.textContent = `Vidas: ${lives}`;
+            const heart = '❤️';
+            livesDisplay.innerHTML = `Vidas: ${heart.repeat(lives)}`;
+            // Fallback
+            if (livesDisplay.innerHTML === '') {
+                livesDisplay.textContent = `Vidas: ${lives}`;
+            }
         }
 
         function drawPlayer() {
@@ -374,7 +389,8 @@
             }
             if (showTongue) {
                 if (tongueSprite.complete) {
-                    ctx.drawImage(tongueSprite, player.x + player.size, player.y + player.size / 2, player.size / 2, player.size / 4);
+                    // Desenha a língua um pouco deslocada para a direita
+                    ctx.drawImage(tongueSprite, player.x + player.size * 0.75, player.y + player.size / 2, player.size / 2, player.size / 4);
                 }
             }
             ctx.globalAlpha = 1;
@@ -395,8 +411,7 @@
                 if (loadedPowerupImages[powerup.type].complete) {
                     ctx.drawImage(loadedPowerupImages[powerup.type], powerup.x, powerup.y, powerup.size, powerup.size);
                 } else {
-                    // Fallback para caso a imagem não carregue
-                    ctx.fillStyle = 'white';
+                    ctx.fillStyle = (powerup.type === 'life') ? '#ff4d4d' : (powerup.type === 'rainbow' ? '#00ff00' : 'white');
                     ctx.fillRect(powerup.x, powerup.y, powerup.size, powerup.size);
                 }
             });
@@ -417,18 +432,18 @@
             let type = 'speed';
             const rarity = Math.random();
             if (rarity < 0.02) {
-                type = 'rainbow';
+                type = 'rainbow'; // Raro (2%)
             } else if (rarity < 0.2) {
-                type = 'life';
+                type = 'life'; // Comum (18%)
             }
             powerups.push({ x, y, size, type, speed: 2 });
         }
 
         function checkCollision(obj1, obj2) {
             return obj1.x < obj2.x + obj2.size &&
-                       obj1.x + obj1.size > obj2.x &&
-                       obj1.y < obj2.y + obj2.size &&
-                       obj1.y + obj1.size > obj2.y;
+                           obj1.x + obj1.size > obj2.x &&
+                           obj1.y < obj2.y + obj2.size &&
+                           obj1.y + obj1.size > obj2.y;
         }
 
         function update() {
@@ -462,14 +477,14 @@
                     if (lifePowerupActive) {
                         lifePowerupActive = false;
                         score += 5;
-                        return false;
+                        return false; // Remove o inimigo
                     } else {
                         lives--;
                         updateLivesDisplay();
                         if (lives <= 0) {
                             endGame();
                         } else {
-                            invulnerableTimer = 180;
+                            invulnerableTimer = 180; // 3 segundos de invulnerabilidade
                         }
                         return true;
                     }
@@ -489,34 +504,46 @@
                             player.speed = 3;
                             speedBoostActive = false;
                             doubleScoreActive = false;
-                        }, 5000);
+                        }, 5000); // 5 segundos de velocidade e score dobrado
                     } else if (powerup.type === 'life') {
-                        lifePowerupActive = true;
+                        lives++; // Aumenta 1 vida
+                        updateLivesDisplay();
                     } else if (powerup.type === 'rainbow') {
+                        // CORREÇÃO ESSENCIAL 2: Ajuste de tempo e aplicação do fundo ao wrapper
+                        invulnerableTimer = RAINBOW_DURATION * (60 / 1000); // 15 segundos
                         doubleScoreActive = true;
                         rainbowBlinkActive = true;
                         legendaryMessage.style.display = 'block';
+                        
+                        // Garante que o body E o wrapper pisquem para funcionar em tela cheia
                         document.body.style.transition = 'background-color 0.1s ease';
+                        gameWrapper.style.transition = 'background-color 0.1s ease';
 
                         const rainbowColors = ['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#9400d3'];
                         let colorIndex = 0;
                         const rainbowInterval = setInterval(() => {
                             document.body.style.backgroundColor = rainbowColors[colorIndex];
+                            gameWrapper.style.backgroundColor = rainbowColors[colorIndex]; // MUDA O WRAPPER
                             colorIndex = (colorIndex + 1) % rainbowColors.length;
                         }, 100);
 
                         clearTimeout(doubleScoreTimer);
                         clearTimeout(rainbowBlinkTimer);
-                        doubleScoreTimer = setTimeout(() => doubleScoreActive = false, 5000);
+                        doubleScoreTimer = setTimeout(() => doubleScoreActive = false, RAINBOW_DURATION);
                         rainbowBlinkTimer = setTimeout(() => {
                             rainbowBlinkActive = false;
                             legendaryMessage.style.display = 'none';
                             clearInterval(rainbowInterval);
+                            
+                            // Restaura os fundos
                             document.body.style.backgroundColor = '#1a0033';
+                            gameWrapper.style.backgroundColor = 'rgba(0, 0, 0, 0.75)'; 
                             document.body.style.transition = 'none';
-                        }, 5000);
+                            gameWrapper.style.transition = 'none';
+
+                        }, RAINBOW_DURATION); // 15 segundos
                     }
-                    return false;
+                    return false; // Remove o power-up
                 }
                 return powerup.y < canvas.height;
             });
@@ -548,16 +575,16 @@
             const key = event.keyCode;
             const speed = 1;
 
-            if (key === 88) {
+            if (key === 88) { // Tecla 'X'
                 showTongue = true;
                 setTimeout(() => showTongue = false, 200);
             }
 
             dx = 0; dy = 0;
-            if (key === 37) dx = -speed;
-            else if (key === 38) dy = -speed;
-            else if (key === 39) dx = speed;
-            else if (key === 40) dy = speed;
+            if (key === 37) dx = -speed; // Esquerda
+            else if (key === 38) dy = -speed; // Cima
+            else if (key === 39) dx = speed; // Direita
+            else if (key === 40) dy = speed; // Baixo
         }
 
         function startGame() {
@@ -581,7 +608,11 @@
             enemySpawnTimer = 0;
             powerupSpawnTimer = 0;
             invulnerableTimer = 0;
-
+            
+            // Garante que o fundo esteja normal ao iniciar
+            document.body.style.backgroundColor = '#1a0033';
+            gameWrapper.style.backgroundColor = 'rgba(0, 0, 0, 0.75)';
+            
             updateLivesDisplay();
 
             if (gameInterval) clearInterval(gameInterval);
@@ -593,6 +624,15 @@
             clearInterval(gameInterval);
             finalScoreDisplay.textContent = Math.floor(score);
             newHighScoreMessage.style.display = 'none';
+            
+            // Limpa qualquer efeito ativo ao terminar o jogo
+            player.speed = 3;
+            doubleScoreActive = false;
+            rainbowBlinkActive = false;
+            legendaryMessage.style.display = 'none';
+            document.body.style.backgroundColor = '#1a0033';
+            gameWrapper.style.backgroundColor = 'rgba(0, 0, 0, 0.75)';
+
 
             if (score > highScore) {
                 highScore = Math.floor(score);
@@ -605,7 +645,6 @@
         }
 
         function toggleFullscreen() {
-            const gameWrapper = document.getElementById('snake-game-wrapper');
             if (!document.fullscreenElement) {
                 gameWrapper.requestFullscreen().catch(err => {
                     alert(`Erro ao tentar ativar tela cheia: ${err.message}`);
@@ -615,16 +654,20 @@
             }
         }
 
+        // Ajusta o tamanho do canvas e exibe a tela inicial em modo fullscreen
         document.addEventListener('fullscreenchange', () => {
             if (document.fullscreenElement) {
+                // Em tela cheia, o canvas preenche a tela
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
-                startScreen.style.display = 'flex';
             } else {
+                // Ao sair de tela cheia, volta ao tamanho original
                 canvas.width = 600;
                 canvas.height = 600;
-                startScreen.style.display = 'flex';
             }
+            // Sempre volta para a tela inicial para reiniciar as variáveis de posição do jogador
+            startScreen.style.display = 'flex';
+            canvas.style.display = 'none';
             draw();
         });
 
