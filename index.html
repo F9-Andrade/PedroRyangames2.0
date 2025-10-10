@@ -229,7 +229,6 @@
             margin-top: 25px;
         }
 
-        /* Classes para aparecer e sumir em tela cheia */
         #snake-game-wrapper:fullscreen #start-screen,
         #snake-game-wrapper:fullscreen #game-over-screen {
             display: flex;
@@ -334,6 +333,9 @@
         let enemies = [];
         let powerups = [];
         let bones = []; 
+        let floatingTexts = []; // NOVO: Array para textos flutuantes
+        let lastMoveX = 1; // 1 para a direita (direção inicial de tiro)
+        let lastMoveY = 0;
         let dx = 0;
         let dy = 0;
         let score = 0;
@@ -353,7 +355,8 @@
         let invulnerableTimer = 0;
         const RAINBOW_DURATION = 15000; 
         let boneCooldown = 0; 
-        const BONE_COOLDOWN_MAX = 10; 
+        const BONE_COOLDOWN_MAX = 20; // Aumentado para 20 frames (aprox 0.33s) para ser visível
+        let gameSpeedMultiplier = 1; // NOVO: Controla a velocidade do jogo (câmera lenta)
 
         function updateHighScore() {
             highScoreDisplay.textContent = `Recorde: ${highScore}`;
@@ -367,6 +370,24 @@
             }
         }
 
+        // NOVO: Desenha a barra de recarga do osso
+        function drawBoneCooldown() {
+            const barHeight = 10;
+            const barWidth = canvas.width;
+            const cooldownPercentage = boneCooldown / BONE_COOLDOWN_MAX;
+            const filledWidth = barWidth * cooldownPercentage;
+
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+            ctx.fillRect(0, 0, barWidth, barHeight);
+
+            // Cor verde quando pronto para atirar, vermelho quando em cooldown
+            ctx.fillStyle = (boneCooldown > 0) ? '#ff4d4d' : '#4dff4d';
+            ctx.fillRect(0, 0, filledWidth, barHeight);
+
+            ctx.strokeStyle = 'white';
+            ctx.strokeRect(0, 0, barWidth, barHeight);
+        }
+
         function drawBones() {
             bones.forEach(bone => {
                 ctx.fillStyle = bone.color;
@@ -374,7 +395,17 @@
             });
         }
 
+        // NOVO: Função para desenhar o texto flutuante
+        function drawFloatingTexts() {
+            ctx.font = 'bold 20px Montserrat';
+            floatingTexts.forEach(text => {
+                ctx.fillStyle = text.color;
+                ctx.fillText(text.text, text.x, text.y);
+            });
+        }
+
         function drawPlayer() {
+            // ... (código drawPlayer permanece o mesmo) ...
             let opacity = 1;
             if (invulnerableTimer > 0) {
                 opacity = Math.sin(Date.now() / 100) * 0.5 + 0.5;
@@ -399,6 +430,7 @@
         }
 
         function drawEnemies() {
+            // ... (código drawEnemies permanece o mesmo) ...
             enemies.forEach(enemy => {
                 ctx.fillStyle = 'darkred';
                 ctx.fillRect(enemy.x, enemy.y, enemy.size, enemy.size);
@@ -409,6 +441,7 @@
         }
 
         function drawPowerups() {
+            // ... (código drawPowerups permanece o mesmo) ...
             powerups.forEach(powerup => {
                 if (loadedPowerupImages[powerup.type].complete) {
                     ctx.drawImage(loadedPowerupImages[powerup.type], powerup.x, powerup.y, powerup.size, powerup.size);
@@ -420,6 +453,7 @@
         }
 
         function spawnEnemy() {
+            // ... (código spawnEnemy permanece o mesmo) ...
             if (enemies.length >= 15) return;
             const size = 30;
             const x = Math.random() * (canvas.width - size);
@@ -428,6 +462,7 @@
         }
 
         function spawnPowerup() {
+            // ... (código spawnPowerup permanece o mesmo) ...
             const size = 30;
             const x = Math.random() * (canvas.width - size);
             const y = -size;
@@ -442,13 +477,12 @@
         }
 
         function checkCollision(obj1, obj2) {
-            return obj1.x < obj2.x + obj2.width &&
+            return obj1.x < obj2.x + obj2.size &&
                    obj1.x + obj1.size > obj2.x &&
-                   obj1.y < obj2.y + obj2.height &&
+                   obj1.y < obj2.y + obj2.size &&
                    obj1.y + obj1.size > obj2.y;
         }
         
-        // Função de colisão específica para osso (projétil) e inimigo
         function checkCollisionBone(bone, enemy) {
             return bone.x < enemy.x + enemy.size && 
                    bone.x + bone.width > enemy.x && 
@@ -456,20 +490,36 @@
                    bone.y + bone.height > enemy.y; 
         }
 
+        // NOVO: Adicionado lógica de tiro direcional
         function shootBone() {
             if (boneCooldown === 0) {
                 const boneWidth = 20;
                 const boneHeight = 10;
-                
-                const x = player.x + player.size;
-                const y = player.y + (player.size / 2) - (boneHeight / 2);
+                let directionX = lastMoveX;
+                let directionY = lastMoveY;
+
+                // Se o jogador está parado, atira para a última direção, mas garante que não seja 0,0
+                if (directionX === 0 && directionY === 0) {
+                    directionX = 1; // Default: direita
+                }
+
+                // Normaliza as direções (para diagonal ter a mesma velocidade)
+                const magnitude = Math.sqrt(directionX * directionX + directionY * directionY);
+                const normalizedX = directionX / magnitude;
+                const normalizedY = directionY / magnitude;
+
+                // Posição inicial (sai do meio do jogador)
+                const x = player.x + player.size / 2 - boneWidth / 2;
+                const y = player.y + player.size / 2 - boneHeight / 2;
 
                 bones.push({ 
                     x: x, 
                     y: y, 
                     width: boneWidth, 
                     height: boneHeight, 
-                    speed: 10,
+                    speed: 12,
+                    dirX: normalizedX, // Direção X normalizada
+                    dirY: normalizedY, // Direção Y normalizada
                     color: 'white'
                 });
                 
@@ -480,21 +530,32 @@
         function update() {
             if (isGameOver) return;
 
+            // Multiplica a taxa de atualização pela velocidade do jogo (para slow motion)
+            const updateRate = 1 * gameSpeedMultiplier; 
+
             if (invulnerableTimer > 0) {
-                invulnerableTimer--;
+                invulnerableTimer -= updateRate;
+                if (invulnerableTimer < 0) invulnerableTimer = 0;
             }
             
             if (boneCooldown > 0) {
-                boneCooldown--;
+                boneCooldown -= updateRate;
+                if (boneCooldown < 0) boneCooldown = 0;
+            }
+
+            // Remove o slow motion gradualmente
+            if (gameSpeedMultiplier < 1) {
+                gameSpeedMultiplier += 0.05; // Velocidade de recuperação
+                if (gameSpeedMultiplier > 1) gameSpeedMultiplier = 1;
             }
 
             if (dx !== 0 || dy !== 0) {
-                score += doubleScoreActive ? 0.02 : 0.01;
+                score += (doubleScoreActive ? 0.02 : 0.01) * updateRate;
                 scoreDisplay.textContent = `Pontos: ${Math.floor(score)}`;
             }
 
-            player.x += dx * player.speed;
-            player.y += dy * player.speed;
+            player.x += dx * player.speed * updateRate;
+            player.y += dy * player.speed * updateRate;
 
             if (player.x < 0) player.x = 0;
             if (player.x + player.size > canvas.width) player.x = canvas.width - player.size;
@@ -502,24 +563,37 @@
             if (player.y + player.size > canvas.height) player.y = canvas.height - player.size;
 
             bones = bones.filter(bone => {
-                bone.x += bone.speed;
+                // Tiro direcional
+                bone.x += bone.dirX * bone.speed * updateRate;
+                bone.y += bone.dirY * bone.speed * updateRate;
                 
                 for (let i = 0; i < enemies.length; i++) {
                     const enemy = enemies[i];
                     if (checkCollisionBone(bone, enemy)) {
-                        enemies.splice(i, 1); 
-                        score += doubleScoreActive ? 2 : 1;
+                        enemies.splice(i, 1);
+                        const points = doubleScoreActive ? 2 : 1;
+                        score += points;
                         scoreDisplay.textContent = `Pontos: ${Math.floor(score)}`;
+
+                        // NOVO: Cria texto flutuante
+                        floatingTexts.push({
+                            text: `+${points}`,
+                            x: enemy.x + enemy.size / 2,
+                            y: enemy.y,
+                            color: doubleScoreActive ? 'yellow' : 'lime',
+                            lifetime: 60, // 60 frames (1 segundo em 60fps)
+                        });
+
                         return false;
                     }
                 }
                 
-                return bone.x < canvas.width;
+                return bone.x < canvas.width && bone.x > -bone.width && bone.y < canvas.height && bone.y > -bone.height;
             });
 
             enemies = enemies.filter(enemy => {
-                enemy.x += enemy.speedX;
-                enemy.y += enemy.speedY;
+                enemy.x += enemy.speedX * updateRate;
+                enemy.y += enemy.speedY * updateRate;
 
                 if (enemy.x <= 0 || enemy.x + enemy.size >= canvas.width) enemy.speedX *= -1;
                 if (enemy.y <= 0 || enemy.y + enemy.size >= canvas.height) enemy.speedY *= -1;
@@ -535,7 +609,8 @@
                         if (lives <= 0) {
                             endGame();
                         } else {
-                            invulnerableTimer = 180; 
+                            invulnerableTimer = 180; // 3 segundos de invulnerabilidade
+                            gameSpeedMultiplier = 0.1; // Câmera lenta!
                         }
                         return true;
                     }
@@ -544,7 +619,7 @@
             });
 
             powerups = powerups.filter(powerup => {
-                powerup.y += powerup.speed;
+                powerup.y += powerup.speed * updateRate;
                 if (checkCollision(player, powerup)) {
                     if (powerup.type === 'speed') {
                         player.speed = 5;
@@ -555,7 +630,7 @@
                             player.speed = 3;
                             speedBoostActive = false;
                             doubleScoreActive = false;
-                        }, 5000); 
+                        }, 5000 / updateRate); 
                     } else if (powerup.type === 'life') {
                         lives++; 
                         updateLivesDisplay();
@@ -596,17 +671,25 @@
                 return powerup.y < canvas.height;
             });
 
-            enemySpawnTimer++;
+            enemySpawnTimer += updateRate;
             if (enemySpawnTimer > 180) {
                 spawnEnemy();
                 enemySpawnTimer = 0;
             }
 
-            powerupSpawnTimer++;
+            powerupSpawnTimer += updateRate;
             if (powerupSpawnTimer > 600) {
                 spawnPowerup();
                 powerupSpawnTimer = 0;
             }
+
+            // NOVO: Atualiza a posição dos textos flutuantes
+            floatingTexts = floatingTexts.filter(text => {
+                text.y -= 1 * updateRate; // Sobe
+                text.lifetime -= 1 * updateRate; // Diminui o tempo de vida
+                return text.lifetime > 0;
+            });
+
 
             draw();
         }
@@ -617,6 +700,8 @@
             drawEnemies();
             drawPowerups();
             drawBones(); 
+            drawFloatingTexts(); // Desenha textos flutuantes
+            drawBoneCooldown(); // Desenha a barra de recarga
         }
 
         function changeDirection(event) {
@@ -624,17 +709,28 @@
             const key = event.keyCode;
             const speed = 1;
 
+            // Lógica do tiro
             if (key === 88) {
                 shootBone(); 
                 showTongue = true;
                 setTimeout(() => showTongue = false, 200);
             }
 
-            dx = 0; dy = 0;
-            if (key === 37) dx = -speed;
-            else if (key === 38) dy = -speed;
-            else if (key === 39) dx = speed;
-            else if (key === 40) dy = speed;
+            // Lógica de movimento e atualização da última direção
+            let newDx = 0;
+            let newDy = 0;
+            if (key === 37) newDx = -speed;
+            else if (key === 38) newDy = -speed;
+            else if (key === 39) newDx = speed;
+            else if (key === 40) newDy = speed;
+
+            // Se o movimento não for 0, 0, salva a direção
+            if (newDx !== 0 || newDy !== 0) {
+                lastMoveX = newDx;
+                lastMoveY = newDy;
+                dx = newDx;
+                dy = newDy;
+            }
         }
 
         function startGame() {
@@ -651,6 +747,8 @@
             enemies = [];
             powerups = [];
             bones = []; 
+            floatingTexts = []; // Limpa textos
+            gameSpeedMultiplier = 1; // Reseta velocidade
             isGameOver = false;
             lifePowerupActive = false;
             doubleScoreActive = false;
@@ -660,6 +758,8 @@
             powerupSpawnTimer = 0;
             invulnerableTimer = 0;
             boneCooldown = 0; 
+            lastMoveX = 1; // Direção inicial de tiro para a direita
+            lastMoveY = 0;
             
             document.body.style.backgroundColor = '#1a0033';
             gameWrapper.style.backgroundColor = 'rgba(0, 0, 0, 0.75)';
@@ -682,7 +782,6 @@
             legendaryMessage.style.display = 'none';
             document.body.style.backgroundColor = '#1a0033';
             gameWrapper.style.backgroundColor = 'rgba(0, 0, 0, 0.75)';
-
 
             if (score > highScore) {
                 highScore = Math.floor(score);
