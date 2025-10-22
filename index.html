@@ -311,11 +311,17 @@
         const restartButton = document.getElementById('restart-button');
         const legendaryMessage = document.getElementById('legendary-message');
         const gameWrapper = document.getElementById('snake-game-wrapper');
-
+        
+        // --- Sprites ---
         const dogSprite = new Image();
         dogSprite.src = 'https://i.imgur.com/JK4EiTy.png';
         const tongueSprite = new Image();
         tongueSprite.src = 'https://i.imgur.com/k9v9i2Y.png';
+        
+        // NOVO: Sprite do Osso
+        const boneSprite = new Image();
+        // Usando um link de imagem do osso com transparência. Se tiver o link do seu GitHub, substitua aqui.
+        boneSprite.src = 'https://i.imgur.com/NlQfX3h.png'; 
         
         const powerupImages = {
             'speed': 'imagens/speed.png',
@@ -328,13 +334,15 @@
             loadedPowerupImages[type] = new Image();
             loadedPowerupImages[type].src = powerupImages[type];
         }
+        // ------------------
 
+        // --- Variáveis do Jogo ---
         let player = { x: 300, y: 300, size: 40, speed: 3 };
         let enemies = [];
         let powerups = [];
         let bones = []; 
-        let floatingTexts = []; // NOVO: Array para textos flutuantes
-        let lastMoveX = 1; // 1 para a direita (direção inicial de tiro)
+        let floatingTexts = []; 
+        let lastMoveX = 1; 
         let lastMoveY = 0;
         let dx = 0;
         let dy = 0;
@@ -355,8 +363,13 @@
         let invulnerableTimer = 0;
         const RAINBOW_DURATION = 15000; 
         let boneCooldown = 0; 
-        const BONE_COOLDOWN_MAX = 20; // Aumentado para 20 frames (aprox 0.33s) para ser visível
-        let gameSpeedMultiplier = 1; // NOVO: Controla a velocidade do jogo (câmera lenta)
+        const BONE_COOLDOWN_MAX = 20; 
+        let gameSpeedMultiplier = 1; 
+
+        // NOVO: Variáveis de Nível
+        let currentLevel = 1;
+        const LEVEL_THRESHOLD = 100;
+        // -------------------------
 
         function updateHighScore() {
             highScoreDisplay.textContent = `Recorde: ${highScore}`;
@@ -370,7 +383,14 @@
             }
         }
 
-        // NOVO: Desenha a barra de recarga do osso
+        // NOVO: Desenha o nível atual
+        function drawLevel() {
+            ctx.fillStyle = '#ffcc00';
+            ctx.font = 'bold 30px Montserrat';
+            ctx.textAlign = 'center';
+            ctx.fillText(`Nível ${currentLevel}`, canvas.width / 2, 40);
+        }
+
         function drawBoneCooldown() {
             const barHeight = 10;
             const barWidth = canvas.width;
@@ -380,7 +400,6 @@
             ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
             ctx.fillRect(0, 0, barWidth, barHeight);
 
-            // Cor verde quando pronto para atirar, vermelho quando em cooldown
             ctx.fillStyle = (boneCooldown > 0) ? '#ff4d4d' : '#4dff4d';
             ctx.fillRect(0, 0, filledWidth, barHeight);
 
@@ -390,12 +409,24 @@
 
         function drawBones() {
             bones.forEach(bone => {
-                ctx.fillStyle = bone.color;
-                ctx.fillRect(bone.x, bone.y, bone.width, bone.height); 
+                // NOVO: Desenha o sprite do osso
+                if (boneSprite.complete) {
+                    // Calcula o ângulo de rotação para o tiro direcional (em radianos)
+                    const angle = Math.atan2(bone.dirY, bone.dirX);
+                    
+                    ctx.save();
+                    ctx.translate(bone.x + bone.width / 2, bone.y + bone.height / 2);
+                    ctx.rotate(angle);
+                    ctx.drawImage(boneSprite, -bone.width / 2, -bone.height / 2, bone.width, bone.height);
+                    ctx.restore();
+                } else {
+                    // Fallback: Desenha um retângulo branco
+                    ctx.fillStyle = bone.color;
+                    ctx.fillRect(bone.x, bone.y, bone.width, bone.height); 
+                }
             });
         }
 
-        // NOVO: Função para desenhar o texto flutuante
         function drawFloatingTexts() {
             ctx.font = 'bold 20px Montserrat';
             floatingTexts.forEach(text => {
@@ -405,7 +436,6 @@
         }
 
         function drawPlayer() {
-            // ... (código drawPlayer permanece o mesmo) ...
             let opacity = 1;
             if (invulnerableTimer > 0) {
                 opacity = Math.sin(Date.now() / 100) * 0.5 + 0.5;
@@ -430,7 +460,6 @@
         }
 
         function drawEnemies() {
-            // ... (código drawEnemies permanece o mesmo) ...
             enemies.forEach(enemy => {
                 ctx.fillStyle = 'darkred';
                 ctx.fillRect(enemy.x, enemy.y, enemy.size, enemy.size);
@@ -441,7 +470,6 @@
         }
 
         function drawPowerups() {
-            // ... (código drawPowerups permanece o mesmo) ...
             powerups.forEach(powerup => {
                 if (loadedPowerupImages[powerup.type].complete) {
                     ctx.drawImage(loadedPowerupImages[powerup.type], powerup.x, powerup.y, powerup.size, powerup.size);
@@ -453,16 +481,23 @@
         }
 
         function spawnEnemy() {
-            // ... (código spawnEnemy permanece o mesmo) ...
-            if (enemies.length >= 15) return;
+            if (enemies.length >= 15 + currentLevel * 2) return; // Aumenta limite por nível
             const size = 30;
             const x = Math.random() * (canvas.width - size);
             const y = Math.random() * (canvas.height - size);
-            enemies.push({ x, y, size, speedX: (Math.random() - 0.5) * 2, speedY: (Math.random() - 0.5) * 2 });
+            // Inimigos ficam mais rápidos a cada nível
+            const baseSpeed = 2;
+            const speedMultiplier = 1 + (currentLevel - 1) * 0.1; // Aumento de 10% de velocidade por nível
+            enemies.push({ 
+                x, 
+                y, 
+                size, 
+                speedX: (Math.random() - 0.5) * baseSpeed * speedMultiplier, 
+                speedY: (Math.random() - 0.5) * baseSpeed * speedMultiplier 
+            });
         }
 
         function spawnPowerup() {
-            // ... (código spawnPowerup permanece o mesmo) ...
             const size = 30;
             const x = Math.random() * (canvas.width - size);
             const y = -size;
@@ -490,7 +525,6 @@
                    bone.y + bone.height > enemy.y; 
         }
 
-        // NOVO: Adicionado lógica de tiro direcional
         function shootBone() {
             if (boneCooldown === 0) {
                 const boneWidth = 20;
@@ -498,17 +532,14 @@
                 let directionX = lastMoveX;
                 let directionY = lastMoveY;
 
-                // Se o jogador está parado, atira para a última direção, mas garante que não seja 0,0
                 if (directionX === 0 && directionY === 0) {
-                    directionX = 1; // Default: direita
+                    directionX = 1; 
                 }
 
-                // Normaliza as direções (para diagonal ter a mesma velocidade)
                 const magnitude = Math.sqrt(directionX * directionX + directionY * directionY);
                 const normalizedX = directionX / magnitude;
                 const normalizedY = directionY / magnitude;
 
-                // Posição inicial (sai do meio do jogador)
                 const x = player.x + player.size / 2 - boneWidth / 2;
                 const y = player.y + player.size / 2 - boneHeight / 2;
 
@@ -518,8 +549,8 @@
                     width: boneWidth, 
                     height: boneHeight, 
                     speed: 12,
-                    dirX: normalizedX, // Direção X normalizada
-                    dirY: normalizedY, // Direção Y normalizada
+                    dirX: normalizedX, 
+                    dirY: normalizedY, 
                     color: 'white'
                 });
                 
@@ -530,8 +561,18 @@
         function update() {
             if (isGameOver) return;
 
-            // Multiplica a taxa de atualização pela velocidade do jogo (para slow motion)
             const updateRate = 1 * gameSpeedMultiplier; 
+
+            // --- Lógica de Nível ---
+            const nextLevelScore = currentLevel * LEVEL_THRESHOLD;
+            if (score >= nextLevelScore) {
+                currentLevel++;
+                // Lógica de feedback visual de nível pode ser adicionada aqui
+                // Ex: Mostrar "Nível X" grande na tela por 2 segundos
+                // Os inimigos já ficam mais rápidos na função spawnEnemy
+                // e o limite máximo de inimigos já é ajustado
+            }
+            // -----------------------
 
             if (invulnerableTimer > 0) {
                 invulnerableTimer -= updateRate;
@@ -543,9 +584,8 @@
                 if (boneCooldown < 0) boneCooldown = 0;
             }
 
-            // Remove o slow motion gradualmente
             if (gameSpeedMultiplier < 1) {
-                gameSpeedMultiplier += 0.05; // Velocidade de recuperação
+                gameSpeedMultiplier += 0.05; 
                 if (gameSpeedMultiplier > 1) gameSpeedMultiplier = 1;
             }
 
@@ -563,7 +603,6 @@
             if (player.y + player.size > canvas.height) player.y = canvas.height - player.size;
 
             bones = bones.filter(bone => {
-                // Tiro direcional
                 bone.x += bone.dirX * bone.speed * updateRate;
                 bone.y += bone.dirY * bone.speed * updateRate;
                 
@@ -575,13 +614,12 @@
                         score += points;
                         scoreDisplay.textContent = `Pontos: ${Math.floor(score)}`;
 
-                        // NOVO: Cria texto flutuante
                         floatingTexts.push({
                             text: `+${points}`,
                             x: enemy.x + enemy.size / 2,
                             y: enemy.y,
                             color: doubleScoreActive ? 'yellow' : 'lime',
-                            lifetime: 60, // 60 frames (1 segundo em 60fps)
+                            lifetime: 60, 
                         });
 
                         return false;
@@ -609,8 +647,8 @@
                         if (lives <= 0) {
                             endGame();
                         } else {
-                            invulnerableTimer = 180; // 3 segundos de invulnerabilidade
-                            gameSpeedMultiplier = 0.1; // Câmera lenta!
+                            invulnerableTimer = 180; 
+                            gameSpeedMultiplier = 0.1; 
                         }
                         return true;
                     }
@@ -672,7 +710,9 @@
             });
 
             enemySpawnTimer += updateRate;
-            if (enemySpawnTimer > 180) {
+            // Frequência de spawn aumenta com o nível
+            const spawnRate = 180 - currentLevel * 10;
+            if (enemySpawnTimer > Math.max(spawnRate, 60)) { // Garante que não spawne rápido demais
                 spawnEnemy();
                 enemySpawnTimer = 0;
             }
@@ -683,10 +723,9 @@
                 powerupSpawnTimer = 0;
             }
 
-            // NOVO: Atualiza a posição dos textos flutuantes
             floatingTexts = floatingTexts.filter(text => {
-                text.y -= 1 * updateRate; // Sobe
-                text.lifetime -= 1 * updateRate; // Diminui o tempo de vida
+                text.y -= 1 * updateRate; 
+                text.lifetime -= 1 * updateRate; 
                 return text.lifetime > 0;
             });
 
@@ -696,12 +735,13 @@
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawLevel(); // NOVO: Desenha o nível
             drawPlayer();
             drawEnemies();
             drawPowerups();
             drawBones(); 
-            drawFloatingTexts(); // Desenha textos flutuantes
-            drawBoneCooldown(); // Desenha a barra de recarga
+            drawFloatingTexts(); 
+            drawBoneCooldown(); 
         }
 
         function changeDirection(event) {
@@ -709,14 +749,12 @@
             const key = event.keyCode;
             const speed = 1;
 
-            // Lógica do tiro
             if (key === 88) {
                 shootBone(); 
                 showTongue = true;
                 setTimeout(() => showTongue = false, 200);
             }
 
-            // Lógica de movimento e atualização da última direção
             let newDx = 0;
             let newDy = 0;
             if (key === 37) newDx = -speed;
@@ -724,7 +762,6 @@
             else if (key === 39) newDx = speed;
             else if (key === 40) newDy = speed;
 
-            // Se o movimento não for 0, 0, salva a direção
             if (newDx !== 0 || newDy !== 0) {
                 lastMoveX = newDx;
                 lastMoveY = newDy;
@@ -744,11 +781,12 @@
             dy = 0;
             score = 0;
             lives = 3;
+            currentLevel = 1; // NOVO: Reseta o nível
             enemies = [];
             powerups = [];
             bones = []; 
-            floatingTexts = []; // Limpa textos
-            gameSpeedMultiplier = 1; // Reseta velocidade
+            floatingTexts = []; 
+            gameSpeedMultiplier = 1; 
             isGameOver = false;
             lifePowerupActive = false;
             doubleScoreActive = false;
@@ -758,7 +796,7 @@
             powerupSpawnTimer = 0;
             invulnerableTimer = 0;
             boneCooldown = 0; 
-            lastMoveX = 1; // Direção inicial de tiro para a direita
+            lastMoveX = 1; 
             lastMoveY = 0;
             
             document.body.style.backgroundColor = '#1a0033';
