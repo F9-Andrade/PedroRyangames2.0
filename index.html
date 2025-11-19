@@ -3,46 +3,298 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ryan games 2.0</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <title>Ryan Games 2.0 - O Portal de Jogos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
+        /* --- ESTILOS GLOBAIS --- */
+        :root {
+            --primary-color: #6a11cb; /* Roxo principal */
+            --secondary-color: #2575fc; /* Azul secundário */
+            --bg-dark: #121212; /* Fundo escuro */
+            --text-light: #e0e0e0;
+            --game-info-color: #ffcc00;
+        }
+
         body {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Roboto', sans-serif;
             margin: 0;
             padding: 0;
-            color: #e0e0e0;
-            background-color: #1a0033;
-            background-image: url("https://i.imgur.com/fb42c0.png");
+            color: var(--text-light);
+            background-color: var(--bg-dark);
+            background-image: url("https://i.imgur.com/fb42c0.png"); /* Fundo com padrão */
             background-size: cover;
+            /* EFEITO PARALLAX: Fixed faz com que o fundo pareça se mover mais lentamente */
             background-attachment: fixed;
             background-position: center;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
             min-height: 100vh;
             overflow-x: hidden;
-            padding: 40px 0;
-            transition: background-color 0.1s ease;
+            transition: background-color 0.3s;
         }
 
-        .container {
-            text-align: center;
-            padding: 60px 40px;
-            background-color: rgba(0, 0, 0, 0.75);
+        /* --- HEADER E NAVEGAÇÃO --- */
+        header {
+            width: 100%;
+            background-color: rgba(18, 18, 18, 0.95);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+        }
+
+        .logo {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.5em;
+            color: var(--secondary-color);
+            text-shadow: 0 0 5px var(--primary-color);
+        }
+
+        .nav-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            margin-left: 25px;
+            font-weight: 700;
+            transition: color 0.3s ease, text-shadow 0.3s ease;
+            padding: 5px 0;
+            display: inline-block;
+        }
+
+        .nav-links a:hover {
+            color: var(--game-info-color);
+            text-shadow: 0 0 8px var(--game-info-color);
+        }
+
+        /* --- MENU HAMBURGER E RESPONSIVIDADE --- */
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            padding: 10px;
+            position: relative;
+            z-index: 1001;
+        }
+
+        .hamburger div {
+            width: 30px;
+            height: 3px;
+            background-color: var(--text-light);
+            margin: 6px 0;
+            transition: 0.4s;
+        }
+        
+        /* Transformação do hamburger em X */
+        .nav-active .line1 {
+            transform: rotate(-45deg) translate(-6px, 6px);
+        }
+
+        .nav-active .line2 {
+            opacity: 0;
+        }
+
+        .nav-active .line3 {
+            transform: rotate(45deg) translate(-6px, -6px);
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                position: fixed;
+                right: 0;
+                top: 0;
+                height: 100vh;
+                width: 60%;
+                background-color: rgba(18, 18, 18, 0.98);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                transform: translateX(100%); /* Esconde o menu */
+                transition: transform 0.5s ease-in-out;
+                padding-top: 80px;
+                box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
+            }
+            
+            .nav-links.nav-active {
+                transform: translateX(0); /* Mostra o menu */
+            }
+
+            .nav-links a {
+                margin: 20px 0;
+                font-size: 1.5em;
+            }
+
+            .hamburger {
+                display: block;
+            }
+        }
+        /* --- FIM MENU HAMBURGER --- */
+
+        /* --- CONTEÚDO PRINCIPAL (MAIN) --- */
+        main {
+            width: 100%;
+            max-width: 1200px;
+            padding: 40px 20px;
+        }
+
+        .section-container {
+            margin-bottom: 80px;
+            padding: 40px;
+            background-color: rgba(25, 25, 25, 0.9);
             border-radius: 15px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
-            max-width: 800px;
-            width: 90%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
             animation: fadeIn 1s ease-out;
-            margin-bottom: 40px;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
+        h2 {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 2.2em;
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 0 var(--secondary-color);
+        }
+
+        /* --- SEÇÃO DE LINKS --- */
+        #game-links .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .link-item {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            padding: 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #ffffff;
+            font-size: 1.2em;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            border: 3px solid transparent;
+            text-align: left; /* Alinhamento à esquerda para o contador */
+            letter-spacing: 1px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .link-item:hover {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.6);
+            border-color: var(--game-info-color);
+        }
+
+        .link-counter {
+            background-color: rgba(0, 0, 0, 0.3);
+            color: var(--game-info-color);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        /* --- SEÇÃO DO JOGO (JOGO DO CACHORRINHO) --- */
+        #dog-game {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        #game-info {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        #score, #high-score, #lives {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.2em;
+            color: var(--game-info-color);
+            text-shadow: 1px 1px 3px #000;
+            margin: 5px 15px;
+        }
+
+        canvas {
+            border: 5px solid var(--primary-color);
+            background-color: #0d0d0d;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(106, 17, 203, 0.7);
+            display: none;
+            width: 600px;
+            height: 600px;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .game-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .game-button {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .game-button:hover {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            transform: scale(1.05);
+        }
+        
+        /* Telas de Jogo (Start/Game Over) */
+        #start-screen, #game-over-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            z-index: 50;
+        }
+
+        #game-over-screen {
+            display: none;
+        }
+
+        #game-over-screen h3 {
+            font-size: 3em;
+            color: #ff4d4d;
+            text-shadow: 0 0 10px #ff4d4d;
+        }
+        
         #legendary-message {
             position: fixed;
             top: 50%;
@@ -61,242 +313,182 @@
             to { transform: translate(-50%, -50%) scale(1.1); opacity: 0.8; }
         }
 
-        h1 {
-            font-size: 3.8em;
-            margin-bottom: 40px;
-            color: #ffffff;
-            text-shadow: 0 0 15px rgba(255, 255, 255, 0.4), 0 0 25px rgba(255, 255, 255, 0.2);
-            letter-spacing: 3px;
-        }
-
-        .links-container {
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
+        /* --- FOOTER --- */
+        footer {
             width: 100%;
-            margin-top: 30px;
-        }
-
-        .link-item {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            padding: 25px 35px;
-            border-radius: 10px;
-            text-decoration: none;
-            color: #ffffff;
-            font-size: 1.4em;
-            font-weight: 700;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            border: none;
-            cursor: pointer;
             text-align: center;
-            letter-spacing: 1.5px;
+            padding: 20px;
+            background-color: var(--bg-dark);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 50px;
         }
 
-        .link-item:hover {
-            background: linear-gradient(135deg, #2575fc 0%, #6a11cb 100%);
-            transform: translateY(-5px) scale(1.03);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.5);
-        }
-
-        .link-item:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-        }
-
-        #snake-game-wrapper {
-            position: relative;
-            text-align: center;
-            padding: 60px 40px;
-            background-color: rgba(0, 0, 0, 0.75);
-            border-radius: 15px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
-            max-width: 800px;
-            width: 90%;
-            margin-top: 40px;
-            box-sizing: border-box;
-            transition: background-color 0.1s ease; 
-        }
-
-        #snake-game-wrapper h1 {
-            font-size: 2.8em;
-            margin-bottom: 25px;
-            color: #ffffff;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
-        }
-
-        #game-info {
-            display: flex;
-            justify-content: space-around;
-            width: 100%;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-        }
-
-        #score, #high-score, #lives {
-            font-size: 1.8em;
-            margin-bottom: 15px;
-            color: #ffcc00;
-            text-shadow: 1px 1px 3px #000;
-        }
-
-        canvas {
-            border: 4px solid #6a11cb;
-            background-color: #0d0d0d;
-            border-radius: 10px;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6);
-            display: none;
-            transition: transform 0.5s ease-in-out;
-            width: 600px;
-            height: 600px;
-        }
-
-        #snake-game-wrapper:fullscreen canvas {
-            width: 100vw;
-            height: 100vh;
-            border-radius: 0;
-            transform: scale(1);
-            position: fixed;
-            top: 0;
-            left: 0;
-            border: none;
-        }
-        
-        #snake-game-wrapper:fullscreen #legendary-message {
-            z-index: 9999; 
-        }
-
-        .game-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .game-button {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 1.2em;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .game-button:hover {
-            background: linear-gradient(135deg, #2575fc 0%, #6a11cb 100%);
-            transform: scale(1.05);
-        }
-
-        #start-screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-        }
-
-        #game-over-screen {
-            display: none;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            color: white;
-            padding: 30px;
-            text-align: center;
-            box-shadow: 0 0 25px rgba(255, 255, 255, 0.3);
-            z-index: 100;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            border-radius: 15px;
-        }
-
-        #game-over-screen h2 {
-            margin-top: 0;
-            font-size: 3em;
-        }
-
-        #game-over-screen p {
-            font-size: 1.5em;
-        }
-
-        #restart-button {
-            margin-top: 25px;
-        }
-
-        #snake-game-wrapper:fullscreen #start-screen,
-        #snake-game-wrapper:fullscreen #game-over-screen {
-            display: flex;
-        }
-
-        #snake-game-wrapper:fullscreen #game-info {
-            position: fixed;
-            top: 20px;
-            width: auto;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 50px;
-            z-index: 999;
-        }
-
+        /* --- RESPONSIVIDADE FINAL --- */
         @media (max-width: 768px) {
-            h1 { font-size: 3em; }
-            .container, #snake-game-wrapper { padding: 40px 20px; }
-            .link-item { font-size: 1.2em; padding: 20px 25px; }
-            #snake-game-wrapper h1 { font-size: 2.2em; }
-            #score, #high-score, #lives { font-size: 1.6em; }
-            .game-buttons { flex-direction: column; }
+            nav { padding: 10px 20px; }
+            .logo { font-size: 1.2em; }
+            h2 { font-size: 1.8em; }
+            .section-container { padding: 30px 20px; }
+            .link-item { font-size: 1.1em; padding: 15px; }
+            #score, #high-score, #lives { font-size: 1em; }
+            .game-buttons { flex-direction: column; gap: 10px; }
+            .game-button { padding: 12px 25px; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>ryan games 2.0</h1>
-        <div class="links-container">
-            <a href="andrewclark.html" class="link-item">andrewclark3244 games</a>
-            <a href="superhot.html" class="link-item">Superhot Prototype</a>
-            <a href="stickman.html" class="link-item">Stickman Climb 2</a>
-            <a href="3kh0s.html" class="link-item">3kh0s Games</a>
-            <a href="bowl.html" class="link-item">Bowl Game</a>
-            <a href="ucbg.html" class="link-item">UCBG</a>
-            <a href="gamedump.html" class="link-item">Game Dump</a>
-            <a href="freezenova.html" class="link-item">Freeze Nova</a>
-            <a href="retrogames.html" class="link-item">Retro Games</a>
-            <a href="quiz40.html" class="link-item">Quiz-40</a>
-            <a href="anime.html" class="link-item">animeeeeee</a>
-        </div>
-    </div>
-
-    <div id="snake-game-wrapper" class="container">
-        <h1>Jogo do Cachorrinho</h1>
-        <div id="game-info">
-            <div id="score">Pontos: 0</div>
-            <div id="high-score">Recorde: 0</div>
-            <div id="lives">Vidas: 3</div>
-        </div>
-        <canvas id="snake-game" width="600" height="600"></canvas>
-        <div id="start-screen">
-            <div class="game-buttons">
-                <button id="start-button" class="game-button">Iniciar Jogo</button>
-                <button id="fullscreen-button" class="game-button">Tela Cheia</button>
+    <header>
+        <nav>
+            <div class="logo">RYAN GAMES</div>
+            <div class="nav-links">
+                <a href="#dog-game">JOGO DO CACHORRINHO</a>
+                <a href="#game-links">OUTROS JOGOS</a>
+                <a href="#about">SOBRE</a>
             </div>
-        </div>
-        <div id="game-over-screen">
-            <h2>Fim de Jogo</h2>
-            <p>Sua pontuação final é: <span id="final-score">0</span></p>
-            <p id="new-high-score-message" style="color: #ffcc00; display: none;">NOVO RECORDE!</p>
-            <button id="restart-button" class="game-button">Jogar Novamente</button>
-        </div>
-        <div id="legendary-message" style="display: none;">O PODER LENDÁRIO APARECEU!!!</div>
-    </div>
+            <div class="hamburger" onclick="toggleMenu()">
+                <div class="line1"></div>
+                <div class="line2"></div>
+                <div class="line3"></div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="dog-game" class="section-container">
+            <h2>🐶 Jogo do Cachorrinho: Sobrevivência 🦴</h2>
+            <div id="game-info">
+                <div id="score">Pontos: 0</div>
+                <div id="high-score">Recorde: 0</div>
+                <div id="lives">Vidas: 3</div>
+            </div>
+            
+            <canvas id="snake-game" width="600" height="600"></canvas>
+            
+            <div id="start-screen">
+                <h3 style="font-family: 'Press Start 2P', cursive; color: var(--game-info-color);">Bem-vindo!</h3>
+                <p>Use as setas para mover e **X** para atirar o osso.</p>
+                <div class="game-buttons">
+                    <button id="start-button" class="game-button">INICIAR JOGO</button>
+                    <button id="fullscreen-button" class="game-button">TELA CHEIA</button>
+                </div>
+            </div>
+            
+            <div id="game-over-screen">
+                <h3 style="font-family: 'Press Start 2P', cursive;">FIM DE JOGO</h3>
+                <p>Sua pontuação final é: <span id="final-score" style="color: var(--game-info-color);">0</span></p>
+                <p id="new-high-score-message" style="color: #ffcc00; display: none;">NOVO RECORDE!</p>
+                <button id="restart-button" class="game-button">JOGAR NOVAMENTE</button>
+            </div>
+            
+            <div id="legendary-message" style="display: none;">O PODER LENDÁRIO APARECEU!!!</div>
+        </section>
+        
+        ---
+
+        <section id="game-links" class="section-container">
+            <h2>🕹️ Outros Jogos</h2>
+            <div class="links-grid" id="links-grid-container">
+                </div>
+        </section>
+
+        ---
+        
+        <section id="about" class="section-container">
+            <h2>📜 Sobre o Projeto Ryan Games 2.0</h2>
+            <p style="font-size: 1.1em; line-height: 1.6;">
+                Este portal foi criado para reunir uma coleção de jogos, desde protótipos em desenvolvimento (como o Jogo do Cachorrinho) até links de jogos favoritos. A versão 2.0 foca em uma experiência de usuário mais limpa, moderna e otimizada para todas as telas. O Jogo do Cachorrinho é um projeto em **constante evolução**, sendo um playground para novas mecânicas de jogo.
+            </p>
+            <p style="text-align: right; margin-top: 20px; font-weight: bold; color: var(--secondary-color);">
+                Desenvolvido por Ryan.
+            </p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Ryan Games 2.0 - Todos os direitos reservados. Projeto em desenvolvimento.</p>
+    </footer>
 
     <script>
+        // --- FUNÇÕES GERAIS DO SITE (NOVIDADES) ---
+
+        // 1. MENU HAMBURGER
+        const navLinks = document.querySelector('.nav-links');
+        const hamburger = document.querySelector('.hamburger');
+        const nav = document.querySelector('nav');
+
+        function toggleMenu() {
+            navLinks.classList.toggle('nav-active');
+            nav.classList.toggle('nav-active');
+        }
+
+        // Fecha o menu ao clicar em um link (em mobile)
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (navLinks.classList.contains('nav-active')) {
+                    toggleMenu();
+                }
+            });
+        });
+
+        // 2. CONTADOR DE CLIQUES
+        const gamesList = [
+            { name: "andrewclark3244 games", href: "andrewclark.html" },
+            { name: "Superhot Prototype", href: "superhot.html" },
+            { name: "Stickman Climb 2", href: "stickman.html" },
+            { name: "3kh0s Games", href: "3kh0s.html" },
+            { name: "Bowl Game", href: "bowl.html" },
+            { name: "UCBG", href: "ucbg.html" },
+            { name: "Game Dump", href: "gamedump.html" },
+            { name: "Freeze Nova", href: "freezenova.html" },
+            { name: "Retro Games", href: "retrogames.html" },
+            { name: "Quiz-40", href: "quiz40.html" },
+            { name: "animeeeeee", href: "anime.html" }
+        ];
+
+        function loadGameLinks() {
+            const container = document.getElementById('links-grid-container');
+            container.innerHTML = ''; 
+
+            gamesList.forEach(game => {
+                // Usa o href (nome do arquivo) como chave de armazenamento
+                const key = game.href.split('.')[0]; 
+                const clickCount = localStorage.getItem(`click_count_${key}`) || 0;
+
+                const linkElement = document.createElement('a');
+                linkElement.href = game.href;
+                linkElement.className = 'link-item';
+                linkElement.setAttribute('data-game-key', key);
+                
+                linkElement.innerHTML = `
+                    <span>${game.name}</span>
+                    <span class="link-counter">Cliques: ${clickCount}</span>
+                `;
+
+                linkElement.addEventListener('click', (e) => {
+                    // Impede o redirecionamento imediato para atualizar o contador
+                    e.preventDefault(); 
+                    
+                    let currentCount = parseInt(localStorage.getItem(`click_count_${key}`) || 0);
+                    currentCount++;
+                    localStorage.setItem(`click_count_${key}`, currentCount);
+                    
+                    // Atualiza a contagem visualmente
+                    linkElement.querySelector('.link-counter').textContent = `Cliques: ${currentCount}`;
+
+                    // Redireciona após um pequeno delay para que o localStorage seja salvo e a animação aconteça
+                    setTimeout(() => {
+                        window.location.href = game.href;
+                    }, 200);
+                });
+
+                container.appendChild(linkElement);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', loadGameLinks);
+        
+        // --- CÓDIGO DO JOGO DO CACHORRINHO (Mantido e ajustado) ---
+
         const canvas = document.getElementById('snake-game');
         const ctx = canvas.getContext('2d');
         const scoreDisplay = document.getElementById('score');
@@ -310,21 +502,18 @@
         const newHighScoreMessage = document.getElementById('new-high-score-message');
         const restartButton = document.getElementById('restart-button');
         const legendaryMessage = document.getElementById('legendary-message');
-        const gameWrapper = document.getElementById('snake-game-wrapper');
+        const gameWrapper = document.getElementById('dog-game'); 
         
-        // --- Sprites ---
+        // Sprites
         const dogSprite = new Image();
         dogSprite.src = 'https://i.imgur.com/JK4EiTy.png';
         const tongueSprite = new Image();
         tongueSprite.src = 'https://i.imgur.com/k9v9i2Y.png';
-        
-        // NOVO: Sprite do Osso
         const boneSprite = new Image();
-        // Usando um link de imagem do osso com transparência. Se tiver o link do seu GitHub, substitua aqui.
         boneSprite.src = 'https://i.imgur.com/NlQfX3h.png'; 
         
         const powerupImages = {
-            'speed': 'imagens/speed.png',
+            'speed': 'imagens/speed.png', // Assumindo que você tem essas imagens
             'life': 'imagens/life.png',
             'rainbow': 'imagens/rainbow.png'
         };
@@ -334,9 +523,8 @@
             loadedPowerupImages[type] = new Image();
             loadedPowerupImages[type].src = powerupImages[type];
         }
-        // ------------------
 
-        // --- Variáveis do Jogo ---
+        // Variáveis do Jogo
         let player = { x: 300, y: 300, size: 40, speed: 3 };
         let enemies = [];
         let powerups = [];
@@ -366,10 +554,8 @@
         const BONE_COOLDOWN_MAX = 20; 
         let gameSpeedMultiplier = 1; 
 
-        // NOVO: Variáveis de Nível
         let currentLevel = 1;
         const LEVEL_THRESHOLD = 100;
-        // -------------------------
 
         function updateHighScore() {
             highScoreDisplay.textContent = `Recorde: ${highScore}`;
@@ -383,12 +569,11 @@
             }
         }
 
-        // NOVO: Desenha o nível atual
         function drawLevel() {
-            ctx.fillStyle = '#ffcc00';
-            ctx.font = 'bold 30px Montserrat';
+            ctx.fillStyle = 'var(--game-info-color)';
+            ctx.font = 'bold 30px Press Start 2P'; 
             ctx.textAlign = 'center';
-            ctx.fillText(`Nível ${currentLevel}`, canvas.width / 2, 40);
+            ctx.fillText(`NÍVEL ${currentLevel}`, canvas.width / 2, 40);
         }
 
         function drawBoneCooldown() {
@@ -409,18 +594,15 @@
 
         function drawBones() {
             bones.forEach(bone => {
-                // NOVO: Desenha o sprite do osso
+                const angle = Math.atan2(bone.dirY, bone.dirX);
+                
                 if (boneSprite.complete) {
-                    // Calcula o ângulo de rotação para o tiro direcional (em radianos)
-                    const angle = Math.atan2(bone.dirY, bone.dirX);
-                    
                     ctx.save();
                     ctx.translate(bone.x + bone.width / 2, bone.y + bone.height / 2);
                     ctx.rotate(angle);
                     ctx.drawImage(boneSprite, -bone.width / 2, -bone.height / 2, bone.width, bone.height);
                     ctx.restore();
                 } else {
-                    // Fallback: Desenha um retângulo branco
                     ctx.fillStyle = bone.color;
                     ctx.fillRect(bone.x, bone.y, bone.width, bone.height); 
                 }
@@ -428,7 +610,7 @@
         }
 
         function drawFloatingTexts() {
-            ctx.font = 'bold 20px Montserrat';
+            ctx.font = 'bold 20px Roboto';
             floatingTexts.forEach(text => {
                 ctx.fillStyle = text.color;
                 ctx.fillText(text.text, text.x, text.y);
@@ -481,13 +663,12 @@
         }
 
         function spawnEnemy() {
-            if (enemies.length >= 15 + currentLevel * 2) return; // Aumenta limite por nível
+            if (enemies.length >= 15 + currentLevel * 2) return; 
             const size = 30;
             const x = Math.random() * (canvas.width - size);
             const y = Math.random() * (canvas.height - size);
-            // Inimigos ficam mais rápidos a cada nível
             const baseSpeed = 2;
-            const speedMultiplier = 1 + (currentLevel - 1) * 0.1; // Aumento de 10% de velocidade por nível
+            const speedMultiplier = 1 + (currentLevel - 1) * 0.1; 
             enemies.push({ 
                 x, 
                 y, 
@@ -527,8 +708,8 @@
 
         function shootBone() {
             if (boneCooldown === 0) {
-                const boneWidth = 20;
-                const boneHeight = 10;
+                const boneWidth = 35; 
+                const boneHeight = 15; 
                 let directionX = lastMoveX;
                 let directionY = lastMoveY;
 
@@ -563,16 +744,10 @@
 
             const updateRate = 1 * gameSpeedMultiplier; 
 
-            // --- Lógica de Nível ---
             const nextLevelScore = currentLevel * LEVEL_THRESHOLD;
             if (score >= nextLevelScore) {
                 currentLevel++;
-                // Lógica de feedback visual de nível pode ser adicionada aqui
-                // Ex: Mostrar "Nível X" grande na tela por 2 segundos
-                // Os inimigos já ficam mais rápidos na função spawnEnemy
-                // e o limite máximo de inimigos já é ajustado
             }
-            // -----------------------
 
             if (invulnerableTimer > 0) {
                 invulnerableTimer -= updateRate;
@@ -697,8 +872,8 @@
                             legendaryMessage.style.display = 'none';
                             clearInterval(rainbowInterval);
                             
-                            document.body.style.backgroundColor = '#1a0033';
-                            gameWrapper.style.backgroundColor = 'rgba(0, 0, 0, 0.75)'; 
+                            document.body.style.backgroundColor = 'var(--bg-dark)';
+                            gameWrapper.style.backgroundColor = 'rgba(25, 25, 25, 0.9)'; 
                             document.body.style.transition = 'none';
                             gameWrapper.style.transition = 'none';
 
@@ -710,9 +885,8 @@
             });
 
             enemySpawnTimer += updateRate;
-            // Frequência de spawn aumenta com o nível
             const spawnRate = 180 - currentLevel * 10;
-            if (enemySpawnTimer > Math.max(spawnRate, 60)) { // Garante que não spawne rápido demais
+            if (enemySpawnTimer > Math.max(spawnRate, 60)) { 
                 spawnEnemy();
                 enemySpawnTimer = 0;
             }
@@ -735,7 +909,7 @@
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawLevel(); // NOVO: Desenha o nível
+            drawLevel(); 
             drawPlayer();
             drawEnemies();
             drawPowerups();
@@ -749,7 +923,7 @@
             const key = event.keyCode;
             const speed = 1;
 
-            if (key === 88) {
+            if (key === 88) { 
                 shootBone(); 
                 showTongue = true;
                 setTimeout(() => showTongue = false, 200);
@@ -757,10 +931,10 @@
 
             let newDx = 0;
             let newDy = 0;
-            if (key === 37) newDx = -speed;
-            else if (key === 38) newDy = -speed;
-            else if (key === 39) newDx = speed;
-            else if (key === 40) newDy = speed;
+            if (key === 37) newDx = -speed; 
+            else if (key === 38) newDy = -speed; 
+            else if (key === 39) newDx = speed; 
+            else if (key === 40) newDy = speed; 
 
             if (newDx !== 0 || newDy !== 0) {
                 lastMoveX = newDx;
@@ -781,7 +955,7 @@
             dy = 0;
             score = 0;
             lives = 3;
-            currentLevel = 1; // NOVO: Reseta o nível
+            currentLevel = 1; 
             enemies = [];
             powerups = [];
             bones = []; 
@@ -799,8 +973,8 @@
             lastMoveX = 1; 
             lastMoveY = 0;
             
-            document.body.style.backgroundColor = '#1a0033';
-            gameWrapper.style.backgroundColor = 'rgba(0, 0, 0, 0.75)';
+            document.body.style.backgroundColor = 'var(--bg-dark)';
+            gameWrapper.style.backgroundColor = 'rgba(25, 25, 25, 0.9)';
             
             updateLivesDisplay();
 
@@ -818,8 +992,8 @@
             doubleScoreActive = false;
             rainbowBlinkActive = false;
             legendaryMessage.style.display = 'none';
-            document.body.style.backgroundColor = '#1a0033';
-            gameWrapper.style.backgroundColor = 'rgba(0, 0, 0, 0.75)';
+            document.body.style.backgroundColor = 'var(--bg-dark)';
+            gameWrapper.style.backgroundColor = 'rgba(25, 25, 25, 0.9)';
 
             if (score > highScore) {
                 highScore = Math.floor(score);
