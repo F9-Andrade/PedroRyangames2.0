@@ -1,1304 +1,195 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ryan Games 3.0 - Arquivo Único</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
-    <style>
-        /* --- ESTILOS GLOBAIS --- */
-        :root {
-            --primary-color: #6a11cb;
-            --secondary-color: #2575fc;
-            --bg-dark: #121212;
-            --bg-light: #f0f0f0;
-            --text-light: #e0e0e0;
-            --text-dark: #333;
-            --game-info-color: #ffcc00;
-        }
-
-        body {
-            font-family: 'Roboto', sans-serif;
-            margin: 0;
-            padding: 0;
-            color: var(--text-light);
-            background-color: var(--bg-dark);
-            /* Imagem de fundo assumida: você deve ter uma imagem local chamada 'fb42c0.png' ou URL */
-            /* Se a imagem de fundo não carregar, use background-color: var(--bg-dark); */
-            background-image: url("https://i.imgur.com/fb42c0.png"); 
-            background-size: cover;
-            background-attachment: fixed;
-            background-position: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            overflow-x: hidden;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        /* --- MODO CLARO --- */
-        body.light-mode {
-            background-color: var(--bg-light);
-            color: var(--text-dark);
-        }
-
-        body.light-mode header,
-        body.light-mode .section-container {
-            background-color: rgba(255, 255, 255, 0.95);
-            color: var(--text-dark);
-        }
-
-        body.light-mode .nav-links a {
-             color: var(--text-dark);
-        }
-
-        body.light-mode #leaderboard-container {
-            background-color: rgba(255, 255, 255, 0.2);
-            box-shadow: inset 0 0 10px rgba(106, 17, 203, 0.5);
-        }
-        /* --- FIM MODO CLARO --- */
-
-
-        /* --- HEADER E NAVEGAÇÃO --- */
-        header {
-            width: 100%;
-            background-color: rgba(18, 18, 18, 0.95);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        nav {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 30px;
-        }
-
-        .logo {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 1.5em;
-            color: var(--secondary-color);
-            text-shadow: 0 0 5px var(--primary-color);
-        }
-
-        .nav-controls {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        #settings-button {
-            background: none;
-            border: none;
-            color: var(--text-light);
-            font-size: 1.5em;
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-
-        #settings-button:hover {
-            transform: rotate(90deg);
-            color: var(--game-info-color);
-        }
-
-        .nav-links a {
-            color: var(--text-light);
-            text-decoration: none;
-            margin-left: 25px;
-            font-weight: 700;
-            transition: color 0.3s ease, text-shadow 0.3s ease;
-            padding: 5px 0;
-            display: inline-block;
-        }
-
-        .nav-links a:hover {
-            color: var(--game-info-color);
-            text-shadow: 0 0 8px var(--game-info-color);
-        }
-
-        /* --- MENU HAMBURGER E RESPONSIVIDADE --- */
-        .hamburger {
-            display: none;
-            cursor: pointer;
-            padding: 5px;
-        }
-        
-        .hamburger div {
-            width: 25px;
-            height: 3px;
-            background-color: var(--text-light);
-            margin: 5px;
-            transition: all 0.3s ease;
-        }
-
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-                flex-direction: column;
-                position: absolute;
-                top: 70px; /* Ajuste conforme a altura do seu header */
-                left: 0;
-                width: 100%;
-                background-color: rgba(18, 18, 18, 0.95);
-                padding: 10px 0;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-            }
-            .nav-links.active {
-                display: flex;
-            }
-            .nav-links a {
-                margin: 10px 0;
-                padding: 10px 30px;
-                text-align: center;
-            }
-            .hamburger {
-                display: block;
-            }
-        }
-        /* --- FIM MENU HAMBURGER --- */
-
-        /* --- CONTEÚDO PRINCIPAL (MAIN) --- */
-        main {
-            width: 100%;
-            max-width: 1200px;
-            padding: 40px 20px;
-        }
-
-        .section-container {
-            margin-bottom: 80px;
-            padding: 40px;
-            background-color: rgba(25, 25, 25, 0.9);
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
-            animation: fadeIn 1s ease-out;
-            transition: background-color 0.3s;
-        }
-
-        body.light-mode .section-container {
-            background-color: rgba(240, 240, 240, 0.9);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        h2 {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 2.2em;
-            color: var(--primary-color);
-            text-align: center;
-            margin-bottom: 40px;
-            text-shadow: 2px 2px 0 var(--secondary-color);
-        }
-
-        /* --- SEÇÃO DE LINKS --- */
-        #game-links .links-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        .link-item {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            padding: 20px;
-            border-radius: 10px;
-            text-decoration: none;
-            color: #ffffff;
-            font-size: 1.2em;
-            font-weight: 700;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            border: 3px solid transparent;
-            text-align: left;
-            letter-spacing: 1px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: relative;
-        }
-
-        .link-item:hover {
-            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.6);
-            border-color: var(--game-info-color);
-        }
-
-        .link-controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .link-counter {
-            background-color: rgba(0, 0, 0, 0.3);
-            color: var(--game-info-color);
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.9em;
-            font-family: 'Press Start 2P', cursive;
-        }
-
-        .favorite-btn {
-            background: none;
-            border: none;
-            font-size: 1.5em;
-            cursor: pointer;
-            color: rgba(255, 255, 255, 0.5);
-            transition: color 0.2s;
-        }
-
-        .favorite-btn.active {
-            color: #ffcc00;
-        }
-
-        /* --- SEÇÃO DO JOGO & LEADERBOARD --- */
-        #game-wrapper {
-            display: flex;
-            gap: 20px;
-            width: 100%;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        #dog-game-controls {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            max-width: 600px;
-        }
-
-        #leaderboard-container {
-            width: 300px;
-            min-height: 400px;
-            padding: 20px;
-            background-color: rgba(0, 0, 0, 0.5);
-            border-radius: 10px;
-            border: 1px solid var(--secondary-color);
-            box-shadow: inset 0 0 10px rgba(37, 117, 252, 0.5);
-        }
-
-        #leaderboard-container h3 {
-            font-family: 'Press Start 2P', cursive;
-            color: var(--game-info-color);
-            font-size: 1.2em;
-            margin-top: 0;
-            text-align: center;
-        }
-
-        #leaderboard table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9em;
-        }
-
-        #leaderboard th, #leaderboard td {
-            padding: 8px 0;
-            text-align: left;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        #leaderboard th {
-            color: var(--primary-color);
-            font-weight: bold;
-        }
-
-        #leaderboard tr:nth-child(1) td { color: gold; font-weight: bold; }
-        #leaderboard tr:nth-child(2) td { color: silver; }
-        #leaderboard tr:nth-child(3) td { color: #cd7f32; }
-
-        /* --- Media Queries para Responsividade --- */
-        @media (max-width: 960px) {
-            #game-wrapper {
-                flex-direction: column;
-                align-items: center;
-            }
-            #leaderboard-container {
-                width: 100%;
-                max-width: 600px;
-                margin-top: 20px;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .grid-sections {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* --- SEÇÕES DE CONQUISTAS E NEWS --- */
-        .grid-sections {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-        }
-
-        /* Conquistas */
-        .achievement-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            background-color: rgba(0, 0, 0, 0.2);
-            transition: background-color 0.3s;
-        }
-
-        .achievement-item.unlocked {
-            background-color: rgba(0, 255, 0, 0.1);
-            border-left: 5px solid limegreen;
-        }
-
-        .achievement-icon {
-            font-size: 2em;
-        }
-
-        .achievement-info {
-            flex-grow: 1;
-        }
-
-        .achievement-title {
-            font-weight: bold;
-            color: var(--game-info-color);
-        }
-
-        .achievement-description {
-            font-size: 0.9em;
-            color: var(--text-light);
-        }
-
-        /* Notícias */
-        .news-item {
-            border-left: 3px solid var(--secondary-color);
-            padding-left: 15px;
-            margin-bottom: 20px;
-        }
-
-        .news-item h4 {
-            margin: 0;
-            color: var(--primary-color);
-        }
-
-        .news-item small {
-            display: block;
-            color: rgba(255, 255, 255, 0.5);
-            margin-bottom: 5px;
-        }
-
-        /* --- TOAST NOTIFICATIONS --- */
-        #toast-container {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            z-index: 3000;
-        }
-
-        .toast {
-            background-color: rgba(106, 17, 203, 0.95);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-            opacity: 0;
-            transition: opacity 0.5s, transform 0.5s;
-            transform: translateX(100%);
-            max-width: 300px;
-            font-size: 0.9em;
-        }
-
-        .toast.show {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        /* --- Estilos do Jogo (Mantidos) --- */
-        #game-info {
-            display: flex;
-            justify-content: space-around;
-            width: 100%;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        #score, #high-score, #lives {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 1.2em;
-            color: var(--game-info-color);
-            text-shadow: 1px 1px 3px #000;
-            margin: 5px 15px;
-        }
-
-        #dog-canvas {
-            border: 5px solid var(--primary-color);
-            background-color: #0d0d0d;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(106, 17, 203, 0.7);
-            display: none;
-            width: 600px;
-            height: 600px;
-            max-width: 100%;
-            max-height: 100%;
-        }
-
-        .game-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 30px;
-        }
-
-        .game-button {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 1.1em;
-            font-weight: 700;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .game-button:hover {
-            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
-            transform: scale(1.05);
-        }
-
-        #start-screen, #game-over-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.85);
-            border-radius: 15px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            z-index: 50;
-        }
-
-        #game-over-screen {
-            display: none;
-        }
-
-        #legendary-message {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 3em;
-            color: white;
-            text-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff;
-            animation: pulse 1s infinite alternate;
-            z-index: 200;
-            display: none;
-        }
-
-        @keyframes pulse {
-            from { opacity: 0.7; transform: translate(-50%, -50%) scale(1); }
-            to { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
-        }
-        /* --- PAINEL DE CONFIGURAÇÕES (MODAL) --- */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.7);
-            padding-top: 60px;
-        }
-
-        .modal-content {
-            background-color: rgba(25, 25, 25, 0.95);
-            margin: 5% auto;
-            padding: 20px;
-            border: 3px solid var(--primary-color);
-            width: 80%;
-            max-width: 500px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.9);
-            position: relative;
-        }
-
-        .close-button {
-            color: var(--text-light);
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .close-button:hover,
-        .close-button:focus {
-            color: var(--game-info-color);
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .config-item {
-            padding: 15px 0;
-            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .config-item:last-child {
-            border-bottom: none;
-        }
-
-        .config-item button, .config-item select {
-            background-color: var(--secondary-color);
-            color: white;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            font-weight: bold;
-        }
-
-        .config-item button:hover {
-            background-color: var(--primary-color);
-        }
-        /* --- FOOTER --- */
-        footer {
-            width: 100%;
-            text-align: center;
-            padding: 20px;
-            background-color: var(--bg-dark);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            margin-top: 50px;
-            transition: background-color 0.3s;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Ryan Games 3.0 — Seu portal de jogos favoritos." />
+  <title>Ryan Games 3.0</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <header>
-        <nav>
-            <div class="logo">RYAN GAMES</div>
-            <div class="nav-links">
-                <a href="#dog-game" data-key="nav_game">JOGO DO CACHORRINHO</a>
-                <a href="#game-links" data-key="nav_games">OUTROS JOGOS</a>
-                <a href="#achievements-section" data-key="nav_achievements">CONQUISTAS</a>
-                <a href="#news-section" data-key="nav_news">O QUE HÁ DE NOVO</a>
-                <a href="#about" data-key="nav_about">SOBRE</a>
-            </div>
-            <div class="nav-controls">
-                <button id="settings-button" title="Configurações">⚙️</button>
-                <div class="hamburger" onclick="toggleMenu()">
-                    <div class="line1"></div>
-                    <div class="line2"></div>
-                    <div class="line3"></div>
-                </div>
-            </div>
-        </nav>
-    </header>
 
-    <main>
+  <!-- ─── HEADER ─────────────────────────────────────────────── -->
+  <header>
+    <nav>
+      <a href="#" class="logo" aria-label="Ryan Games Home">
+        <span class="logo-text">RYAN GAMES</span>
+        <span class="logo-version">v3.0</span>
+      </a>
 
-        <section id="dog-game" class="section-container">
-            <h2 data-key="title_dog_game">🐶 Jogo do Cachorrinho: Sobrevivência 🦴</h2>
-            <div id="game-wrapper">
-                <div id="dog-game-controls">
-                    <div id="game-info">
-                        <div id="score" data-key="score">Pontos: 0</div>
-                        <div id="high-score" data-key="high_score">Recorde: 0</div>
-                        <div id="lives" data-key="lives">Vidas: 3</div>
-                    </div>
+      <div class="nav-links" id="nav-links" role="navigation">
+        <a href="#games"        data-t="nav_games">JOGOS</a>
+        <a href="#achievements" data-t="nav_achievements">CONQUISTAS</a>
+        <a href="#news"         data-t="nav_news">NOVIDADES</a>
+        <a href="#about"        data-t="nav_about">SOBRE</a>
+      </div>
 
-                    <canvas id="dog-canvas" width="600" height="600"></canvas>
+      <div class="nav-controls">
+        <button class="nav-btn" id="settings-btn" title="Configurações" aria-label="Configurações">⚙</button>
+        <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </nav>
+  </header>
 
-                    <div id="start-screen">
-                        <h3 style="font-family: 'Press Start 2P', cursive; color: var(--game-info-color);" data-key="welcome">Bem-vindo!</h3>
-                        <p data-key="controls_tip">Use as setas para mover e **X** para atirar o osso.</p>
-                        <div class="game-buttons">
-                            <button id="start-button" class="game-button" data-key="start_game">INICIAR JOGO</button>
-                            <button id="fullscreen-button" class="game-button" data-key="fullscreen">TELA CHEIA</button>
-                        </div>
-                    </div>
-
-                    <div id="game-over-screen">
-                        <h3 style="font-family: 'Press Start 2P', cursive;" data-key="game_over">FIM DE JOGO</h3>
-                        <p><span data-key="final_score_msg">Sua pontuação final é:</span> <span id="final-score" style="color: var(--game-info-color);">0</span></p>
-                        <p id="new-high-score-message" style="color: #ffcc00; display: none;" data-key="new_record">NOVO RECORDE!</p>
-                        <input type="text" id="player-name-input" maxlength="3" placeholder="Nome (3 letras)" style="padding: 8px; margin-bottom: 15px; text-align: center; text-transform: uppercase;">
-                        <button id="restart-button" class="game-button" data-key="play_again">JOGAR NOVAMENTE</button>
-                    </div>
-
-                    <div id="legendary-message" style="display: none;" data-key="legendary_power">O PODER LENDÁRIO APARECEU!!!</div>
-                </div>
-
-                <div id="leaderboard-container">
-                    <h3 data-key="leaderboard_title">🏆 LEADERBOARD</h3>
-                    <div id="leaderboard">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th data-key="table_name">Nome</th>
-                                    <th data-key="table_score">Pontos</th>
-                                </tr>
-                            </thead>
-                            <tbody id="leaderboard-body">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <hr>
-
-        <section id="game-links" class="section-container">
-            <h2 data-key="title_games">🕹️ Outros Jogos</h2>
-            <h3 data-key="favorites_title">⭐ Meus Favoritos</h3>
-            <div class="links-grid" id="favorites-grid-container">
-                <p id="no-favorites" data-key="no_favorites">Nenhum favorito selecionado. Clique na estrela ⭐ para adicionar!</p>
-            </div>
-            <br>
-            <h3 data-key="all_games_title">Todos os Jogos</h3>
-            <div class="links-grid" id="links-grid-container">
-            </div>
-        </section>
-
-        <hr>
-
-        <section id="achievements-section" class="section-container">
-            <h2 data-key="title_achievements">🏅 Conquistas</h2>
-            <div id="achievements-list">
-            </div>
-        </section>
-
-        <hr>
-
-        <section id="news-section" class="section-container">
-            <h2 data-key="title_news">📰 O Que Há de Novo?</h2>
-            <div id="news-list">
-            </div>
-        </section>
-
-        <hr>
-
-        <section id="about" class="section-container">
-            <h2 data-key="title_about">📜 Sobre o Projeto Ryan Games 3.0</h2>
-            <p data-key="about_p1" style="font-size: 1.1em; line-height: 1.6;">
-                Este portal foi criado para reunir uma coleção de jogos, desde protótipos em desenvolvimento (como o Jogo do Cachorrinho) até links de jogos favoritos. A versão 3.0 foca em uma experiência de usuário mais limpa, moderna e otimizada para todas as telas. O Jogo do Cachorrinho é um projeto em **constante evolução**, sendo um playground para novas mecânicas de jogo.
-            </p>
-            <p data-key="about_p2" style="text-align: right; margin-top: 20px; font-weight: bold; color: var(--secondary-color);">
-                Desenvolvido por Ryan.
-            </p>
-        </section>
-    </main>
-
-    <footer>
-        <p data-key="footer_text">&copy; 2025 Ryan Games 3.0 - Todos os direitos reservados. Projeto em desenvolvimento.</p>
-    </footer>
-
-    <div id="settings-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-button" id="close-settings-modal">&times;</span>
-            <h2 data-key="settings_title">⚙️ Configurações do Site</h2>
-
-            <div class="config-item">
-                <span data-key="config_language">Idioma:</span>
-                <select id="language-selector">
-                    <option value="pt-br">Português (BR)</option>
-                    <option value="en">English (US)</option>
-                </select>
-            </div>
-
-            <div class="config-item">
-                <span data-key="config_theme">Tema Visual:</span>
-                <button id="toggle-theme" data-key="config_toggle_theme">Alternar Tema</button>
-            </div>
-
-            <div class="config-item">
-                <span data-key="config_reset_achievements">Resetar Conquistas:</span>
-                <button id="reset-achievements-btn" data-key="config_reset">Resetar</button>
-            </div>
-
-            <div class="config-item">
-                <span data-key="config_reset_data">Limpar TODOS os Dados Locais (Recordes/Cliques):</span>
-                <button id="clear-local-data-btn" data-key="config_clear_all">Limpar Tudo</button>
-            </div>
-        </div>
+  <!-- ─── HERO ────────────────────────────────────────────────── -->
+  <section id="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <span class="hero-eyebrow" data-t="hero_eyebrow">// PORTAL DE JOGOS v3.0</span>
+      <h1 class="hero-title">
+        <span data-t="hero_title_1">RYAN</span>
+        <span class="accent" data-t="hero_title_2">GAMES</span>
+      </h1>
+      <p class="hero-sub" data-t="hero_sub">Sua coleção de jogos favoritos em um só lugar.</p>
+      <div class="hero-actions">
+        <a href="#games" class="btn btn-primary" data-t="hero_btn_main">Ver Jogos</a>
+        <a href="#achievements" class="btn btn-outline" data-t="hero_btn_sec">Conquistas</a>
+      </div>
     </div>
+    <div class="hero-lines"></div>
+  </section>
 
-    <div id="toast-container"></div>
+  <!-- ─── MAIN ─────────────────────────────────────────────────── -->
+  <main>
 
-    <script>
-        // ====================================================================
-        // --- CONFIGURAÇÕES GERAIS E DADOS (Global) ---
-        // ====================================================================
+    <!-- GAMES SECTION -->
+    <section id="games" class="section">
+      <div class="section-header">
+        <span class="section-label" data-t="section_games">BIBLIOTECA</span>
+        <h2 class="section-title" data-t="title_games">Jogos</h2>
+        <div class="section-line"></div>
+      </div>
 
-        const currentLang = localStorage.getItem('language') || 'pt-br';
-        const currentTheme = localStorage.getItem('theme') || 'dark';
-        const linkClickCounts = JSON.parse(localStorage.getItem('linkClickCounts')) || {};
-        const dogGameScores = JSON.parse(localStorage.getItem('dogGameScores')) || [];
-        let dogGameHighScore = localStorage.getItem('dogGameHighScore') || 0;
-        let dogGameAchievements = JSON.parse(localStorage.getItem('dogGameAchievements')) || {};
+      <!-- Tabs -->
+      <div class="tabs" role="tablist">
+        <button class="tab-btn active" id="tab-all" role="tab" aria-selected="true">
+          <span data-t="tab_all">Todos</span>
+        </button>
+        <button class="tab-btn" id="tab-fav" role="tab" aria-selected="false">
+          <span data-t="tab_fav">Favoritos</span>
+          <span class="tab-badge">0</span>
+        </button>
+      </div>
 
-        // OBJETO DE TRADUÇÃO
-        const translations = {
-            'pt-br': {
-                'nav_game': 'JOGO DO CACHORRINHO', 'nav_games': 'OUTROS JOGOS', 'nav_achievements': 'CONQUISTAS', 'nav_news': 'O QUE HÁ DE NOVO', 'nav_about': 'SOBRE',
-                'title_dog_game': '🐶 Jogo do Cachorrinho: Sobrevivência 🦴',
-                'score': 'Pontos: 0', 'high_score': 'Recorde: 0', 'lives': 'Vidas: 3',
-                'welcome': 'Bem-vindo!', 'controls_tip': 'Use as setas para mover e **X** para atirar o osso.',
-                'start_game': 'INICIAR JOGO', 'fullscreen': 'TELA CHEIA', 'game_over': 'FIM DE JOGO',
-                'final_score_msg': 'Sua pontuação final é:', 'new_record': 'NOVO RECORDE!',
-                'play_again': 'JOGAR NOVAMENTE', 'legendary_power': 'O PODER LENDÁRIO APARECEU!!!',
-                'leaderboard_title': '🏆 LEADERBOARD', 'table_name': 'Nome', 'table_score': 'Pontos',
-                'title_games': '🕹️ Outros Jogos', 'favorites_title': '⭐ Meus Favoritos', 'all_games_title': 'Todos os Jogos',
-                'no_favorites': 'Nenhum favorito selecionado. Clique na estrela ⭐ para adicionar!',
-                'title_achievements': '🏅 Conquistas', 'title_news': '📰 O Que Há de Novo?',
-                'title_about': '📜 Sobre o Projeto Ryan Games 3.0',
-                'about_p1': 'Este portal foi criado para reunir uma coleção de jogos, desde protótipos em desenvolvimento (como o Jogo do Cachorrinho) até links de jogos favoritos. A versão 3.0 foca em uma experiência de usuário mais limpa, moderna e otimizada para todas as telas. O Jogo do Cachorrinho é um projeto em **constante evolução**, sendo um playground para novas mecânicas de jogo.',
-                'about_p2': 'Desenvolvido por Ryan.',
-                'footer_text': '&copy; 2025 Ryan Games 3.0 - Todos os direitos reservados. Projeto em desenvolvimento.',
-                'settings_title': '⚙️ Configurações do Site', 'config_language': 'Idioma:', 'config_theme': 'Tema Visual:',
-                'config_toggle_theme': 'Alternar Tema', 'config_reset_achievements': 'Resetar Conquistas:',
-                'config_reset': 'Resetar', 'config_reset_data': 'Limpar TODOS os Dados Locais (Recordes/Cliques):',
-                'config_clear_all': 'Limpar Tudo',
-                // Conquistas
-                'ach_unlocked': 'Conquista Desbloqueada',
-                'ach_welcome_title': 'Bem-vindo(a)!', 'ach_welcome_desc': 'Abra o site pela primeira vez.',
-                'ach_first_game_title': 'Primeiro Clique', 'ach_first_game_desc': 'Clique em qualquer link da seção "Outros Jogos".',
-                'ach_veteran_title': 'Veterano de Ryan', 'ach_veteran_desc': 'Alcance o Nível 3 no Jogo do Cachorrinho.',
-                'ach_master_title': 'Mestre da Sobrevivência', 'ach_master_desc': 'Alcance o Nível 5 no Jogo do Cachorrinho.',
-                // Notificações
-                'notif_new_record': '🎉 NOVO RECORDE! Seu nome foi adicionado ao Leaderboard.',
-                'notif_cleared_data': '🗑️ Todos os dados (recordes, cliques, conquistas) foram apagados.',
-                'notif_theme_dark': '⚫ Modo Escuro ativado.', 'notif_theme_light': '⚪ Modo Claro ativado.',
-                'notif_reset_achievements': '🏅 Conquistas resetadas com sucesso!',
-                'no_records': 'Sem recordes ainda.',
-                'clicks': 'Cliques:'
-            },
-            'en': {
-                'nav_game': 'DOGGY GAME', 'nav_games': 'OTHER GAMES', 'nav_achievements': 'ACHIEVEMENTS', 'nav_news': 'WHAT\'S NEW', 'nav_about': 'ABOUT',
-                'title_dog_game': '🐶 Doggy Game: Survival 🦴',
-                'score': 'Score: 0', 'high_score': 'High Score: 0', 'lives': 'Lives: 3',
-                'welcome': 'Welcome!', 'controls_tip': 'Use the arrow keys to move and **X** to shoot the bone.',
-                'start_game': 'START GAME', 'fullscreen': 'FULLSCREEN', 'game_over': 'GAME OVER',
-                'final_score_msg': 'Your final score is:', 'new_record': 'NEW RECORD!',
-                'play_again': 'PLAY AGAIN', 'legendary_power': 'LEGENDARY POWER APPEARED!!!',
-                'leaderboard_title': '🏆 LEADERBOARD', 'table_name': 'Name', 'table_score': 'Score',
-                'title_games': '🕹️ Other Games', 'favorites_title': '⭐ My Favorites', 'all_games_title': 'All Games',
-                'no_favorites': 'No favorites selected. Click the star ⭐ to add one!',
-                'title_achievements': '🏅 Achievements', 'title_news': '📰 What\'s New?',
-                'title_about': '📜 About the Ryan Games 3.0 Project',
-                'about_p1': 'This portal was created to gather a collection of games, from prototypes in development (like the Doggy Game) to favorite game links. Version 3.0 focuses on a cleaner, more modern, and optimized user experience for all screens. The Doggy Game is a project in **constant evolution**, serving as a playground for new game mechanics.',
-                'about_p2': 'Developed by Ryan.',
-                'footer_text': '&copy; 2025 Ryan Games 3.0 - All rights reserved. Project in development.',
-                'settings_title': '⚙️ Site Settings', 'config_language': 'Language:', 'config_theme': 'Visual Theme:',
-                'config_toggle_theme': 'Toggle Theme', 'config_reset_achievements': 'Reset Achievements:',
-                'config_reset': 'Reset', 'config_reset_data': 'Clear ALL Local Data (High Scores/Clicks):',
-                'config_clear_all': 'Clear All',
-                // Conquistas
-                'ach_unlocked': 'Achievement Unlocked',
-                'ach_welcome_title': 'Welcome!', 'ach_welcome_desc': 'Open the site for the first time.',
-                'ach_first_game_title': 'First Click', 'ach_first_game_desc': 'Click any link in the "Other Games" section.',
-                'ach_veteran_title': 'Ryan Veteran', 'ach_veteran_desc': 'Reach Level 3 in the Doggy Game.',
-                'ach_master_title': 'Survival Master', 'ach_master_desc': 'Reach Level 5 in the Doggy Game.',
-                // Notificações
-                'notif_new_record': '🎉 NEW HIGH SCORE! Your name was added to the Leaderboard.',
-                'notif_cleared_data': '🗑️ All local data (scores, clicks, achievements) has been cleared.',
-                'notif_theme_dark': '⚫ Dark Mode activated.', 'notif_theme_light': '⚪ Light Mode activated.',
-                'notif_reset_achievements': '🏅 Achievements successfully reset!',
-                'no_records': 'No high scores yet.',
-                'clicks': 'Clicks:'
-            }
-        };
+      <!-- Search & Filters -->
+      <div class="games-toolbar">
+        <div class="search-wrapper">
+          <span class="search-icon">🔍</span>
+          <input
+            type="search"
+            id="search-input"
+            data-t-ph="search_ph"
+            placeholder="Buscar jogo..."
+            autocomplete="off"
+            aria-label="Buscar jogo"
+          />
+        </div>
+        <div class="filter-chips" id="filter-chips" role="group" aria-label="Filtrar por categoria"></div>
+      </div>
 
-        // --- DADOS DOS JOGOS ADICIONADOS AQUI ---
-        const GAME_LINKS_DATA = [
-            // LINKS EXISTENTES
-            { id: '3kh0s', name: '3kh0s Games (Geral)', url: 'https://3kh0s.github.io/games/index.html', icon: '🎮' },
-            { id: 'andrewclark3244', name: 'AndrewClark Games', url: 'https://andrewclark3244.github.io/games/', icon: '🚀' },
-            
-            // NOVOS LINKS SOLICITADOS (INCLUÍDOS AGORA)
-            { id: 'buttertoasty', name: 'ButterToasty Bowl', url: 'https://buttertoasty.github.io/Bowl/', icon: '🥣' },
-            { id: 'freezenova', name: 'Freeze Nova Games', url: 'https://freezenova.github.io/', icon: '❄️' },
-            { id: 'gamedump', name: 'Game Dump PC', url: 'https://gamedump.github.io/pc.html', icon: '💾' },
-            { id: 'quiz40', name: 'Quiz 40 Games', url: 'https://quiz-40.github.io/', icon: '🧠' },
-            { id: 'gamessite', name: 'Games Site (Diversos)', url: 'https://games-site.github.io/', icon: '⭐' },
-            { id: 'stickmanclimb', name: 'Stickman Climb 2', url: 'https://stickmanclimb2.github.io/', icon: '🧗' },
-            { id: 'superhot', name: 'SUPERHOT Prototype', url: 'https://githubgames.gitlab.io/game/superhot-prototype.html', icon: '🔴' },
-            { id: 'ucbg', name: 'UCBG Games (Outros)', url: 'https://ucbg.github.io/', icon: '🌐' },
-            // O 'mineeeeeee' não tinha um URL na lista, vou assumir que era o mesmo do quiz-40 ou um subdomínio
-            { id: 'mineeeeeee', name: 'Mineeeeeee (Jogo)', url: 'https://quiz-40.github.io/mineeeeeee/', icon: '⛏️' }
-        ];
+      <!-- Grid -->
+      <div id="games-grid" role="list"></div>
+    </section>
 
-        // DADOS DAS CONQUISTAS
-        const ACHIEVEMENTS_DATA = [
-            { id: 'welcome', icon: '👋', unlocked: false, key_title: 'ach_welcome_title', key_desc: 'ach_welcome_desc', check: () => true }, // Sempre desbloqueada
-            { id: 'first_click', icon: '🖱️', unlocked: false, key_title: 'ach_first_game_title', key_desc: 'ach_first_game_desc', check: () => Object.values(linkClickCounts).some(count => count > 0) },
-            { id: 'veteran', icon: '🥉', unlocked: false, key_title: 'ach_veteran_title', key_desc: 'ach_veteran_desc', check: () => dogGameHighScore >= 300 }, // Exemplo: High Score de 300
-            { id: 'master', icon: '🥇', unlocked: false, key_title: 'ach_master_title', key_desc: 'ach_master_desc', check: () => dogGameHighScore >= 500 } // Exemplo: High Score de 500
-        ];
+    <!-- ACHIEVEMENTS SECTION -->
+    <section id="achievements" class="section">
+      <div class="section-header">
+        <span class="section-label" data-t="section_ach">PROGRESSO</span>
+        <h2 class="section-title" data-t="title_ach">Conquistas</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="achievements-grid" id="achievements-grid"></div>
+    </section>
 
-        // DADOS DAS NOTÍCIAS
-        const NEWS_DATA = [
-            { id: 1, date: '25 Nov, 2025', title: 'Novos Jogos Adicionados!', content: 'Diversos links de jogos foram incluídos na seção "Outros Jogos", incluindo o famoso Stickman Climb 2 e o protótipo do SUPERHOT!' },
-            { id: 2, date: '20 Nov, 2025', title: 'Ryan Games 3.0 Lançado', content: 'Nova interface de usuário com Modo Claro/Escuro, Leaderboard e sistema de Conquistas implementados.' },
-            { id: 3, date: '15 Nov, 2025', title: 'Atualização do Jogo do Cachorrinho', content: 'Nova mecânica de Power-up "Poder Lendário" adicionada (aparece ao atingir 100 pontos sem morrer).' }
-        ];
+    <!-- NEWS SECTION -->
+    <section id="news" class="section">
+      <div class="section-header">
+        <span class="section-label" data-t="section_news">ATUALIZAÇÕES</span>
+        <h2 class="section-title" data-t="title_news">Novidades</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="news-grid" id="news-grid"></div>
+    </section>
 
+    <!-- ABOUT SECTION -->
+    <section id="about" class="section">
+      <div class="section-header">
+        <span class="section-label" data-t="section_about">PROJETO</span>
+        <h2 class="section-title" data-t="title_about">Sobre</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="about-card">
+        <div class="about-text">
+          <p id="about-p1" data-t="about_p1"></p>
+          <p id="about-p2" data-t="about_p2"></p>
+        </div>
+        <div class="about-stat">
+          <span class="stat-num" id="stat-games">—</span>
+          <span class="stat-label" data-t="stat_games">Jogos</span>
+          <span class="stat-num" id="stat-favs" style="margin-top:16px">—</span>
+          <span class="stat-label" data-t="stat_favs">Favoritos</span>
+          <span class="stat-num" id="stat-visits" style="margin-top:16px">—</span>
+          <span class="stat-label" data-t="stat_visits">Visitas</span>
+        </div>
+      </div>
+    </section>
 
-        // ====================================================================
-        // --- FUNÇÕES GERAIS E DE NAVEGAÇÃO ---
-        // ====================================================================
+  </main>
 
-        function translatePage(lang) {
-            document.querySelectorAll('[data-key]').forEach(element => {
-                const key = element.getAttribute('data-key');
-                if (translations[lang] && translations[lang][key]) {
-                    // Tradução normal para a maioria dos elementos
-                    if (element.tagName !== 'P' || element.id === 'no-favorites') {
-                        element.textContent = translations[lang][key];
-                    } else if (element.tagName === 'P') {
-                        // Permite formatação bold para parágrafos
-                        let text = translations[lang][key];
-                        text = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-                        element.innerHTML = text;
-                    }
-                }
-            });
-            // Atualiza os placeholders dos inputs
-            document.getElementById('player-name-input').placeholder = lang === 'pt-br' ? "Nome (3 letras)" : "Name (3 letters)";
-            // Atualiza os links gerados
-            renderGameLinks();
-            renderAchievements();
-        }
+  <!-- ─── FOOTER ───────────────────────────────────────────────── -->
+  <footer>
+    <div class="footer-inner">
+      <span class="footer-logo">RYAN GAMES</span>
+      <span class="footer-copy" data-t="footer_copy">© 2025 Ryan Games 3.0 — Todos os direitos reservados</span>
+      <div class="footer-status">
+        <span class="status-dot"></span>
+        <span data-t="footer_status">Online</span>
+      </div>
+    </div>
+  </footer>
 
-        function toggleMenu() {
-            const navLinks = document.querySelector('.nav-links');
-            navLinks.classList.toggle('active');
-        }
+  <!-- ─── SETTINGS MODAL ───────────────────────────────────────── -->
+  <div class="modal-overlay" id="settings-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-title" data-t="settings_title">Configurações</h3>
+        <button class="modal-close" id="modal-close" aria-label="Fechar">✕</button>
+      </div>
 
-        function toggleTheme() {
-            const body = document.body;
-            body.classList.toggle('light-mode');
-            const newTheme = body.classList.contains('light-mode') ? 'light' : 'dark';
-            localStorage.setItem('theme', newTheme);
-            showToast(newTheme === 'dark' ? 'notif_theme_dark' : 'notif_theme_light');
-        }
+      <div class="config-row">
+        <span class="config-label" data-t="cfg_lang">Idioma</span>
+        <select class="config-select" id="lang-select" aria-label="Idioma">
+          <option value="pt-br">Português (BR)</option>
+          <option value="en">English (US)</option>
+        </select>
+      </div>
 
-        function applyTheme(theme) {
-            if (theme === 'light') {
-                document.body.classList.add('light-mode');
-            } else {
-                document.body.classList.remove('light-mode');
-            }
-        }
+      <div class="config-row">
+        <span class="config-label" data-t="cfg_theme">Tema</span>
+        <button class="btn btn-outline" id="toggle-theme-btn" data-t="cfg_theme_btn">Alternar</button>
+      </div>
 
-        function showToast(key) {
-            const toastContainer = document.getElementById('toast-container');
-            const lang = localStorage.getItem('language') || 'pt-br';
-            const message = translations[lang][key] || 'Notificação.';
+      <div class="config-row">
+        <span class="config-label" data-t="cfg_reset_ach">Resetar Conquistas</span>
+        <button class="btn btn-danger" id="reset-ach-btn" data-t="cfg_reset_btn">Resetar</button>
+      </div>
 
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.textContent = message;
+      <div class="config-row">
+        <span class="config-label" data-t="cfg_clear">Limpar Todos os Dados</span>
+        <button class="btn btn-danger" id="clear-data-btn" data-t="cfg_clear_btn">Limpar Tudo</button>
+      </div>
+    </div>
+  </div>
 
-            toastContainer.appendChild(toast);
+  <!-- ─── TOAST CONTAINER ──────────────────────────────────────── -->
+  <div id="toast-container" aria-live="polite"></div>
 
-            // Força o reflow para aplicar a transição
-            void toast.offsetWidth; 
-            toast.classList.add('show');
-
-            setTimeout(() => {
-                toast.classList.remove('show');
-                toast.addEventListener('transitionend', () => {
-                    toast.remove();
-                });
-            }, 3000);
-        }
-
-        // ====================================================================
-        // --- LÓGICA DO GAME LINKS ---
-        // ====================================================================
-
-        function handleLinkClick(id, url) {
-            linkClickCounts[id] = (linkClickCounts[id] || 0) + 1;
-            localStorage.setItem('linkClickCounts', JSON.stringify(linkClickCounts));
-            
-            // Checa a conquista de Primeiro Clique
-            checkAchievements();
-            
-            // Redireciona
-            window.open(url, '_blank');
-        }
-
-        function toggleFavorite(id, button) {
-            let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-            const isActive = favorites.includes(id);
-
-            if (isActive) {
-                favorites = favorites.filter(favId => favId !== id);
-                button.classList.remove('active');
-                button.textContent = '⭐';
-            } else {
-                favorites.push(id);
-                button.classList.add('active');
-                button.textContent = '🌟';
-            }
-
-            localStorage.setItem('favorites', JSON.stringify(favorites));
-            renderGameLinks(); // Renderiza novamente para atualizar as listas
-        }
-
-        function createLinkElement(linkData) {
-            const id = linkData.id;
-            const linkCount = linkClickCounts[id] || 0;
-            const lang = localStorage.getItem('language') || 'pt-br';
-            const isFavorite = (JSON.parse(localStorage.getItem('favorites')) || []).includes(id);
-
-            const link = document.createElement('a');
-            link.href = 'javascript:void(0);'; // Previne navegação padrão para gerenciar o clique
-            link.className = 'link-item';
-            link.onclick = () => handleLinkClick(id, linkData.url);
-
-            const titleSpan = document.createElement('span');
-            titleSpan.textContent = `${linkData.icon} ${linkData.name}`;
-            link.appendChild(titleSpan);
-
-            const controlsDiv = document.createElement('div');
-            controlsDiv.className = 'link-controls';
-
-            const counterSpan = document.createElement('span');
-            counterSpan.className = 'link-counter';
-            counterSpan.textContent = `${translations[lang]['clicks']} ${linkCount}`;
-            controlsDiv.appendChild(counterSpan);
-
-            const favButton = document.createElement('button');
-            favButton.className = `favorite-btn ${isFavorite ? 'active' : ''}`;
-            favButton.textContent = isFavorite ? '🌟' : '⭐';
-            favButton.title = isFavorite ? 'Remover dos Favoritos' : 'Adicionar aos Favoritos';
-            favButton.onclick = (e) => {
-                e.stopPropagation(); // Impede que o clique no botão ative o link
-                e.preventDefault();
-                toggleFavorite(id, favButton);
-            };
-            controlsDiv.appendChild(favButton);
-
-            link.appendChild(controlsDiv);
-
-            return link;
-        }
-
-        function renderGameLinks() {
-            const allLinksContainer = document.getElementById('links-grid-container');
-            const favLinksContainer = document.getElementById('favorites-grid-container');
-            const noFavoritesP = document.getElementById('no-favorites');
-            
-            allLinksContainer.innerHTML = '';
-            favLinksContainer.innerHTML = '';
-
-            const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-            let hasFavorites = false;
-
-            GAME_LINKS_DATA.forEach(linkData => {
-                const linkElement = createLinkElement(linkData);
-                allLinksContainer.appendChild(linkElement);
-
-                if (favorites.includes(linkData.id)) {
-                    favLinksContainer.appendChild(linkElement.cloneNode(true)); // Clona para a seção de favoritos
-                    hasFavorites = true;
-                }
-            });
-
-            if (hasFavorites) {
-                noFavoritesP.style.display = 'none';
-            } else {
-                noFavoritesP.style.display = 'block';
-            }
-        }
-
-        // ====================================================================
-        // --- LÓGICA DO JOGO DO CACHORRINHO (Simulação) ---
-        // ====================================================================
-
-        // Simulação de Jogo (Apenas para demonstração dos placares e estados)
-        let gameInterval;
-        let currentScore = 0;
-        let currentLives = 3;
-        let gameIsRunning = false;
-
-        function updateGameDisplay() {
-            const lang = localStorage.getItem('language') || 'pt-br';
-            document.getElementById('score').textContent = `${translations[lang]['score'].split(':')[0]}: ${currentScore}`;
-            document.getElementById('high-score').textContent = `${translations[lang]['high_score'].split(':')[0]}: ${dogGameHighScore}`;
-            document.getElementById('lives').textContent = `${translations[lang]['lives'].split(':')[0]}: ${currentLives}`;
-        }
-
-        function startGameSimulation() {
-            if (gameIsRunning) return;
-            
-            gameIsRunning = true;
-            currentScore = 0;
-            currentLives = 3;
-            document.getElementById('start-screen').style.display = 'none';
-            document.getElementById('dog-canvas').style.display = 'block'; // Mostra o canvas (simulado)
-            document.getElementById('game-over-screen').style.display = 'none';
-            updateGameDisplay();
-
-            // Simulação do jogo aumentando o score a cada segundo
-            gameInterval = setInterval(() => {
-                currentScore += 10;
-                updateGameDisplay();
-                
-                // Exemplo de verificação de condição de jogo (aqui seria seu código Canvas real)
-                if (currentScore >= 100 && currentScore < 110) {
-                    document.getElementById('legendary-message').style.display = 'block';
-                    setTimeout(() => document.getElementById('legendary-message').style.display = 'none', 3000);
-                }
-                
-                // Simulação de Game Over aleatório (para testes)
-                if (currentScore > 50 && Math.random() < 0.05) { 
-                    clearInterval(gameInterval);
-                    endGameSimulation();
-                }
-                
-                // Checa conquistas (simulação)
-                checkAchievements();
-            }, 1000);
-        }
-
-        function endGameSimulation() {
-            gameIsRunning = false;
-            document.getElementById('dog-canvas').style.display = 'none';
-            document.getElementById('game-over-screen').style.display = 'flex';
-            document.getElementById('final-score').textContent = currentScore;
-            
-            // Checa e atualiza Recorde
-            const isNewRecord = currentScore > dogGameHighScore;
-            if (isNewRecord) {
-                dogGameHighScore = currentScore;
-                localStorage.setItem('dogGameHighScore', dogGameHighScore);
-                document.getElementById('new-high-score-message').style.display = 'block';
-            } else {
-                document.getElementById('new-high-score-message').style.display = 'none';
-            }
-            
-            updateGameDisplay();
-        }
-
-        function saveScore() {
-            const playerName = document.getElementById('player-name-input').value.toUpperCase().trim() || 'RYN';
-            
-            if (currentScore > 0) {
-                const newScore = {
-                    name: playerName.length <= 3 ? playerName : playerName.substring(0, 3),
-                    score: currentScore,
-                    date: new Date().toLocaleString('pt-br')
-                };
-                
-                dogGameScores.push(newScore);
-                dogGameScores.sort((a, b) => b.score - a.score); // Ordena do maior para o menor
-                
-                // Mantém apenas os top 10
-                const topScores = dogGameScores.slice(0, 10);
-                localStorage.setItem('dogGameScores', JSON.stringify(topScores));
-                
-                renderLeaderboard();
-                
-                if (currentScore >= dogGameHighScore) {
-                    showToast('notif_new_record');
-                }
-            }
-            
-            // Volta para a tela inicial
-            document.getElementById('game-over-screen').style.display = 'none';
-            document.getElementById('start-screen').style.display = 'flex';
-        }
-
-        // ====================================================================
-        // --- LÓGICA DO LEADERBOARD ---
-        // ====================================================================
-
-        function renderLeaderboard() {
-            const tbody = document.getElementById('leaderboard-body');
-            const lang = localStorage.getItem('language') || 'pt-br';
-            tbody.innerHTML = '';
-
-            if (dogGameScores.length === 0) {
-                const row = tbody.insertRow();
-                const cell = row.insertCell();
-                cell.colSpan = 3;
-                cell.textContent = translations[lang]['no_records'];
-                cell.style.textAlign = 'center';
-            } else {
-                dogGameScores.forEach((scoreData, index) => {
-                    const row = tbody.insertRow();
-                    row.innerHTML = `
-                        <td>${index + 1}</td>
-                        <td>${scoreData.name}</td>
-                        <td>${scoreData.score}</td>
-                    `;
-                });
-            }
-        }
-        
-        // ====================================================================
-        // --- LÓGICA DAS CONQUISTAS ---
-        // ====================================================================
-
-        function checkAchievements() {
-            ACHIEVEMENTS_DATA.forEach(ach => {
-                // Se a conquista já foi desbloqueada, pula a verificação
-                if (dogGameAchievements[ach.id]) {
-                    ach.unlocked = true;
-                    return;
-                }
-
-                if (ach.check()) {
-                    dogGameAchievements[ach.id] = true;
-                    ach.unlocked = true;
-                    localStorage.setItem('dogGameAchievements', JSON.stringify(dogGameAchievements));
-                    renderAchievements(); // Atualiza a lista
-                    showToast('ach_unlocked');
-                }
-            });
-        }
-
-        function renderAchievements() {
-            const listContainer = document.getElementById('achievements-list');
-            const lang = localStorage.getItem('language') || 'pt-br';
-            listContainer.innerHTML = '';
-            
-            // Re-valida o estado unlocked no objeto global
-            ACHIEVEMENTS_DATA.forEach(ach => {
-                ach.unlocked = dogGameAchievements[ach.id] || false;
-            });
-
-            ACHIEVEMENTS_DATA.forEach(ach => {
-                const item = document.createElement('div');
-                item.className = `achievement-item ${ach.unlocked ? 'unlocked' : ''}`;
-
-                item.innerHTML = `
-                    <div class="achievement-icon">${ach.unlocked ? ach.icon : '🔒'}</div>
-                    <div class="achievement-info">
-                        <div class="achievement-title">${translations[lang][ach.key_title] || ach.key_title}</div>
-                        <div class="achievement-description">
-                            ${ach.unlocked ? translations[lang][ach.key_desc] || ach.key_desc : (lang === 'pt-br' ? 'Desbloqueie para ver a descrição.' : 'Unlock to see the description.')}
-                        </div>
-                    </div>
-                `;
-                listContainer.appendChild(item);
-            });
-        }
-        
-        // ====================================================================
-        // --- LÓGICA DO NEWS ---
-        // ====================================================================
-
-        function renderNews() {
-            const listContainer = document.getElementById('news-list');
-            listContainer.innerHTML = '';
-            
-            NEWS_DATA.forEach(news => {
-                const item = document.createElement('div');
-                item.className = 'news-item';
-
-                item.innerHTML = `
-                    <h4>${news.title}</h4>
-                    <small>${news.date}</small>
-                    <p>${news.content}</p>
-                `;
-                listContainer.appendChild(item);
-            });
-        }
-
-
-        // ====================================================================
-        // --- EVENTOS E INICIALIZAÇÃO ---
-        // ====================================================================
-
-        document.addEventListener('DOMContentLoaded', () => {
-            // Inicialização
-            applyTheme(currentTheme);
-            document.getElementById('language-selector').value = currentLang;
-            translatePage(currentLang);
-            renderLeaderboard();
-            renderNews();
-            checkAchievements(); // Checa o "Bem-vindo" na primeira abertura
-
-            // Configuração dos Botões de Ação
-            document.getElementById('start-button').addEventListener('click', startGameSimulation);
-            document.getElementById('restart-button').addEventListener('click', saveScore);
-            
-            // Eventos do Modal
-            const settingsModal = document.getElementById('settings-modal');
-            document.getElementById('settings-button').addEventListener('click', () => {
-                settingsModal.style.display = 'block';
-            });
-            document.getElementById('close-settings-modal').addEventListener('click', () => {
-                settingsModal.style.display = 'none';
-            });
-            window.addEventListener('click', (event) => {
-                if (event.target === settingsModal) {
-                    settingsModal.style.display = 'none';
-                }
-            });
-            
-            // Controles do Modal
-            document.getElementById('toggle-theme').addEventListener('click', toggleTheme);
-            document.getElementById('language-selector').addEventListener('change', (e) => {
-                const newLang = e.target.value;
-                localStorage.setItem('language', newLang);
-                translatePage(newLang);
-            });
-            document.getElementById('reset-achievements-btn').addEventListener('click', () => {
-                localStorage.removeItem('dogGameAchievements');
-                dogGameAchievements = {};
-                renderAchievements();
-                showToast('notif_reset_achievements');
-            });
-            document.getElementById('clear-local-data-btn').addEventListener('click', () => {
-                localStorage.clear();
-                window.location.reload();
-            });
-
-            // Botão Tela Cheia (Exemplo)
-            document.getElementById('fullscreen-button').addEventListener('click', () => {
-                const gameContainer = document.getElementById('dog-game-controls');
-                if (gameContainer.requestFullscreen) {
-                    gameContainer.requestFullscreen();
-                } else if (gameContainer.webkitRequestFullscreen) { /* Safari */
-                    gameContainer.webkitRequestFullscreen();
-                } else if (gameContainer.msRequestFullscreen) { /* IE11 */
-                    gameContainer.msRequestFullscreen();
-                }
-            });
-        });
-        
-        // Simulação do código Canvas. Isso precisa ser substituído pelo seu código de jogo real!
-        const canvas = document.getElementById('dog-canvas');
-        const ctx = canvas.getContext('2d');
-        if(canvas.style.display === 'none') {
-            ctx.fillStyle = 'white';
-            ctx.font = '20px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText('Seu código de jogo do cachorrinho vai aqui!', 300, 300);
-        }
-        
-    </script>
+  <!-- ─── SCRIPTS ──────────────────────────────────────────────── -->
+  <script src="app.js"></script>
 </body>
 </html>
