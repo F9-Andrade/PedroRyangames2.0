@@ -1,0 +1,58 @@
+{
+  "site": {
+    "name": "RYAN GAMES",
+    "version": "3.0",
+    "description": "Portal de jogos criado por Ryan"
+  },
+  "games": [
+    { "id": "3kh0s", "name": "3kh0s Games", "url": "https://3kh0s.github.io/games/index.html", "icon": "🎮", "category": "Geral", "featured": true },
+    { "id": "andrewclark3244", "name": "AndrewClark Games", "url": "https://andrewclark3244.github.io/games/", "icon": "🚀", "category": "Ação", "featured": false },
+    { "id": "buttertoasty", "name": "ButterToasty Bowl", "url": "https://buttertoasty.github.io/Bowl/", "icon": "🥣", "category": "Casual", "featured": false },
+    { "id": "freezenova", "name": "Freeze Nova", "url": "https://freezenova.github.io/", "icon": "❄️", "category": "Aventura", "featured": true },
+    { "id": "gamedump", "name": "Game Dump PC", "url": "https://gamedump.github.io/pc.html", "icon": "💾", "category": "PC", "featured": false },
+    { "id": "quiz40", "name": "Quiz 40 Games", "url": "https://quiz-40.github.io/", "icon": "🧠", "category": "Quiz", "featured": false },
+    { "id": "gamessite", "name": "Games Site", "url": "https://games-site.github.io/", "icon": "⭐", "category": "Geral", "featured": true },
+    { "id": "stickmanclimb", "name": "Stickman Climb 2", "url": "https://stickmanclimb2.github.io/", "icon": "🧗", "category": "Plataforma", "featured": true },
+    { "id": "superhot", "name": "SUPERHOT Prototype", "url": "https://githubgames.gitlab.io/game/superhot-prototype.html", "icon": "🔴", "category": "Ação", "featured": false },
+    { "id": "ucbg", "name": "UCBG Games", "url": "https://ucbg.github.io/", "icon": "🌐", "category": "Geral", "featured": false },
+    { "id": "mineeeeeee", "name": "Mineeeeeee", "url": "https://quiz-40.github.io/mineeeeeee/", "icon": "⛏️", "category": "Construção", "featured": false }
+  ],
+  "achievements": [
+    { "id": "welcome", "icon": "👋", "title_pt": "Bem-vindo(a)!", "title_en": "Welcome!", "desc_pt": "Abriu o site pela primeira vez.", "desc_en": "Opened the site for the first time.", "trigger": "always" },
+    { "id": "first_click", "icon": "🖱️", "title_pt": "Primeiro Clique", "title_en": "First Click", "desc_pt": "Clicou em um jogo pela primeira vez.", "desc_en": "Clicked a game for the first time.", "trigger": "click" },
+    { "id": "explorer", "icon": "🗺️", "title_pt": "Explorador", "title_en": "Explorer", "desc_pt": "Clicou em 5 jogos diferentes.", "desc_en": "Clicked 5 different games.", "trigger": "clicks_5" },
+    { "id": "collector", "icon": "⭐", "title_pt": "Colecionador", "title_en": "Collector", "desc_pt": "Adicionou 3 jogos aos favoritos.", "desc_en": "Added 3 games to favorites.", "trigger": "favorites_3" },
+    { "id": "veteran", "icon": "🥉", "title_pt": "Veterano", "title_en": "Veteran", "desc_pt": "Visitou o site mais de 5 vezes.", "desc_en": "Visited the site more than 5 times.", "trigger": "visits_5" },
+    { "id": "master", "icon": "🏆", "title_pt": "Mestre", "title_en": "Master", "desc_pt": "Desbloqueou todas as outras conquistas.", "desc_en": "Unlocked all other achievements.", "trigger": "all" }
+  ],
+  "news": [
+    {
+      "id": 1,
+      "date": "25 Nov, 2025",
+      "tag": "NOVIDADE",
+      "title_pt": "Novos Jogos Adicionados!",
+      "title_en": "New Games Added!",
+      "content_pt": "Stickman Climb 2, SUPERHOT Prototype e mais 4 novos links foram incluídos na coleção. Explore a seção Jogos!",
+      "content_en": "Stickman Climb 2, SUPERHOT Prototype and 4 more new links were added to the collection. Explore the Games section!"
+    },
+    {
+      "id": 2,
+      "date": "20 Nov, 2025",
+      "tag": "LANÇAMENTO",
+      "title_pt": "Ryan Games 3.0 no Ar!",
+      "title_en": "Ryan Games 3.0 is Live!",
+      "content_pt": "Nova interface com tema claro/escuro, sistema de favoritos, leaderboard e conquistas. Tudo renovado!",
+      "content_en": "New interface with light/dark theme, favorites system, leaderboard, and achievements. All renewed!"
+    },
+    {
+      "id": 3,
+      "date": "10 Nov, 2025",
+      "tag": "INFO",
+      "title_pt": "Sistema de Conquistas",
+      "title_en": "Achievement System",
+      "content_pt": "Desbloqueie conquistas explorando o portal! Quanto mais você usa, mais recompensas aparecem.",
+      "content_en": "Unlock achievements by exploring the portal! The more you use it, the more rewards appear."
+    }
+  ],
+  "categories": ["Geral", "Ação", "Aventura", "Casual", "PC", "Quiz", "Plataforma", "Construção"]
+}
