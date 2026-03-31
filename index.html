@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Ryan Games 3.0 — Seu portal de jogos favoritos." />
+  <meta property="og:title" content="Ryan Games 3.0" />
+  <meta property="og:description" content="Seu portal de jogos favoritos." />
+  <meta name="theme-color" content="#00f5ff" />
   <title>Ryan Games 3.0</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -12,31 +15,31 @@
 </head>
 <body>
 
-  <!-- ─── HEADER ─────────────────────────────────────────────── -->
+  <!-- HEADER -->
   <header>
     <nav>
       <a href="#" class="logo" aria-label="Ryan Games Home">
         <span class="logo-text">RYAN GAMES</span>
         <span class="logo-version">v3.0</span>
       </a>
-
       <div class="nav-links" id="nav-links" role="navigation">
-        <a href="#games"        data-t="nav_games">JOGOS</a>
+        <a href="#games"       data-t="nav_games">JOGOS</a>
+        <a href="#leaderboard" data-t="nav_leaderboard">RANKING</a>
         <a href="#achievements" data-t="nav_achievements">CONQUISTAS</a>
-        <a href="#news"         data-t="nav_news">NOVIDADES</a>
-        <a href="#about"        data-t="nav_about">SOBRE</a>
+        <a href="#news"        data-t="nav_news">NOVIDADES</a>
+        <a href="#about"       data-t="nav_about">SOBRE</a>
       </div>
-
       <div class="nav-controls">
+        <div id="auth-container"></div>
         <button class="nav-btn" id="settings-btn" title="Configurações" aria-label="Configurações">⚙</button>
-        <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
+        <button class="hamburger" id="hamburger" aria-label="Menu">
           <span></span><span></span><span></span>
         </button>
       </div>
     </nav>
   </header>
 
-  <!-- ─── HERO ────────────────────────────────────────────────── -->
+  <!-- HERO -->
   <section id="hero">
     <div class="hero-bg"></div>
     <div class="hero-content">
@@ -47,17 +50,16 @@
       </h1>
       <p class="hero-sub" data-t="hero_sub">Sua coleção de jogos favoritos em um só lugar.</p>
       <div class="hero-actions">
-        <a href="#games" class="btn btn-primary" data-t="hero_btn_main">Ver Jogos</a>
-        <a href="#achievements" class="btn btn-outline" data-t="hero_btn_sec">Conquistas</a>
+        <a href="#games"       class="btn btn-primary" data-t="hero_btn_main">Ver Jogos</a>
+        <a href="#leaderboard" class="btn btn-outline"  data-t="hero_btn_sec">Ranking</a>
       </div>
     </div>
     <div class="hero-lines"></div>
   </section>
 
-  <!-- ─── MAIN ─────────────────────────────────────────────────── -->
   <main>
 
-    <!-- GAMES SECTION -->
+    <!-- GAMES -->
     <section id="games" class="section">
       <div class="section-header">
         <span class="section-label" data-t="section_games">BIBLIOTECA</span>
@@ -65,48 +67,59 @@
         <div class="section-line"></div>
       </div>
 
-      <!-- Tabs -->
       <div class="tabs" role="tablist">
-        <button class="tab-btn active" id="tab-all" role="tab" aria-selected="true">
+        <button class="tab-btn active" id="tab-all" role="tab">
           <span data-t="tab_all">Todos</span>
         </button>
-        <button class="tab-btn" id="tab-fav" role="tab" aria-selected="false">
+        <button class="tab-btn" id="tab-fav" role="tab">
           <span data-t="tab_fav">Favoritos</span>
           <span class="tab-badge">0</span>
         </button>
       </div>
 
-      <!-- Search & Filters -->
       <div class="games-toolbar">
         <div class="search-wrapper">
           <span class="search-icon">🔍</span>
-          <input
-            type="search"
-            id="search-input"
-            data-t-ph="search_ph"
-            placeholder="Buscar jogo..."
-            autocomplete="off"
-            aria-label="Buscar jogo"
-          />
+          <input type="search" id="search-input" placeholder="Buscar jogo... (Ctrl+K)" autocomplete="off" />
         </div>
-        <div class="filter-chips" id="filter-chips" role="group" aria-label="Filtrar por categoria"></div>
+        <div class="filter-chips" id="filter-chips"></div>
       </div>
 
-      <!-- Grid -->
+      <div id="sort-buttons" class="sort-bar"></div>
+
       <div id="games-grid" role="list"></div>
     </section>
 
-    <!-- ACHIEVEMENTS SECTION -->
+    <!-- LEADERBOARD -->
+    <section id="leaderboard" class="section">
+      <div class="section-header">
+        <span class="section-label" data-t="section_lb">COMPETIÇÃO</span>
+        <h2 class="section-title" data-t="title_lb">Ranking de Jogos</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="lb-wrapper">
+        <div id="leaderboard-list"></div>
+      </div>
+    </section>
+
+    <!-- ACHIEVEMENTS -->
     <section id="achievements" class="section">
       <div class="section-header">
         <span class="section-label" data-t="section_ach">PROGRESSO</span>
         <h2 class="section-title" data-t="title_ach">Conquistas</h2>
         <div class="section-line"></div>
       </div>
+      <!-- Barra de progresso -->
+      <div class="ach-progress-wrap">
+        <div class="ach-progress-track">
+          <div class="ach-progress-fill" id="ach-progress-bar"></div>
+        </div>
+        <span class="ach-progress-label" id="ach-progress-label">0/7</span>
+      </div>
       <div class="achievements-grid" id="achievements-grid"></div>
     </section>
 
-    <!-- NEWS SECTION -->
+    <!-- NEWS -->
     <section id="news" class="section">
       <div class="section-header">
         <span class="section-label" data-t="section_news">ATUALIZAÇÕES</span>
@@ -116,7 +129,7 @@
       <div class="news-grid" id="news-grid"></div>
     </section>
 
-    <!-- ABOUT SECTION -->
+    <!-- ABOUT -->
     <section id="about" class="section">
       <div class="section-header">
         <span class="section-label" data-t="section_about">PROJETO</span>
@@ -125,8 +138,8 @@
       </div>
       <div class="about-card">
         <div class="about-text">
-          <p id="about-p1" data-t="about_p1"></p>
-          <p id="about-p2" data-t="about_p2"></p>
+          <p id="about-p1"></p>
+          <p id="about-p2"></p>
         </div>
         <div class="about-stat">
           <span class="stat-num" id="stat-games">—</span>
@@ -141,7 +154,7 @@
 
   </main>
 
-  <!-- ─── FOOTER ───────────────────────────────────────────────── -->
+  <!-- FOOTER -->
   <footer>
     <div class="footer-inner">
       <span class="footer-logo">RYAN GAMES</span>
@@ -153,43 +166,41 @@
     </div>
   </footer>
 
-  <!-- ─── SETTINGS MODAL ───────────────────────────────────────── -->
-  <div class="modal-overlay" id="settings-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <!-- BACK TO TOP -->
+  <button id="back-to-top" aria-label="Voltar ao topo" title="Voltar ao topo">↑</button>
+
+  <!-- SETTINGS MODAL -->
+  <div class="modal-overlay" id="settings-modal" role="dialog" aria-modal="true">
     <div class="modal-box">
       <div class="modal-header">
-        <h3 class="modal-title" id="modal-title" data-t="settings_title">Configurações</h3>
-        <button class="modal-close" id="modal-close" aria-label="Fechar">✕</button>
+        <h3 class="modal-title" data-t="settings_title">Configurações</h3>
+        <button class="modal-close" id="modal-close">✕</button>
       </div>
-
       <div class="config-row">
         <span class="config-label" data-t="cfg_lang">Idioma</span>
-        <select class="config-select" id="lang-select" aria-label="Idioma">
+        <select class="config-select" id="lang-select">
           <option value="pt-br">Português (BR)</option>
           <option value="en">English (US)</option>
         </select>
       </div>
-
       <div class="config-row">
         <span class="config-label" data-t="cfg_theme">Tema</span>
         <button class="btn btn-outline" id="toggle-theme-btn" data-t="cfg_theme_btn">Alternar</button>
       </div>
-
       <div class="config-row">
         <span class="config-label" data-t="cfg_reset_ach">Resetar Conquistas</span>
         <button class="btn btn-danger" id="reset-ach-btn" data-t="cfg_reset_btn">Resetar</button>
       </div>
-
       <div class="config-row">
-        <span class="config-label" data-t="cfg_clear">Limpar Todos os Dados</span>
-        <button class="btn btn-danger" id="clear-data-btn" data-t="cfg_clear_btn">Limpar Tudo</button>
+        <span class="config-label" data-t="cfg_clear">Limpar Dados Locais</span>
+        <button class="btn btn-danger" id="clear-data-btn" data-t="cfg_clear_btn">Limpar</button>
       </div>
     </div>
   </div>
 
-  <!-- ─── TOAST CONTAINER ──────────────────────────────────────── -->
   <div id="toast-container" aria-live="polite"></div>
 
-  <!-- ─── SCRIPTS ──────────────────────────────────────────────── -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
