@@ -607,6 +607,10 @@ function renderAbout() {
 
 // ─── STATS ────────────────────────────────────────────────────
 function updateStats() {
+  const cg = el("chip-games"); const cf = el("chip-favs"); const cv = el("chip-visits");
+  if (cg) cg.textContent = allGames.length;
+  if (cf) cf.textContent = userFavorites.length;
+  if (cv) cv.textContent = Pref.visits();
   const g = el('stat-games'); const f = el('stat-favs'); const v = el('stat-visits');
   if (g) g.textContent = allGames.length;
   if (f) f.textContent = userFavorites.length;
