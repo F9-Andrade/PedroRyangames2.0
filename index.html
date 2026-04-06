@@ -6,22 +6,26 @@
   <meta name="description" content="Ryan Games 3.0 — Seu portal de jogos favoritos." />
   <meta property="og:title" content="Ryan Games 3.0" />
   <meta property="og:description" content="Seu portal de jogos favoritos em um só lugar." />
-  <meta name="theme-color" content="#f59e0b" />
+  <meta name="theme-color" content="#7c3aed" />
   <title>Ryan Games 3.0</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-  <!-- HEADER -->
+  <!-- ── HEADER ───────────────────────────────────────────── -->
   <header>
     <nav>
       <a href="#" class="logo" aria-label="Ryan Games Home">
-        <span class="logo-text">RYAN <span>GAMES</span></span>
-        <span class="logo-version">v3.0</span>
+        <div class="logo-mark">R</div>
+        <div class="logo-wordmark">
+          <span class="logo-name">RYAN <span>GAMES</span></span>
+          <span class="logo-version">v3.0 · PORTAL</span>
+        </div>
       </a>
+
       <div class="nav-links" id="nav-links" role="navigation">
         <a href="#games"        data-t="nav_games">JOGOS</a>
         <a href="#leaderboard"  data-t="nav_leaderboard">RANKING</a>
@@ -29,6 +33,7 @@
         <a href="#news"         data-t="nav_news">NOVIDADES</a>
         <a href="#about"        data-t="nav_about">SOBRE</a>
       </div>
+
       <div class="nav-controls">
         <div id="auth-container"></div>
         <button class="nav-btn" id="settings-btn" title="Configurações" aria-label="Configurações">⚙</button>
@@ -39,32 +44,63 @@
     </nav>
   </header>
 
-  <!-- HERO -->
+  <!-- ── HERO (split layout) ──────────────────────────────── -->
   <section id="hero">
-    <div class="hero-bg"></div>
-    <div class="hero-content">
+
+    <!-- Left: text -->
+    <div class="hero-left">
       <span class="hero-eyebrow" data-t="hero_eyebrow">// PORTAL DE JOGOS v3.0</span>
+
       <h1 class="hero-title">
-        <span data-t="hero_title_1">RYAN</span><br>
+        <span data-t="hero_title_1">RYAN</span>
         <span class="accent" data-t="hero_title_2">GAMES</span>
       </h1>
-      <p class="hero-sub" data-t="hero_sub">Sua coleção de jogos favoritos em um só lugar.</p>
 
-      <!-- Chips de stats ao vivo -->
-      <div class="hero-chips">
-        <span class="hero-chip"><b id="chip-games">—</b> jogos</span>
-        <span class="hero-chip"><b id="chip-favs">—</b> favoritos</span>
-        <span class="hero-chip"><b id="chip-visits">—</b> visitas</span>
+      <p class="hero-sub" data-t="hero_sub">
+        Sua coleção de jogos favoritos em um só lugar.
+      </p>
+
+      <!-- Live stats inline -->
+      <div class="hero-stats">
+        <div class="hero-stat-item">
+          <span class="hero-stat-num" id="chip-games">—</span>
+          <span class="hero-stat-label" data-t="stat_games">Jogos</span>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat-item">
+          <span class="hero-stat-num" id="chip-favs">—</span>
+          <span class="hero-stat-label" data-t="stat_favs">Favoritos</span>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat-item">
+          <span class="hero-stat-num" id="chip-visits">—</span>
+          <span class="hero-stat-label" data-t="stat_visits">Visitas</span>
+        </div>
       </div>
 
       <div class="hero-actions">
-        <a href="#games"       class="btn btn-primary" data-t="hero_btn_main">Ver Jogos</a>
-        <a href="#leaderboard" class="btn btn-outline"  data-t="hero_btn_sec">Ranking</a>
+        <a href="#games"       class="btn btn-primary"  data-t="hero_btn_main">Ver Jogos</a>
+        <a href="#leaderboard" class="btn btn-lime"      data-t="hero_btn_sec">Ranking</a>
+        <a href="#achievements" class="btn btn-outline"  data-t="nav_achievements">Conquistas</a>
       </div>
     </div>
-    <div class="hero-lines"></div>
+
+    <!-- Right: decorative orb -->
+    <div class="hero-right">
+      <div class="hero-orb">
+        <div class="orb-icons">
+          <span class="orb-icon">🎮</span>
+          <span class="orb-icon">🕹️</span>
+          <span class="orb-icon">🏆</span>
+          <span class="orb-icon">⭐</span>
+          <span class="orb-icon">🎯</span>
+        </div>
+      </div>
+    </div>
+
   </section>
 
+  <!-- ── MAIN ─────────────────────────────────────────────── -->
   <main>
 
     <!-- GAMES -->
@@ -88,7 +124,8 @@
       <div class="games-toolbar">
         <div class="search-wrapper">
           <span class="search-icon">🔍</span>
-          <input type="search" id="search-input" placeholder="Buscar jogo... (Ctrl+K)" autocomplete="off" />
+          <input type="search" id="search-input"
+            placeholder="Buscar jogo... (Ctrl+K)" autocomplete="off" />
         </div>
         <div class="filter-chips" id="filter-chips"></div>
       </div>
@@ -148,23 +185,34 @@
           <p id="about-p2"></p>
         </div>
         <div class="about-stat">
-          <span class="stat-num" id="stat-games">—</span>
-          <span class="stat-label" data-t="stat_games">Jogos</span>
-          <span class="stat-num" id="stat-favs" style="margin-top:14px">—</span>
-          <span class="stat-label" data-t="stat_favs">Favoritos</span>
-          <span class="stat-num" id="stat-visits" style="margin-top:14px">—</span>
-          <span class="stat-label" data-t="stat_visits">Visitas</span>
+          <div class="stat-item">
+            <span class="stat-num" id="stat-games">—</span>
+            <span class="stat-label" data-t="stat_games">Jogos</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num" id="stat-favs">—</span>
+            <span class="stat-label" data-t="stat_favs">Favoritos</span>
+          </div>
+          <div class="stat-item" style="grid-column:1/-1">
+            <span class="stat-num" id="stat-visits">—</span>
+            <span class="stat-label" data-t="stat_visits">Visitas</span>
+          </div>
         </div>
       </div>
     </section>
 
   </main>
 
-  <!-- FOOTER -->
+  <!-- ── FOOTER ───────────────────────────────────────────── -->
   <footer>
     <div class="footer-inner">
-      <span class="footer-logo">RYAN <span>GAMES</span></span>
-      <span class="footer-copy" data-t="footer_copy">© 2025 Ryan Games 3.0 — Todos os direitos reservados</span>
+      <div class="footer-logo">
+        <div class="footer-logo-mark">R</div>
+        <span class="footer-logo-text">RYAN GAMES</span>
+      </div>
+      <span class="footer-copy" data-t="footer_copy">
+        © 2025 Ryan Games 3.0 — Todos os direitos reservados
+      </span>
       <div class="footer-status">
         <span class="status-dot"></span>
         <span data-t="footer_status">Online</span>
