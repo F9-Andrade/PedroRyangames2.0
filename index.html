@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Ryan Games 3.0 — Seu portal de jogos favoritos." />
   <meta property="og:title" content="Ryan Games 3.0" />
-  <meta property="og:description" content="Seu portal de jogos favoritos." />
-  <meta name="theme-color" content="#00f5ff" />
+  <meta property="og:description" content="Seu portal de jogos favoritos em um só lugar." />
+  <meta name="theme-color" content="#f59e0b" />
   <title>Ryan Games 3.0</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -19,15 +19,15 @@
   <header>
     <nav>
       <a href="#" class="logo" aria-label="Ryan Games Home">
-        <span class="logo-text">RYAN GAMES</span>
+        <span class="logo-text">RYAN <span>GAMES</span></span>
         <span class="logo-version">v3.0</span>
       </a>
       <div class="nav-links" id="nav-links" role="navigation">
-        <a href="#games"       data-t="nav_games">JOGOS</a>
-        <a href="#leaderboard" data-t="nav_leaderboard">RANKING</a>
+        <a href="#games"        data-t="nav_games">JOGOS</a>
+        <a href="#leaderboard"  data-t="nav_leaderboard">RANKING</a>
         <a href="#achievements" data-t="nav_achievements">CONQUISTAS</a>
-        <a href="#news"        data-t="nav_news">NOVIDADES</a>
-        <a href="#about"       data-t="nav_about">SOBRE</a>
+        <a href="#news"         data-t="nav_news">NOVIDADES</a>
+        <a href="#about"        data-t="nav_about">SOBRE</a>
       </div>
       <div class="nav-controls">
         <div id="auth-container"></div>
@@ -45,10 +45,18 @@
     <div class="hero-content">
       <span class="hero-eyebrow" data-t="hero_eyebrow">// PORTAL DE JOGOS v3.0</span>
       <h1 class="hero-title">
-        <span data-t="hero_title_1">RYAN</span>
+        <span data-t="hero_title_1">RYAN</span><br>
         <span class="accent" data-t="hero_title_2">GAMES</span>
       </h1>
       <p class="hero-sub" data-t="hero_sub">Sua coleção de jogos favoritos em um só lugar.</p>
+
+      <!-- Chips de stats ao vivo -->
+      <div class="hero-chips">
+        <span class="hero-chip"><b id="chip-games">—</b> jogos</span>
+        <span class="hero-chip"><b id="chip-favs">—</b> favoritos</span>
+        <span class="hero-chip"><b id="chip-visits">—</b> visitas</span>
+      </div>
+
       <div class="hero-actions">
         <a href="#games"       class="btn btn-primary" data-t="hero_btn_main">Ver Jogos</a>
         <a href="#leaderboard" class="btn btn-outline"  data-t="hero_btn_sec">Ranking</a>
@@ -86,7 +94,6 @@
       </div>
 
       <div id="sort-buttons" class="sort-bar"></div>
-
       <div id="games-grid" role="list"></div>
     </section>
 
@@ -109,7 +116,6 @@
         <h2 class="section-title" data-t="title_ach">Conquistas</h2>
         <div class="section-line"></div>
       </div>
-      <!-- Barra de progresso -->
       <div class="ach-progress-wrap">
         <div class="ach-progress-track">
           <div class="ach-progress-fill" id="ach-progress-bar"></div>
@@ -144,9 +150,9 @@
         <div class="about-stat">
           <span class="stat-num" id="stat-games">—</span>
           <span class="stat-label" data-t="stat_games">Jogos</span>
-          <span class="stat-num" id="stat-favs" style="margin-top:16px">—</span>
+          <span class="stat-num" id="stat-favs" style="margin-top:14px">—</span>
           <span class="stat-label" data-t="stat_favs">Favoritos</span>
-          <span class="stat-num" id="stat-visits" style="margin-top:16px">—</span>
+          <span class="stat-num" id="stat-visits" style="margin-top:14px">—</span>
           <span class="stat-label" data-t="stat_visits">Visitas</span>
         </div>
       </div>
@@ -157,7 +163,7 @@
   <!-- FOOTER -->
   <footer>
     <div class="footer-inner">
-      <span class="footer-logo">RYAN GAMES</span>
+      <span class="footer-logo">RYAN <span>GAMES</span></span>
       <span class="footer-copy" data-t="footer_copy">© 2025 Ryan Games 3.0 — Todos os direitos reservados</span>
       <div class="footer-status">
         <span class="status-dot"></span>
@@ -167,7 +173,7 @@
   </footer>
 
   <!-- BACK TO TOP -->
-  <button id="back-to-top" aria-label="Voltar ao topo" title="Voltar ao topo">↑</button>
+  <button id="back-to-top" aria-label="Voltar ao topo">↑</button>
 
   <!-- SETTINGS MODAL -->
   <div class="modal-overlay" id="settings-modal" role="dialog" aria-modal="true">
