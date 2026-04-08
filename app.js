@@ -1,10 +1,12 @@
 /* ============================================================
-   RYAN GAMES 3.0 — app.js  (versão atualizada)
+   RYAN GAMES 3.0 — app.js
+   Event delegation em todos os elementos dinâmicos.
+   Listeners fixos registrados uma única vez no init.
    ============================================================ */
 
 // ─── SUPABASE ─────────────────────────────────────────────────
-const SUPABASE_URL  = 'https://SEU-PROJETO.supabase.co';
-const SUPABASE_ANON = 'sua-anon-key-aqui';
+const SUPABASE_URL  = 'https://jnnlpwuppxhygwqwthud.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impubmxwd3VwcHhoeWd3cXd0aHVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzOTU4MTAsImV4cCI6MjA4OTk3MTgxMH0.1LOxQ9OHZwenL3MyqM7pYXNoReg6B_A1t9-fqgaDbBw';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON);
 
@@ -13,7 +15,12 @@ let currentUser      = null;
 let allGames         = [];
 let userFavorites    = [];
 let userAchievements = new Set();
-let sortMode         = 'name'; // 'name' | 'clicks' | 'newest'
+let sortMode         = 'name';
+let activeTab        = 'all';
+let activeFilter     = 'all';
+let searchQuery      = '';
+let searchTimer      = null;
+let _authReady       = false;
 
 const Pref = {
   lang:       () => localStorage.getItem('rg_lang')   || 'pt-br',
@@ -24,46 +31,45 @@ const Pref = {
   saveVisits: (n) => localStorage.setItem('rg_visits', n),
 };
 
-// ─── JOGOS (fallback local — usados se Supabase não configurado) ──
+// ─── JOGOS LOCAIS (fallback) ───────────────────────────────────
 const LOCAL_GAMES = [
-  { id:'3kh0s',         slug:'3kh0s',         name:'3kh0s Games',       url:'https://3kh0s.github.io/games/index.html',              icon:'🎮', category:'Geral',      featured:true,  total_clicks:0, added_at: '2025-11-01' },
-  { id:'andrewclark',   slug:'andrewclark',   name:'AndrewClark Games', url:'https://andrewclark3244.github.io/games/',              icon:'🚀', category:'Ação',       featured:false, total_clicks:0, added_at: '2025-11-01' },
-  { id:'buttertoasty',  slug:'buttertoasty',  name:'ButterToasty Bowl', url:'https://buttertoasty.github.io/Bowl/',                  icon:'🥣', category:'Casual',     featured:false, total_clicks:0, added_at: '2025-11-01' },
-  { id:'gamedump',      slug:'gamedump',      name:'Game Dump PC',      url:'https://gamedump.github.io/pc.html',                    icon:'💾', category:'PC',         featured:false, total_clicks:0, added_at: '2025-11-01' },
-  { id:'quiz40',        slug:'quiz40',        name:'Quiz 40 Games',     url:'https://quiz-40.github.io/',                            icon:'🧠', category:'Quiz',       featured:false, total_clicks:0, added_at: '2025-11-01' },
-  { id:'gamessite',     slug:'gamessite',     name:'Games Site',        url:'https://games-site.github.io/',                         icon:'⭐', category:'Geral',      featured:true,  total_clicks:0, added_at: '2025-11-01' },
-  { id:'stickmanclimb', slug:'stickmanclimb', name:'Stickman Climb 2',  url:'https://stickmanclimb2.github.io/',                     icon:'🧗', category:'Plataforma', featured:true,  total_clicks:0, added_at: '2025-11-01' },
-  { id:'superhot',      slug:'superhot',      name:'SUPERHOT Prototype',url:'https://githubgames.gitlab.io/game/superhot-prototype.html', icon:'🔴', category:'Ação',  featured:false, total_clicks:0, added_at: '2025-11-01' },
-  { id:'ucbg',          slug:'ucbg',          name:'UCBG Games',        url:'https://ucbg.github.io/',                               icon:'🌐', category:'Geral',      featured:false, total_clicks:0, added_at: '2025-11-01' },
-  { id:'mineeeeeee',    slug:'mineeeeeee',    name:'Mineeeeeee',        url:'https://quiz-40.github.io/mineeeeeee/',                 icon:'⛏️', category:'Construção', featured:false, total_clicks:0, added_at: '2025-11-01' },
-  // ── NOVOS ──
-  { id:'vortexgames',   slug:'vortexgames',   name:'Vortex Games',      url:'https://vortexgames07.netlify.app',                     icon:'🌀', category:'Geral',      featured:true,  total_clicks:0, added_at: '2025-12-01' },
-  { id:'githubgames',   slug:'githubgames',   name:'GitHub Games',      url:'https://githubgames.gitlab.io',                         icon:'🐙', category:'Geral',      featured:true,  total_clicks:0, added_at: '2025-12-01' },
+  { id:'3kh0s',         name:'3kh0s Games',       url:'https://3kh0s.github.io/games/index.html',              icon:'🎮', category:'Geral',      featured:true,  total_clicks:0, added_at:'2025-11-01' },
+  { id:'andrewclark',   name:'AndrewClark Games', url:'https://andrewclark3244.github.io/games/',              icon:'🚀', category:'Ação',       featured:false, total_clicks:0, added_at:'2025-11-01' },
+  { id:'buttertoasty',  name:'ButterToasty Bowl', url:'https://buttertoasty.github.io/Bowl/',                  icon:'🥣', category:'Casual',     featured:false, total_clicks:0, added_at:'2025-11-01' },
+  { id:'gamedump',      name:'Game Dump PC',      url:'https://gamedump.github.io/pc.html',                    icon:'💾', category:'PC',         featured:false, total_clicks:0, added_at:'2025-11-01' },
+  { id:'quiz40',        name:'Quiz 40 Games',     url:'https://quiz-40.github.io/',                            icon:'🧠', category:'Quiz',       featured:false, total_clicks:0, added_at:'2025-11-01' },
+  { id:'gamessite',     name:'Games Site',        url:'https://games-site.github.io/',                         icon:'⭐', category:'Geral',      featured:true,  total_clicks:0, added_at:'2025-11-01' },
+  { id:'stickmanclimb', name:'Stickman Climb 2',  url:'https://stickmanclimb2.github.io/',                     icon:'🧗', category:'Plataforma', featured:true,  total_clicks:0, added_at:'2025-11-01' },
+  { id:'superhot',      name:'SUPERHOT Prototype',url:'https://githubgames.gitlab.io/game/superhot-prototype.html', icon:'🔴', category:'Ação', featured:false, total_clicks:0, added_at:'2025-11-01' },
+  { id:'ucbg',          name:'UCBG Games',        url:'https://ucbg.github.io/',                               icon:'🌐', category:'Geral',      featured:false, total_clicks:0, added_at:'2025-11-01' },
+  { id:'mineeeeeee',    name:'Mineeeeeee',        url:'https://quiz-40.github.io/mineeeeeee/',                 icon:'⛏️', category:'Construção', featured:false, total_clicks:0, added_at:'2025-11-01' },
+  { id:'vortexgames',   name:'Vortex Games',      url:'https://vortexgames07.netlify.app',                     icon:'🌀', category:'Geral',      featured:true,  total_clicks:0, added_at:'2025-12-01' },
+  { id:'githubgames',   name:'GitHub Games',      url:'https://githubgames.gitlab.io',                         icon:'🐙', category:'Geral',      featured:true,  total_clicks:0, added_at:'2025-12-01' },
 ];
 
 // ─── CONQUISTAS ───────────────────────────────────────────────
 const ACHIEVEMENTS_DEF = [
-  { id:'welcome',      icon:'👋', trigger:'always',
-    title_pt:'Bem-vindo(a)!',       title_en:'Welcome!',
-    desc_pt:'Abriu o site.',        desc_en:'Opened the site.' },
-  { id:'first_click',  icon:'🖱️', trigger:'click',
-    title_pt:'Primeiro Clique',     title_en:'First Click',
-    desc_pt:'Clicou em um jogo.',   desc_en:'Clicked a game.' },
-  { id:'explorer',     icon:'🗺️', trigger:'clicks_5',
-    title_pt:'Explorador',          title_en:'Explorer',
-    desc_pt:'Clicou em 5 jogos.',   desc_en:'Clicked 5 games.' },
-  { id:'collector',    icon:'⭐',  trigger:'favorites_3',
-    title_pt:'Colecionador',        title_en:'Collector',
-    desc_pt:'3 favoritos.',         desc_en:'3 favorites.' },
-  { id:'veteran',      icon:'🥉',  trigger:'visits_5',
-    title_pt:'Veterano',            title_en:'Veteran',
-    desc_pt:'5 visitas ao site.',   desc_en:'5 site visits.' },
-  { id:'night_owl',    icon:'🦉',  trigger:'night',
-    title_pt:'Coruja Noturna',      title_en:'Night Owl',
+  { id:'welcome',     icon:'👋', trigger:'always',
+    title_pt:'Bem-vindo(a)!',           title_en:'Welcome!',
+    desc_pt:'Abriu o site.',            desc_en:'Opened the site.' },
+  { id:'first_click', icon:'🖱️', trigger:'click',
+    title_pt:'Primeiro Clique',         title_en:'First Click',
+    desc_pt:'Clicou em um jogo.',       desc_en:'Clicked a game.' },
+  { id:'explorer',    icon:'🗺️', trigger:'clicks_5',
+    title_pt:'Explorador',              title_en:'Explorer',
+    desc_pt:'Clicou em 5 jogos.',       desc_en:'Clicked 5 games.' },
+  { id:'collector',   icon:'⭐',  trigger:'favorites_3',
+    title_pt:'Colecionador',            title_en:'Collector',
+    desc_pt:'3 favoritos.',             desc_en:'3 favorites.' },
+  { id:'veteran',     icon:'🥉',  trigger:'visits_5',
+    title_pt:'Veterano',                title_en:'Veteran',
+    desc_pt:'5 visitas ao site.',       desc_en:'5 site visits.' },
+  { id:'night_owl',   icon:'🦉',  trigger:'night',
+    title_pt:'Coruja Noturna',          title_en:'Night Owl',
     desc_pt:'Acessou após meia-noite.', desc_en:'Visited after midnight.' },
-  { id:'master',       icon:'🏆',  trigger:'all',
-    title_pt:'Mestre',              title_en:'Master',
-    desc_pt:'Todas as conquistas.', desc_en:'All achievements.' },
+  { id:'master',      icon:'🏆',  trigger:'all',
+    title_pt:'Mestre',                  title_en:'Master',
+    desc_pt:'Todas as conquistas.',     desc_en:'All achievements.' },
 ];
 
 // ─── TRADUÇÕES ────────────────────────────────────────────────
@@ -85,9 +91,8 @@ const T = {
     click_lbl:'visitas', visit_btn:'Jogar →', featured:'EM DESTAQUE', new_badge:'NOVO',
     no_results:'Nenhum jogo encontrado.',
     no_fav:'Nenhum favorito ainda. Clique na ⭐ para adicionar.',
-    ach_locked:'Bloqueada', ach_unlocked_lbl:'Desbloqueada',
-    ach_unlock_msg:'🏅 Conquista desbloqueada!',
-    lb_rank:'#', lb_game:'Jogo', lb_clicks:'Visitas', lb_empty:'Nenhum jogo jogado ainda.',
+    ach_locked:'Bloqueada', ach_unlocked_lbl:'Desbloqueada', ach_unlock_msg:'🏅 Conquista desbloqueada!',
+    lb_empty:'Nenhum jogo jogado ainda.',
     about_p1:'O Ryan Games 3.0 é um portal pessoal para reunir os melhores links de jogos em um único lugar, com favoritos, conquistas, ranking e muito mais.',
     about_p2:'Desenvolvido e mantido por Ryan.',
     stat_games:'Jogos', stat_favs:'Favoritos', stat_visits:'Visitas',
@@ -100,7 +105,7 @@ const T = {
     toast_fav_add:'⭐ Adicionado aos favoritos', toast_fav_rem:'✕ Removido dos favoritos',
     toast_login_required:'🔒 Entre para salvar favoritos',
     footer_status:'Online', footer_copy:'© 2025 Ryan Games 3.0 — Todos os direitos reservados',
-    loading:'Carregando...', shortcut_hint:'Ctrl+K para buscar',
+    loading:'Carregando...',
   },
   'en': {
     nav_games:'GAMES', nav_achievements:'ACHIEVEMENTS', nav_news:'NEWS',
@@ -119,9 +124,8 @@ const T = {
     click_lbl:'visits', visit_btn:'Play →', featured:'FEATURED', new_badge:'NEW',
     no_results:'No games found.',
     no_fav:'No favorites yet. Click ⭐ to add one.',
-    ach_locked:'Locked', ach_unlocked_lbl:'Unlocked',
-    ach_unlock_msg:'🏅 Achievement unlocked!',
-    lb_rank:'#', lb_game:'Game', lb_clicks:'Visits', lb_empty:'No games played yet.',
+    ach_locked:'Locked', ach_unlocked_lbl:'Unlocked', ach_unlock_msg:'🏅 Achievement unlocked!',
+    lb_empty:'No games played yet.',
     about_p1:'Ryan Games 3.0 is a personal portal to gather the best game links in one place, with favorites, achievements, ranking, and more.',
     about_p2:'Developed and maintained by Ryan.',
     stat_games:'Games', stat_favs:'Favorites', stat_visits:'Visits',
@@ -134,24 +138,19 @@ const T = {
     toast_fav_add:'⭐ Added to favorites', toast_fav_rem:'✕ Removed from favorites',
     toast_login_required:'🔒 Sign in to save favorites',
     footer_status:'Online', footer_copy:'© 2025 Ryan Games 3.0 — All rights reserved',
-    loading:'Loading...', shortcut_hint:'Ctrl+K to search',
+    loading:'Loading...',
   }
 };
 
-const t = (key) => (T[Pref.lang()] || T['pt-br'])[key] || key;
+const t   = (key) => (T[Pref.lang()] || T['pt-br'])[key] || key;
+const el  = (id)  => document.getElementById(id);
+const qs  = (s, ctx) => (ctx || document).querySelector(s);
+const qsa = (s, ctx) => [...(ctx || document).querySelectorAll(s)];
+const isNew = (g) => g.added_at && (Date.now() - new Date(g.added_at).getTime()) < 7*24*60*60*1000;
 
-// ─── DOM HELPERS ───────────────────────────────────────────────
-const el  = (id)      => document.getElementById(id);
-const qs  = (s, ctx)  => (ctx||document).querySelector(s);
-const qsa = (s, ctx)  => [...(ctx||document).querySelectorAll(s)];
-
-// Checa se passou menos de 7 dias desde added_at
-function isNew(game) {
-  if (!game.added_at) return false;
-  return (Date.now() - new Date(game.added_at).getTime()) < 7 * 24 * 60 * 60 * 1000;
-}
-
-// ─── TOAST ────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════════════════
 function showToast(msg, type) {
   const wrap  = el('toast-container');
   const toast = document.createElement('div');
@@ -163,11 +162,13 @@ function showToast(msg, type) {
     setTimeout(() => {
       toast.classList.remove('show');
       toast.addEventListener('transitionend', () => toast.remove(), { once: true });
-    }, 3200);
+    }, 3000);
   });
 }
 
-// ─── TEMA ─────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+// TEMA & IDIOMA
+// ══════════════════════════════════════════════════════════════
 function applyTheme(theme) {
   document.body.classList.toggle('light-mode', theme === 'light');
 }
@@ -177,13 +178,11 @@ function toggleTheme() {
   applyTheme(next);
   showToast(next === 'dark' ? t('toast_theme_dark') : t('toast_theme_light'));
 }
-
-// ─── IDIOMA ───────────────────────────────────────────────────
 function translateStatic(lang) {
-  el('lang-select').value = lang;
+  const sel = el('lang-select');
+  if (sel) sel.value = lang;
   qsa('[data-t]').forEach(node => {
-    const key = node.getAttribute('data-t');
-    const val = T[lang]?.[key] || key;
+    const val = T[lang]?.[node.getAttribute('data-t')] || node.getAttribute('data-t');
     if (node.tagName === 'INPUT') node.placeholder = val;
     else node.textContent = val;
   });
@@ -193,6 +192,8 @@ function translateStatic(lang) {
 function applyLang(lang) {
   Pref.saveLang(lang);
   translateStatic(lang);
+  renderFilterChips();
+  renderSortButtons();
   renderGames();
   renderAchievements();
   renderNewsSection();
@@ -201,72 +202,23 @@ function applyLang(lang) {
   updateStats();
 }
 
-// ─── MENU MOBILE ──────────────────────────────────────────────
-function initMobileMenu() {
-  const btn  = el('hamburger');
-  const menu = el('nav-links');
-  btn.addEventListener('click', () => {
-    btn.classList.toggle('open');
-    menu.classList.toggle('open');
-  });
-  qsa('a', menu).forEach(a => a.addEventListener('click', () => {
-    btn.classList.remove('open');
-    menu.classList.remove('open');
-  }));
-}
-
-// ─── BACK TO TOP ──────────────────────────────────────────────
-function initBackToTop() {
-  const btn = el('back-to-top');
-  if (!btn) return;
-  window.addEventListener('scroll', () => {
-    btn.classList.toggle('visible', window.scrollY > 400);
-  });
-  btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-}
-
-// ─── ATALHO CTRL+K ────────────────────────────────────────────
-function initKeyboardShortcuts() {
-  document.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-      e.preventDefault();
-      const input = el('search-input');
-      if (!input) return;
-      input.focus();
-      input.select();
-      el('games')?.scrollIntoView({ behavior: 'smooth' });
-    }
-    if (e.key === 'Escape') {
-      const modal = el('settings-modal');
-      if (modal?.classList.contains('open')) modal.classList.remove('open');
-      const input = el('search-input');
-      if (document.activeElement === input) input.blur();
-    }
-  });
-}
-
-// ─── AUTH ─────────────────────────────────────────────────────
-let _authReady = false; // impede render antes da sessão ser verificada
-
+// ══════════════════════════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════════════════════════
 function renderAuthButton() {
   const wrap = el('auth-container');
   if (!wrap || !_authReady) return;
-
-  // Limpa completamente antes de renderizar
   wrap.innerHTML = '';
 
   if (currentUser) {
-    const name   = (currentUser.user_metadata && currentUser.user_metadata.name)
-                   ? currentUser.user_metadata.name
-                   : currentUser.email.split('@')[0];
-    const avatar = currentUser.user_metadata && currentUser.user_metadata.avatar_url;
-
-    const pill = document.createElement('div');
+    const name   = currentUser.user_metadata?.name || currentUser.email.split('@')[0];
+    const avatar = currentUser.user_metadata?.avatar_url;
+    const pill   = document.createElement('div');
     pill.className = 'user-pill';
 
     if (avatar) {
       const img = document.createElement('img');
-      img.src = avatar; img.className = 'user-avatar'; img.alt = 'avatar';
+      img.src = avatar; img.className = 'user-avatar'; img.alt = '';
       pill.appendChild(img);
     } else {
       const ini = document.createElement('span');
@@ -275,15 +227,14 @@ function renderAuthButton() {
       pill.appendChild(ini);
     }
 
-    const nameSpan = document.createElement('span');
-    nameSpan.className = 'user-name';
-    nameSpan.textContent = name.split(' ')[0];
-    pill.appendChild(nameSpan);
+    const nameEl = document.createElement('span');
+    nameEl.className = 'user-name';
+    nameEl.textContent = name.split(' ')[0];
+    pill.appendChild(nameEl);
 
     const logoutBtn = document.createElement('button');
-    logoutBtn.className = 'nav-btn';
-    logoutBtn.id = 'logout-btn';
-    logoutBtn.title = t('btn_logout');
+    logoutBtn.className   = 'nav-btn';
+    logoutBtn.title       = t('btn_logout');
     logoutBtn.textContent = '⏏';
     logoutBtn.addEventListener('click', async () => {
       await db.auth.signOut();
@@ -291,105 +242,121 @@ function renderAuthButton() {
     });
     pill.appendChild(logoutBtn);
     wrap.appendChild(pill);
-
   } else {
-    const loginBtn = document.createElement('button');
-    loginBtn.className = 'nav-btn btn-login';
-    loginBtn.id = 'login-btn';
-    loginBtn.innerHTML =
+    const btn = document.createElement('button');
+    btn.className = 'nav-btn btn-login';
+    btn.innerHTML =
       '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0">' +
         '<path d="M12.545 10.239v3.821h5.445c-.712 2.315-2.647 3.972-5.445 3.972a6.033 6.033 0 110-12.064c1.498 0 2.866.549 3.921 1.453l2.814-2.814A9.969 9.969 0 0012.545 2C7.021 2 2.543 6.477 2.543 12s4.478 10 10.002 10c8.396 0 10.249-7.85 9.426-11.748l-9.426-.013z"/>' +
       '</svg>' + t('btn_login');
-    loginBtn.addEventListener('click', () => {
-      db.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo: window.location.href }
-      });
+    btn.addEventListener('click', () => {
+      db.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.href } });
     });
-    wrap.appendChild(loginBtn);
+    wrap.appendChild(btn);
   }
 }
 
-// ─── MODAL ────────────────────────────────────────────────────
-function initModal() {
-  const overlay = el('settings-modal');
-  el('settings-btn').addEventListener('click',  () => overlay.classList.add('open'));
-  el('modal-close').addEventListener('click',   () => overlay.classList.remove('open'));
-  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('open'); });
-  el('toggle-theme-btn').addEventListener('click', toggleTheme);
-  el('lang-select').addEventListener('change', (e) => applyLang(e.target.value));
-  el('reset-ach-btn').addEventListener('click', async () => {
-    if (!currentUser) { showToast(t('toast_login_required'), 'warn'); return; }
-    await db.from('user_achievements').delete().eq('user_id', currentUser.id);
-    userAchievements.clear();
-    renderAchievements();
-    showToast(t('toast_reset_ach'));
-  });
-  el('clear-data-btn').addEventListener('click', () => {
-    localStorage.clear();
-    showToast(t('toast_cleared'));
-    setTimeout(() => location.reload(), 1200);
+// ══════════════════════════════════════════════════════════════
+// GAMES — HTML puro, sem addEventListener por card
+// ══════════════════════════════════════════════════════════════
+function getFilteredGames() {
+  let list = allGames.slice();
+  if (activeTab === 'fav')    list = list.filter(g => userFavorites.includes(g.id));
+  if (activeFilter !== 'all') list = list.filter(g => g.category === activeFilter);
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    list = list.filter(g => g.name.toLowerCase().includes(q) || g.category.toLowerCase().includes(q));
+  }
+  if (sortMode === 'clicks')  list.sort((a,b) => (b.total_clicks||0) - (a.total_clicks||0));
+  else if (sortMode === 'newest') list.sort((a,b) => new Date(b.added_at||0) - new Date(a.added_at||0));
+  else list.sort((a,b) => a.name.localeCompare(b.name));
+  return list;
+}
+
+function renderGames() {
+  const grid  = el('games-grid');
+  const badge = qs('.tab-badge', el('tab-fav'));
+  if (badge) badge.textContent = userFavorites.length;
+  if (!grid) return;
+
+  const games = getFilteredGames();
+  if (!games.length) {
+    grid.innerHTML =
+      '<div class="no-results"><div class="no-icon">🎮</div>' +
+      '<p>' + (activeTab === 'fav' ? t('no_fav') : t('no_results')) + '</p></div>';
+    return;
+  }
+
+  grid.innerHTML = games.map((g, i) => {
+    const isFav = userFavorites.includes(g.id);
+    return (
+      '<div class="game-card" data-id="' + g.id + '" role="listitem" style="animation-delay:' + (i*35) + 'ms">' +
+        (g.featured ? '<div class="featured-badge">' + t('featured') + '</div>' : '') +
+        (isNew(g) && !g.featured ? '<div class="new-badge">' + t('new_badge') + '</div>' : '') +
+        '<div class="game-card-top">' +
+          '<div class="game-icon-wrap">' + g.icon + '</div>' +
+          '<div class="game-meta">' +
+            '<div class="game-name">'     + g.name     + '</div>' +
+            '<div class="game-category">' + g.category + '</div>' +
+          '</div>' +
+          '<button class="fav-btn ' + (isFav ? 'active' : '') + '" data-fav="' + g.id + '" aria-label="Favorito">' +
+            (isFav ? '★' : '☆') +
+          '</button>' +
+        '</div>' +
+        '<div class="game-card-footer">' +
+          '<span class="click-count">🎮 ' + (g.total_clicks||0) + ' ' + t('click_lbl') + '</span>' +
+          '<span class="visit-btn">' + t('visit_btn') + '</span>' +
+        '</div>' +
+      '</div>'
+    );
+  }).join('');
+}
+
+// Um único listener no grid — captura cliques de todos os cards
+function initGamesDelegate() {
+  const grid = el('games-grid');
+
+  grid.addEventListener('click', async (e) => {
+    // Clique no botão de favorito
+    const favBtn = e.target.closest('[data-fav]');
+    if (favBtn) {
+      e.stopPropagation();
+      await handleToggleFavorite(favBtn.dataset.fav, favBtn);
+      return;
+    }
+    // Clique em qualquer outra parte do card
+    const card = e.target.closest('[data-id]');
+    if (card) {
+      const game = allGames.find(g => g.id === card.dataset.id);
+      if (game) await handleGameClick(game, card);
+    }
   });
 }
 
-// ─── JOGOS ────────────────────────────────────────────────────
-let activeTab    = 'all';
-let activeFilter = 'all';
-let searchQuery  = '';
-let searchTimer  = null;
+async function handleGameClick(game, cardEl) {
+  // Feedback visual sem re-render
+  cardEl.style.opacity = '0.6';
+  setTimeout(() => { if (cardEl) cardEl.style.opacity = ''; }, 250);
 
-function createGameCard(game) {
-  const isFav  = userFavorites.includes(game.id);
-  const count  = game.total_clicks || 0;
-  const newTag = isNew(game);
-
-  const card = document.createElement('div');
-  card.className = 'game-card';
-  card.setAttribute('role', 'listitem');
-
-  card.innerHTML =
-    (game.featured ? '<div class="featured-badge">' + t('featured') + '</div>' : '') +
-    (newTag && !game.featured ? '<div class="new-badge">' + t('new_badge') + '</div>' : '') +
-    '<div class="game-card-top">' +
-      '<div class="game-icon-wrap">' + game.icon + '</div>' +
-      '<div class="game-meta">' +
-        '<div class="game-name">' + game.name + '</div>' +
-        '<div class="game-category">' + game.category + '</div>' +
-      '</div>' +
-      '<button class="fav-btn ' + (isFav ? 'active' : '') + '" data-id="' + game.id + '" aria-label="Favorito" title="Favorito">' +
-        (isFav ? '★' : '☆') +
-      '</button>' +
-    '</div>' +
-    '<div class="game-card-footer">' +
-      '<span class="click-count">🎮 ' + count + ' ' + t('click_lbl') + '</span>' +
-      '<span class="visit-btn">' + t('visit_btn') + '</span>' +
-    '</div>';
-
-  card.addEventListener('click', (e) => { if (!e.target.closest('.fav-btn')) handleGameClick(game); });
-  card.querySelector('.fav-btn').addEventListener('click', (e) => {
-    e.stopPropagation();
-    handleToggleFavorite(game.id, e.currentTarget);
-  });
-  return card;
-}
-
-async function handleGameClick(game) {
-  // Tenta atualizar no Supabase, mas não bloqueia se não estiver configurado
   try { await db.rpc('increment_game_click', { p_game_id: game.id }); } catch(_) {}
   game.total_clicks = (game.total_clicks || 0) + 1;
 
-  const clicked = allGames.filter(g => (g.total_clicks || 0) > 0).length;
+  // Atualiza só o contador do card específico
+  const countEl = cardEl.querySelector('.click-count');
+  if (countEl) countEl.textContent = '🎮 ' + game.total_clicks + ' ' + t('click_lbl');
+
+  const clicked = allGames.filter(g => (g.total_clicks||0) > 0).length;
   await checkAndUnlock('first_click', clicked >= 1);
   await checkAndUnlock('explorer',   clicked >= 5);
-
-  renderGames();
   renderLeaderboard();
+
   window.open(game.url, '_blank', 'noopener,noreferrer');
 }
 
 async function handleToggleFavorite(gameId, btn) {
   if (!currentUser) { showToast(t('toast_login_required'), 'warn'); return; }
   const isFav = userFavorites.includes(gameId);
+
   if (isFav) {
     try { await db.from('user_favorites').delete().eq('user_id', currentUser.id).eq('game_id', gameId); } catch(_) {}
     userFavorites = userFavorites.filter(id => id !== gameId);
@@ -401,93 +368,71 @@ async function handleToggleFavorite(gameId, btn) {
     btn.classList.add('active'); btn.textContent = '★';
     showToast(t('toast_fav_add'), 'success');
   }
+
   await checkAndUnlock('collector', userFavorites.length >= 3);
   updateStats();
-  renderGames();
-}
-
-function getSortedGames(games) {
-  const copy = games.slice();
-  if (sortMode === 'clicks') return copy.sort((a, b) => (b.total_clicks||0) - (a.total_clicks||0));
-  if (sortMode === 'newest') return copy.sort((a, b) => new Date(b.added_at||0) - new Date(a.added_at||0));
-  return copy.sort((a, b) => a.name.localeCompare(b.name));
-}
-
-function getFilteredGames() {
-  let games = allGames.slice();
-  if (activeTab === 'fav') games = games.filter(g => userFavorites.includes(g.id));
-  if (activeFilter !== 'all') games = games.filter(g => g.category === activeFilter);
-  if (searchQuery) {
-    const q = searchQuery.toLowerCase();
-    games = games.filter(g => g.name.toLowerCase().includes(q) || g.category.toLowerCase().includes(q));
+  if (activeTab === 'fav') renderGames();
+  else {
+    const badge = qs('.tab-badge', el('tab-fav'));
+    if (badge) badge.textContent = userFavorites.length;
   }
-  return getSortedGames(games);
 }
 
-function renderGames() {
-  const grid  = el('games-grid');
-  const badge = qs('.tab-badge', el('tab-fav'));
-  if (badge) badge.textContent = userFavorites.length;
-
-  grid.innerHTML = '';
-  const games = getFilteredGames();
-
-  if (games.length === 0) {
-    const empty = document.createElement('div');
-    empty.className = 'no-results';
-    empty.innerHTML = '<div class="no-icon">🎮</div><p>' + (activeTab === 'fav' ? t('no_fav') : t('no_results')) + '</p>';
-    grid.appendChild(empty);
-    return;
-  }
-  games.forEach((game, i) => {
-    const card = createGameCard(game);
-    card.style.animationDelay = (i * 35) + 'ms';
-    grid.appendChild(card);
-  });
-}
-
+// ══════════════════════════════════════════════════════════════
+// TOOLBAR — chips e sort com delegação
+// ══════════════════════════════════════════════════════════════
 function renderFilterChips() {
   const wrap = el('filter-chips');
-  wrap.innerHTML = '';
-  const cats = ['all'].concat([...new Set(allGames.map(g => g.category))].sort());
-  cats.forEach(cat => {
-    const chip = document.createElement('button');
-    chip.className   = 'chip' + (cat === activeFilter ? ' active' : '');
-    chip.textContent = cat === 'all' ? t('filter_all') : cat;
-    chip.addEventListener('click', () => {
-      activeFilter = cat;
-      qsa('.chip', wrap).forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-      renderGames();
-    });
-    wrap.appendChild(chip);
-  });
+  if (!wrap) return;
+  const cats = ['all', ...[...new Set(allGames.map(g => g.category))].sort()];
+  wrap.innerHTML = cats.map(cat =>
+    '<button class="chip' + (cat === activeFilter ? ' active' : '') + '" data-cat="' + cat + '">' +
+      (cat === 'all' ? t('filter_all') : cat) +
+    '</button>'
+  ).join('');
 }
 
 function renderSortButtons() {
   const wrap = el('sort-buttons');
   if (!wrap) return;
   const opts = [
-    { key: 'name',   label: t('sort_name') },
-    { key: 'clicks', label: t('sort_clicks') },
-    { key: 'newest', label: t('sort_newest') },
+    { key:'name',   label: t('sort_name')   },
+    { key:'clicks', label: t('sort_clicks') },
+    { key:'newest', label: t('sort_newest') },
   ];
-  wrap.innerHTML = '<span class="sort-label">' + t('sort_label') + '</span>';
-  opts.forEach(opt => {
-    const btn = document.createElement('button');
-    btn.className   = 'sort-btn' + (sortMode === opt.key ? ' active' : '');
-    btn.textContent = opt.label;
-    btn.addEventListener('click', () => {
-      sortMode = opt.key;
-      qsa('.sort-btn', wrap).forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      renderGames();
-    });
-    wrap.appendChild(btn);
-  });
+  wrap.innerHTML =
+    '<span class="sort-label">' + t('sort_label') + '</span>' +
+    opts.map(o =>
+      '<button class="sort-btn' + (sortMode === o.key ? ' active' : '') + '" data-sort="' + o.key + '">' +
+        o.label +
+      '</button>'
+    ).join('');
 }
 
-function initGamesSection() {
+function initToolbarDelegates() {
+  // Chips
+  el('filter-chips').addEventListener('click', (e) => {
+    const chip = e.target.closest('[data-cat]');
+    if (!chip) return;
+    activeFilter = chip.dataset.cat;
+    qsa('[data-cat]', el('filter-chips')).forEach(c =>
+      c.classList.toggle('active', c.dataset.cat === activeFilter)
+    );
+    renderGames();
+  });
+
+  // Sort
+  el('sort-buttons').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-sort]');
+    if (!btn) return;
+    sortMode = btn.dataset.sort;
+    qsa('[data-sort]', el('sort-buttons')).forEach(b =>
+      b.classList.toggle('active', b.dataset.sort === sortMode)
+    );
+    renderGames();
+  });
+
+  // Tabs
   el('tab-all').addEventListener('click', () => {
     activeTab = 'all';
     el('tab-all').classList.add('active');
@@ -500,47 +445,43 @@ function initGamesSection() {
     el('tab-all').classList.remove('active');
     renderGames();
   });
+
+  // Busca com debounce
   el('search-input').addEventListener('input', (e) => {
     clearTimeout(searchTimer);
     searchTimer = setTimeout(() => {
       searchQuery = e.target.value.trim();
       renderGames();
-    }, 180); // debounce
+    }, 180);
   });
-
-  renderFilterChips();
-  renderSortButtons();
-  renderGames();
 }
 
-// ─── LEADERBOARD ──────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+// LEADERBOARD
+// ══════════════════════════════════════════════════════════════
 function renderLeaderboard() {
   const wrap = el('leaderboard-list');
   if (!wrap) return;
-
   const top = allGames
-    .filter(g => (g.total_clicks || 0) > 0)
-    .sort((a, b) => (b.total_clicks || 0) - (a.total_clicks || 0))
+    .filter(g => (g.total_clicks||0) > 0)
+    .sort((a,b) => (b.total_clicks||0) - (a.total_clicks||0))
     .slice(0, 10);
 
-  if (top.length === 0) {
-    wrap.innerHTML = '<p class="lb-empty">' + t('lb_empty') + '</p>';
-    return;
-  }
-
-  const medals = ['🥇', '🥈', '🥉'];
-
+  if (!top.length) { wrap.innerHTML = '<p class="lb-empty">' + t('lb_empty') + '</p>'; return; }
+  const medals = ['🥇','🥈','🥉'];
   wrap.innerHTML = top.map((g, i) =>
     '<div class="lb-row' + (i < 3 ? ' lb-top' : '') + '">' +
-      '<span class="lb-rank">' + (medals[i] || (i + 1)) + '</span>' +
-      '<span class="lb-icon">' + g.icon + '</span>' +
-      '<span class="lb-name">' + g.name + '</span>' +
-      '<span class="lb-count">' + (g.total_clicks || 0) + ' ' + t('click_lbl') + '</span>' +
+      '<span class="lb-rank">'  + (medals[i] || (i+1))    + '</span>' +
+      '<span class="lb-icon">'  + g.icon                   + '</span>' +
+      '<span class="lb-name">'  + g.name                   + '</span>' +
+      '<span class="lb-count">' + (g.total_clicks||0) + ' ' + t('click_lbl') + '</span>' +
     '</div>'
   ).join('');
 }
 
-// ─── CONQUISTAS ───────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+// CONQUISTAS
+// ══════════════════════════════════════════════════════════════
 async function checkAndUnlock(id, condition) {
   if (!condition || userAchievements.has(id)) return;
   userAchievements.add(id);
@@ -549,187 +490,243 @@ async function checkAndUnlock(id, condition) {
   }
   showToast(t('ach_unlock_msg'), 'success');
   renderAchievements();
+  updateProgressBar();
 }
 
 async function checkAchievements() {
   const visits  = Pref.visits();
-  const clicked = allGames.filter(g => (g.total_clicks || 0) > 0).length;
+  const clicked = allGames.filter(g => (g.total_clicks||0) > 0).length;
   const nonAll  = ACHIEVEMENTS_DEF.filter(a => a.trigger !== 'all');
   const allDone = nonAll.every(a => userAchievements.has(a.id));
-  const isNight = new Date().getHours() >= 0 && new Date().getHours() < 5;
+  const h       = new Date().getHours();
 
   await checkAndUnlock('welcome',     true);
   await checkAndUnlock('first_click', clicked >= 1);
   await checkAndUnlock('explorer',    clicked >= 5);
   await checkAndUnlock('collector',   userFavorites.length >= 3);
   await checkAndUnlock('veteran',     visits >= 5);
-  await checkAndUnlock('night_owl',   isNight);
+  await checkAndUnlock('night_owl',   h < 5);
   await checkAndUnlock('master',      allDone);
 }
 
 function renderAchievements() {
   const wrap = el('achievements-grid');
+  if (!wrap) return;
   const lang = Pref.lang();
-  wrap.innerHTML = '';
-
-  ACHIEVEMENTS_DEF.forEach(ach => {
+  wrap.innerHTML = ACHIEVEMENTS_DEF.map(ach => {
     const unlocked = userAchievements.has(ach.id);
-    const title    = lang === 'en' ? ach.title_en : ach.title_pt;
-    const desc     = lang === 'en' ? ach.desc_en  : ach.desc_pt;
-    const locked   = lang === 'en' ? 'Unlock to reveal.' : 'Desbloqueie para revelar.';
-
-    const card = document.createElement('div');
-    card.className = 'ach-card' + (unlocked ? ' unlocked' : '');
-    card.innerHTML =
-      '<div class="ach-icon-wrap">' + (unlocked ? ach.icon : '🔒') + '</div>' +
-      '<div class="ach-info">' +
-        '<div class="ach-title">' + title + '</div>' +
-        '<div class="ach-desc">'  + (unlocked ? desc : locked) + '</div>' +
-      '</div>' +
-      '<div class="ach-status">' + (unlocked ? t('ach_unlocked_lbl') : t('ach_locked')) + '</div>';
-    wrap.appendChild(card);
-  });
+    const title = lang === 'en' ? ach.title_en : ach.title_pt;
+    const desc  = lang === 'en' ? ach.desc_en  : ach.desc_pt;
+    const lock  = lang === 'en' ? 'Unlock to reveal.' : 'Desbloqueie para revelar.';
+    return (
+      '<div class="ach-card' + (unlocked ? ' unlocked' : '') + '">' +
+        '<div class="ach-icon-wrap">' + (unlocked ? ach.icon : '🔒') + '</div>' +
+        '<div class="ach-info">' +
+          '<div class="ach-title">' + title + '</div>' +
+          '<div class="ach-desc">'  + (unlocked ? desc : lock) + '</div>' +
+        '</div>' +
+        '<div class="ach-status">' + (unlocked ? t('ach_unlocked_lbl') : t('ach_locked')) + '</div>' +
+      '</div>'
+    );
+  }).join('');
 }
 
-// ─── NOTÍCIAS ─────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+// NOTÍCIAS
+// ══════════════════════════════════════════════════════════════
 async function renderNewsSection() {
   const wrap = el('news-grid');
+  if (!wrap) return;
   wrap.innerHTML = '<p class="loading-msg">' + t('loading') + '</p>';
 
   let news = [];
   try {
-    const { data } = await db.from('news').select('*').eq('published', true)
-      .order('published_at', { ascending: false }).limit(6);
+    const { data } = await db.from('news').select('*')
+      .eq('published', true).order('published_at', { ascending: false }).limit(6);
     news = data || [];
   } catch(_) {}
 
-  // Fallback se Supabase não configurado
   if (!news.length) {
-    news = [
-      { tag:'NOVIDADE', title_pt:'Novos Jogos!', title_en:'New Games!',
-        content_pt:'Vortex Games e GitHub Games adicionados à coleção.',
-        content_en:'Vortex Games and GitHub Games added to the collection.',
-        published_at: new Date().toISOString() }
-    ];
+    news = [{
+      tag:'NOVIDADE',
+      title_pt:'Novos Jogos!', title_en:'New Games!',
+      content_pt:'Vortex Games e GitHub Games adicionados à coleção.',
+      content_en:'Vortex Games and GitHub Games added to the collection.',
+      published_at: new Date().toISOString()
+    }];
   }
 
   const lang = Pref.lang();
-  wrap.innerHTML = '';
-  news.forEach(item => {
+  wrap.innerHTML = news.map(item => {
     const title   = lang === 'en' ? item.title_en   : item.title_pt;
     const content = lang === 'en' ? item.content_en : item.content_pt;
     const date    = new Date(item.published_at).toLocaleDateString(
       lang === 'en' ? 'en-US' : 'pt-BR', { day:'2-digit', month:'short', year:'numeric' }
     );
-    const card = document.createElement('div');
-    card.className = 'news-card';
-    card.innerHTML =
-      '<div class="news-tag">'     + item.tag + '</div>' +
-      '<div class="news-title">'   + title    + '</div>' +
-      '<span class="news-date">'   + date     + '</span>' +
-      '<div class="news-content">' + content  + '</div>';
-    wrap.appendChild(card);
-  });
+    return (
+      '<div class="news-card">' +
+        '<div class="news-tag">'     + item.tag + '</div>' +
+        '<div class="news-title">'   + title    + '</div>' +
+        '<span class="news-date">'   + date     + '</span>' +
+        '<div class="news-content">' + content  + '</div>' +
+      '</div>'
+    );
+  }).join('');
 }
 
-// ─── SOBRE ────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+// SOBRE & STATS
+// ══════════════════════════════════════════════════════════════
 function renderAbout() {
-  const p1 = el('about-p1'); const p2 = el('about-p2');
-  if (p1) p1.textContent = t('about_p1');
-  if (p2) p2.textContent = t('about_p2');
+  const p1 = el('about-p1'); if (p1) p1.textContent = t('about_p1');
+  const p2 = el('about-p2'); if (p2) p2.textContent = t('about_p2');
 }
-
-// ─── STATS ────────────────────────────────────────────────────
 function updateStats() {
-  const cg = el("chip-games"); const cf = el("chip-favs"); const cv = el("chip-visits");
-  if (cg) cg.textContent = allGames.length;
-  if (cf) cf.textContent = userFavorites.length;
-  if (cv) cv.textContent = Pref.visits();
-  const g = el('stat-games'); const f = el('stat-favs'); const v = el('stat-visits');
-  if (g) g.textContent = allGames.length;
-  if (f) f.textContent = userFavorites.length;
-  if (v) v.textContent = Pref.visits();
+  ['chip-games','stat-games'].forEach(id  => { const e = el(id); if (e) e.textContent = allGames.length; });
+  ['chip-favs','stat-favs'].forEach(id    => { const e = el(id); if (e) e.textContent = userFavorites.length; });
+  ['chip-visits','stat-visits'].forEach(id => { const e = el(id); if (e) e.textContent = Pref.visits(); });
 }
-
-// ─── PROGRESS BAR ─────────────────────────────────────────────
 function updateProgressBar() {
   const bar = el('ach-progress-bar');
   const lbl = el('ach-progress-label');
   if (!bar) return;
-  const total    = ACHIEVEMENTS_DEF.length;
-  const unlocked = userAchievements.size;
-  const pct      = Math.round((unlocked / total) * 100);
+  const pct = Math.round((userAchievements.size / ACHIEVEMENTS_DEF.length) * 100);
   bar.style.width = pct + '%';
-  if (lbl) lbl.textContent = unlocked + '/' + total;
+  if (lbl) lbl.textContent = userAchievements.size + '/' + ACHIEVEMENTS_DEF.length;
 }
 
-// ─── INIT ──────────────────────────────────────────────────────
-async function init() {
-  applyTheme(Pref.theme());
-  translateStatic(Pref.lang());
-  Pref.saveVisits(Pref.visits() + 1);
+// ══════════════════════════════════════════════════════════════
+// MODAL — listeners fixos
+// ══════════════════════════════════════════════════════════════
+function initModal() {
+  const overlay = el('settings-modal');
+  el('settings-btn').addEventListener('click', () => overlay.classList.add('open'));
+  el('modal-close').addEventListener('click',  () => overlay.classList.remove('open'));
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('open'); });
+  el('toggle-theme-btn').addEventListener('click', toggleTheme);
+  el('lang-select').addEventListener('change', (e) => applyLang(e.target.value));
+  el('reset-ach-btn').addEventListener('click', async () => {
+    if (!currentUser) { showToast(t('toast_login_required'), 'warn'); return; }
+    try { await db.from('user_achievements').delete().eq('user_id', currentUser.id); } catch(_) {}
+    userAchievements.clear();
+    renderAchievements();
+    updateProgressBar();
+    showToast(t('toast_reset_ach'));
+  });
+  el('clear-data-btn').addEventListener('click', () => {
+    localStorage.clear();
+    showToast(t('toast_cleared'));
+    setTimeout(() => location.reload(), 1200);
+  });
+}
 
-  // Sessão — verifica antes de qualquer render
-  try {
-    const { data: { user } } = await db.auth.getUser();
-    currentUser = user;
-  } catch(_) { currentUser = null; }
-
-  // Só agora libera o render do botão de auth
-  _authReady = true;
-
-  // Auth listener — dispara em login/logout em tempo real
-  db.auth.onAuthStateChange(async (_ev, session) => {
-    const wasLoggedIn = !!currentUser;
-    currentUser = session ? session.user : null;
-
-    // Só re-renderiza se o estado realmente mudou
-    if (wasLoggedIn !== !!currentUser || _ev === 'SIGNED_IN' || _ev === 'SIGNED_OUT') {
-      renderAuthButton();
-      if (currentUser) {
-        await loadUserData();
-      } else {
-        userFavorites = []; userAchievements = new Set();
-      }
-      renderGames(); renderAchievements(); updateStats(); updateProgressBar();
+// ══════════════════════════════════════════════════════════════
+// UI EXTRAS — listeners fixos
+// ══════════════════════════════════════════════════════════════
+function initMobileMenu() {
+  const btn  = el('hamburger');
+  const menu = el('nav-links');
+  btn.addEventListener('click', () => { btn.classList.toggle('open'); menu.classList.toggle('open'); });
+  qsa('a', menu).forEach(a => a.addEventListener('click', () => {
+    btn.classList.remove('open'); menu.classList.remove('open');
+  }));
+}
+function initBackToTop() {
+  const btn = el('back-to-top');
+  if (!btn) return;
+  window.addEventListener('scroll', () => btn.classList.toggle('visible', window.scrollY > 400), { passive: true });
+  btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+}
+function initKeyboardShortcuts() {
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      el('games')?.scrollIntoView({ behavior: 'smooth' });
+      setTimeout(() => { const inp = el('search-input'); if (inp) { inp.focus(); inp.select(); } }, 300);
+    }
+    if (e.key === 'Escape') {
+      const modal = el('settings-modal');
+      if (modal?.classList.contains('open')) modal.classList.remove('open');
+      if (document.activeElement === el('search-input')) el('search-input').blur();
     }
   });
-
-  // Carrega jogos — tenta Supabase, usa local como fallback
-  try {
-    const { data } = await db.from('games_with_clicks').select('*');
-    allGames = (data && data.length) ? data : LOCAL_GAMES;
-  } catch(_) {
-    allGames = LOCAL_GAMES;
-  }
-
-  if (currentUser) await loadUserData();
-
-  // Renderiza
-  renderAuthButton();
-  initGamesSection();
-  renderLeaderboard();
-  renderAchievements();
-  await renderNewsSection();
-  renderAbout();
-  updateStats();
-  updateProgressBar();
-  await checkAchievements();
-
-  // UI extras
-  initMobileMenu();
-  initModal();
-  initBackToTop();
-  initKeyboardShortcuts();
 }
 
+// ══════════════════════════════════════════════════════════════
+// LOAD USER DATA
+// ══════════════════════════════════════════════════════════════
 async function loadUserData() {
+  if (!currentUser) return;
   try {
     const { data: favs } = await db.from('user_favorites').select('game_id').eq('user_id', currentUser.id);
     userFavorites = (favs || []).map(r => r.game_id);
     const { data: achs } = await db.from('user_achievements').select('achievement_id').eq('user_id', currentUser.id);
     userAchievements = new Set((achs || []).map(r => r.achievement_id));
   } catch(_) {}
+}
+
+// ══════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════
+async function init() {
+  // 1. Visual imediato
+  applyTheme(Pref.theme());
+  translateStatic(Pref.lang());
+  Pref.saveVisits(Pref.visits() + 1);
+
+  // 2. Listeners fixos — registrados UMA única vez
+  initModal();
+  initMobileMenu();
+  initBackToTop();
+  initKeyboardShortcuts();
+
+  // 3. Verifica sessão antes de qualquer render de auth
+  try {
+    const { data: { user } } = await db.auth.getUser();
+    currentUser = user;
+  } catch(_) { currentUser = null; }
+  _authReady = true;
+
+  // 4. Auth listener — só reage a eventos reais
+  db.auth.onAuthStateChange(async (event, session) => {
+    if (!['SIGNED_IN','SIGNED_OUT','USER_UPDATED','TOKEN_REFRESHED'].includes(event)) return;
+    const prev = !!currentUser;
+    currentUser = session?.user || null;
+    if (prev === !!currentUser && event !== 'SIGNED_IN' && event !== 'SIGNED_OUT') return;
+    renderAuthButton();
+    if (currentUser) { await loadUserData(); }
+    else { userFavorites = []; userAchievements = new Set(); }
+    renderGames();
+    renderAchievements();
+    updateStats();
+    updateProgressBar();
+  });
+
+  // 5. Carrega jogos
+  try {
+    const { data } = await db.from('games_with_clicks').select('*');
+    allGames = (data && data.length) ? data : LOCAL_GAMES;
+  } catch(_) { allGames = LOCAL_GAMES; }
+
+  // 6. Dados do usuário
+  if (currentUser) await loadUserData();
+
+  // 7. Renderiza conteúdo (chips e sort ANTES das delegações)
+  renderFilterChips();
+  renderSortButtons();
+  renderGames();
+  renderLeaderboard();
+  renderAchievements();
+  renderAbout();
+  updateStats();
+  updateProgressBar();
+  renderAuthButton();
+  await renderNewsSection();
+  await checkAchievements();
+
+  // 8. Delegações dinâmicas — DEPOIS dos containers existirem no DOM
+  initGamesDelegate();
+  initToolbarDelegates();
 }
 
 document.addEventListener('DOMContentLoaded', init);
