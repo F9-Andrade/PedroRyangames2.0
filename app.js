@@ -3,8 +3,8 @@
    ============================================================ */
 
 // ─── SUPABASE ─────────────────────────────────────────────────
-const SUPABASE_URL  = 'https://jnnlpwuppxhygwqwthud.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impubmxwd3VwcHhoeWd3cXd0aHVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzOTU4MTAsImV4cCI6MjA4OTk3MTgxMH0.1LOxQ9OHZwenL3MyqM7pYXNoReg6B_A1t9-fqgaDbBw';
+const SUPABASE_URL  = 'https://SEU-PROJETO.supabase.co';
+const SUPABASE_ANON = 'sua-anon-key-aqui';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON);
 
@@ -246,33 +246,67 @@ function initKeyboardShortcuts() {
 }
 
 // ─── AUTH ─────────────────────────────────────────────────────
+let _authReady = false; // impede render antes da sessão ser verificada
+
 function renderAuthButton() {
   const wrap = el('auth-container');
-  if (!wrap) return;
+  if (!wrap || !_authReady) return;
+
+  // Limpa completamente antes de renderizar
+  wrap.innerHTML = '';
+
   if (currentUser) {
-    const name = currentUser.user_metadata?.name || currentUser.email.split('@')[0];
-    const avatar = currentUser.user_metadata?.avatar_url;
-    wrap.innerHTML =
-      '<div class="user-pill">' +
-        (avatar
-          ? '<img src="' + avatar + '" class="user-avatar" alt="avatar"/>'
-          : '<span class="user-initials">' + name.charAt(0).toUpperCase() + '</span>') +
-        '<span class="user-name">' + name.split(' ')[0] + '</span>' +
-        '<button class="nav-btn" id="logout-btn" title="' + t('btn_logout') + '">⏏</button>' +
-      '</div>';
-    el('logout-btn').addEventListener('click', async () => {
+    const name   = (currentUser.user_metadata && currentUser.user_metadata.name)
+                   ? currentUser.user_metadata.name
+                   : currentUser.email.split('@')[0];
+    const avatar = currentUser.user_metadata && currentUser.user_metadata.avatar_url;
+
+    const pill = document.createElement('div');
+    pill.className = 'user-pill';
+
+    if (avatar) {
+      const img = document.createElement('img');
+      img.src = avatar; img.className = 'user-avatar'; img.alt = 'avatar';
+      pill.appendChild(img);
+    } else {
+      const ini = document.createElement('span');
+      ini.className = 'user-initials';
+      ini.textContent = name.charAt(0).toUpperCase();
+      pill.appendChild(ini);
+    }
+
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'user-name';
+    nameSpan.textContent = name.split(' ')[0];
+    pill.appendChild(nameSpan);
+
+    const logoutBtn = document.createElement('button');
+    logoutBtn.className = 'nav-btn';
+    logoutBtn.id = 'logout-btn';
+    logoutBtn.title = t('btn_logout');
+    logoutBtn.textContent = '⏏';
+    logoutBtn.addEventListener('click', async () => {
       await db.auth.signOut();
       showToast('👋 Até logo!');
     });
+    pill.appendChild(logoutBtn);
+    wrap.appendChild(pill);
+
   } else {
-    wrap.innerHTML =
-      '<button class="nav-btn btn-login" id="login-btn">' +
-        '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M12.545 10.239v3.821h5.445c-.712 2.315-2.647 3.972-5.445 3.972a6.033 6.033 0 110-12.064c1.498 0 2.866.549 3.921 1.453l2.814-2.814A9.969 9.969 0 0012.545 2C7.021 2 2.543 6.477 2.543 12s4.478 10 10.002 10c8.396 0 10.249-7.85 9.426-11.748l-9.426-.013z"/></svg>' +
-        t('btn_login') +
-      '</button>';
-    el('login-btn').addEventListener('click', () => {
-      db.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: 'https://ryangames20.netlify.app' } });
+    const loginBtn = document.createElement('button');
+    loginBtn.className = 'nav-btn btn-login';
+    loginBtn.id = 'login-btn';
+    loginBtn.innerHTML =
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0">' +
+        '<path d="M12.545 10.239v3.821h5.445c-.712 2.315-2.647 3.972-5.445 3.972a6.033 6.033 0 110-12.064c1.498 0 2.866.549 3.921 1.453l2.814-2.814A9.969 9.969 0 0012.545 2C7.021 2 2.543 6.477 2.543 12s4.478 10 10.002 10c8.396 0 10.249-7.85 9.426-11.748l-9.426-.013z"/>' +
+      '</svg>' + t('btn_login');
+    loginBtn.addEventListener('click', () => {
+      db.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.href }
+      });
     });
+    wrap.appendChild(loginBtn);
   }
 }
 
@@ -635,22 +669,30 @@ async function init() {
   translateStatic(Pref.lang());
   Pref.saveVisits(Pref.visits() + 1);
 
-  // Sessão
+  // Sessão — verifica antes de qualquer render
   try {
     const { data: { user } } = await db.auth.getUser();
     currentUser = user;
-  } catch(_) {}
+  } catch(_) { currentUser = null; }
 
-  // Auth listener
+  // Só agora libera o render do botão de auth
+  _authReady = true;
+
+  // Auth listener — dispara em login/logout em tempo real
   db.auth.onAuthStateChange(async (_ev, session) => {
-    currentUser = session?.user || null;
-    renderAuthButton();
-    if (currentUser) {
-      await loadUserData();
-    } else {
-      userFavorites = []; userAchievements = new Set();
+    const wasLoggedIn = !!currentUser;
+    currentUser = session ? session.user : null;
+
+    // Só re-renderiza se o estado realmente mudou
+    if (wasLoggedIn !== !!currentUser || _ev === 'SIGNED_IN' || _ev === 'SIGNED_OUT') {
+      renderAuthButton();
+      if (currentUser) {
+        await loadUserData();
+      } else {
+        userFavorites = []; userAchievements = new Set();
+      }
+      renderGames(); renderAchievements(); updateStats(); updateProgressBar();
     }
-    renderGames(); renderAchievements(); updateStats(); updateProgressBar();
   });
 
   // Carrega jogos — tenta Supabase, usa local como fallback
