@@ -21,6 +21,7 @@ let activeFilter     = 'all';
 let searchQuery      = '';
 let searchTimer      = null;
 let _authReady       = false;
+let _delegatesInited = false; // garante que listeners sao registrados apenas uma vez
 
 const Pref = {
   lang:       () => localStorage.getItem('rg_lang')   || 'pt-br',
@@ -687,15 +688,26 @@ async function init() {
   } catch(_) { currentUser = null; }
   _authReady = true;
 
-  // 4. Auth listener — só reage a eventos reais
+  // 4. Auth listener - SO reage a SIGNED_IN e SIGNED_OUT
+  // TOKEN_REFRESHED dispara a cada hora e causava re-render quebrando os cliques
   db.auth.onAuthStateChange(async (event, session) => {
-    if (!['SIGNED_IN','SIGNED_OUT','USER_UPDATED','TOKEN_REFRESHED'].includes(event)) return;
-    const prev = !!currentUser;
-    currentUser = session?.user || null;
-    if (prev === !!currentUser && event !== 'SIGNED_IN' && event !== 'SIGNED_OUT') return;
+    if (event !== 'SIGNED_IN' && event !== 'SIGNED_OUT') return;
+
+    const wasLoggedIn = !!currentUser;
+    currentUser = session ? session.user : null;
+    const isLoggedIn = !!currentUser;
+
+    if (wasLoggedIn === isLoggedIn) return;
+
     renderAuthButton();
-    if (currentUser) { await loadUserData(); }
-    else { userFavorites = []; userAchievements = new Set(); }
+
+    if (isLoggedIn) {
+      await loadUserData();
+    } else {
+      userFavorites    = [];
+      userAchievements = new Set();
+    }
+
     renderGames();
     renderAchievements();
     updateStats();
@@ -724,9 +736,12 @@ async function init() {
   await renderNewsSection();
   await checkAchievements();
 
-  // 8. Delegações dinâmicas — DEPOIS dos containers existirem no DOM
-  initGamesDelegate();
-  initToolbarDelegates();
+  // 8. Delegacoes dinamicas - registradas UMA UNICA VEZ
+  if (!_delegatesInited) {
+    _delegatesInited = true;
+    initGamesDelegate();
+    initToolbarDelegates();
+  }
 }
 
 document.addEventListener('DOMContentLoaded', init);
