@@ -5,8 +5,8 @@
    ============================================================ */
 
 // ─── SUPABASE ─────────────────────────────────────────────────
-const SUPABASE_URL  = 'https://jnnlpwuppxhygwqwthud.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impubmxwd3VwcHhoeWd3cXd0aHVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzOTU4MTAsImV4cCI6MjA4OTk3MTgxMH0.1LOxQ9OHZwenL3MyqM7pYXNoReg6B_A1t9-fqgaDbBw';
+const SUPABASE_URL  = 'https://SEU-PROJETO.supabase.co';
+const SUPABASE_ANON = 'sua-anon-key-aqui';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON);
 
@@ -714,7 +714,10 @@ async function init() {
     updateProgressBar();
   });
 
-  // 5. Carrega jogos
+  // 5. Skeleton loading enquanto busca jogos
+  renderSkeletons(8);
+
+  // 5b. Carrega jogos
   try {
     const { data } = await db.from('games_with_clicks').select('*');
     allGames = (data && data.length) ? data : LOCAL_GAMES;
@@ -741,7 +744,410 @@ async function init() {
     _delegatesInited = true;
     initGamesDelegate();
     initToolbarDelegates();
+    initProfileModal();
+    initAdminPanel();
   }
 }
 
 document.addEventListener('DOMContentLoaded', init);
+
+// ══════════════════════════════════════════════════════════════
+// CONFIGURAÇÃO ADMIN
+// Coloque o email da sua conta Google aqui
+// ══════════════════════════════════════════════════════════════
+const ADMIN_EMAIL = 'seu-email@gmail.com';
+
+function isAdmin() {
+  return currentUser && currentUser.email === ADMIN_EMAIL;
+}
+
+// ══════════════════════════════════════════════════════════════
+// SKELETON LOADING
+// ══════════════════════════════════════════════════════════════
+function renderSkeletons(count) {
+  const grid = el('games-grid');
+  if (!grid) return;
+  grid.innerHTML = Array.from({ length: count }, () => `
+    <div class="skeleton-card">
+      <div class="sk-top">
+        <div class="sk sk-icon"></div>
+        <div class="sk-lines">
+          <div class="sk sk-line w-70"></div>
+          <div class="sk sk-line w-40"></div>
+        </div>
+      </div>
+      <div class="sk sk-foot"></div>
+    </div>
+  `).join('');
+}
+
+// ══════════════════════════════════════════════════════════════
+// PERFIL DO USUÁRIO
+// ══════════════════════════════════════════════════════════════
+function openProfileModal() {
+  if (!currentUser) { showToast(t('toast_login_required'), 'warn'); return; }
+  renderProfileContent();
+  el('profile-modal').classList.add('open');
+}
+
+function renderProfileContent() {
+  const wrap = el('profile-content');
+  if (!wrap || !currentUser) return;
+
+  const name   = currentUser.user_metadata?.name || currentUser.email.split('@')[0];
+  const avatar = currentUser.user_metadata?.avatar_url;
+  const lang   = Pref.lang();
+
+  // Avatar
+  const avatarHTML = avatar
+    ? `<img src="${avatar}" class="profile-avatar-big" alt="avatar"/>`
+    : `<div class="profile-avatar-initials">${name.charAt(0).toUpperCase()}</div>`;
+
+  // Conquistas desbloqueadas
+  const achHTML = ACHIEVEMENTS_DEF.map(ach => {
+    const unlocked = userAchievements.has(ach.id);
+    return `<div class="profile-ach-icon ${unlocked ? 'unlocked' : ''}" title="${lang === 'en' ? ach.title_en : ach.title_pt}">
+      ${unlocked ? ach.icon : '🔒'}
+    </div>`;
+  }).join('');
+
+  // Jogos favoritos
+  const favGames = allGames.filter(g => userFavorites.includes(g.id));
+  const favHTML = favGames.length
+    ? favGames.map(g => `
+        <a class="profile-fav-row" href="${g.url}" target="_blank" rel="noopener">
+          <span style="font-size:1.2rem">${g.icon}</span>
+          <span>${g.name}</span>
+          <span style="font-size:0.75rem;color:var(--tx-3);margin-left:auto">${g.category}</span>
+        </a>`).join('')
+    : `<p class="profile-empty">${lang === 'en' ? 'No favorites yet.' : 'Nenhum favorito ainda.'}</p>`;
+
+  wrap.innerHTML = `
+    <div class="profile-header">
+      ${avatarHTML}
+      <div class="profile-info">
+        <div class="profile-name">${name.split(' ')[0].toUpperCase()}</div>
+        <div class="profile-email">${currentUser.email}</div>
+      </div>
+    </div>
+
+    <div class="profile-stats">
+      <div class="profile-stat">
+        <span class="profile-stat-num">${allGames.length}</span>
+        <span class="profile-stat-label">${lang === 'en' ? 'Games' : 'Jogos'}</span>
+      </div>
+      <div class="profile-stat">
+        <span class="profile-stat-num">${userFavorites.length}</span>
+        <span class="profile-stat-label">${lang === 'en' ? 'Favorites' : 'Favoritos'}</span>
+      </div>
+      <div class="profile-stat">
+        <span class="profile-stat-num">${userAchievements.size}/${ACHIEVEMENTS_DEF.length}</span>
+        <span class="profile-stat-label">${lang === 'en' ? 'Achievements' : 'Conquistas'}</span>
+      </div>
+    </div>
+
+    <div class="profile-section-title">${lang === 'en' ? 'ACHIEVEMENTS' : 'CONQUISTAS'}</div>
+    <div class="profile-ach-grid">${achHTML}</div>
+
+    <div class="profile-section-title">${lang === 'en' ? 'FAVORITES' : 'FAVORITOS'}</div>
+    <div class="profile-favs">${favHTML}</div>
+  `;
+}
+
+function initProfileModal() {
+  el('profile-modal-close').addEventListener('click', () => el('profile-modal').classList.remove('open'));
+  el('profile-modal').addEventListener('click', (e) => {
+    if (e.target === el('profile-modal')) el('profile-modal').classList.remove('open');
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+// PAINEL ADMIN
+// ══════════════════════════════════════════════════════════════
+function openAdminPanel() {
+  if (!isAdmin()) { showToast('🔒 Acesso restrito.', 'warn'); return; }
+  renderAdminPanel();
+  el('admin-panel').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAdminPanel() {
+  el('admin-panel').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function renderAdminPanel() {
+  const body = el('admin-body');
+  if (!body) return;
+
+  // Lista de jogos atual
+  const gamesListHTML = allGames.map(g => `
+    <div class="admin-game-row" data-id="${g.id}">
+      <span class="admin-game-icon">${g.icon}</span>
+      <div style="flex:1;min-width:0">
+        <div class="admin-game-name">${g.name}</div>
+        <div class="admin-game-cat">${g.category}</div>
+      </div>
+      <button class="admin-toggle ${g.featured ? 'on' : ''}" data-feat="${g.id}" title="Destaque">★</button>
+      <button class="admin-del" data-del="${g.id}" title="Remover">✕</button>
+    </div>
+  `).join('');
+
+  body.innerHTML = `
+    <!-- Adicionar jogo -->
+    <div class="admin-card">
+      <div class="admin-card-title">🎮 Adicionar Jogo</div>
+      <div class="admin-form" id="add-game-form">
+        <div class="admin-row">
+          <div class="admin-field">
+            <label class="admin-label">Nome</label>
+            <input class="admin-input" id="ag-name" placeholder="Ex: Meu Jogo" />
+          </div>
+          <div class="admin-field" style="max-width:80px">
+            <label class="admin-label">Ícone</label>
+            <input class="admin-input" id="ag-icon" placeholder="🎮" />
+          </div>
+        </div>
+        <div class="admin-field">
+          <label class="admin-label">URL</label>
+          <input class="admin-input" id="ag-url" placeholder="https://..." type="url" />
+        </div>
+        <div class="admin-row">
+          <div class="admin-field">
+            <label class="admin-label">Categoria</label>
+            <select class="admin-select" id="ag-cat">
+              <option>Geral</option><option>Ação</option><option>Aventura</option>
+              <option>Casual</option><option>PC</option><option>Quiz</option>
+              <option>Plataforma</option><option>Construção</option><option>Outro</option>
+            </select>
+          </div>
+          <div class="admin-field" style="justify-content:flex-end;padding-top:22px">
+            <div class="admin-check-row">
+              <input type="checkbox" id="ag-featured" />
+              <label for="ag-featured">Em destaque</label>
+            </div>
+          </div>
+        </div>
+        <button class="admin-submit" id="ag-submit">+ Adicionar Jogo</button>
+        <div id="ag-feedback" style="font-size:0.82rem;color:var(--lime);text-align:center;min-height:20px"></div>
+      </div>
+    </div>
+
+    <!-- Adicionar notícia -->
+    <div class="admin-card">
+      <div class="admin-card-title">📰 Adicionar Notícia</div>
+      <div class="admin-form" id="add-news-form">
+        <div class="admin-row">
+          <div class="admin-field">
+            <label class="admin-label">Tag</label>
+            <select class="admin-select" id="an-tag">
+              <option>NOVIDADE</option><option>LANÇAMENTO</option><option>INFO</option><option>ATUALIZAÇÃO</option>
+            </select>
+          </div>
+        </div>
+        <div class="admin-field">
+          <label class="admin-label">Título (PT)</label>
+          <input class="admin-input" id="an-title-pt" placeholder="Título em português" />
+        </div>
+        <div class="admin-field">
+          <label class="admin-label">Conteúdo (PT)</label>
+          <textarea class="admin-textarea" id="an-content-pt" placeholder="Texto da notícia..."></textarea>
+        </div>
+        <div class="admin-field">
+          <label class="admin-label">Título (EN)</label>
+          <input class="admin-input" id="an-title-en" placeholder="Title in English" />
+        </div>
+        <div class="admin-field">
+          <label class="admin-label">Conteúdo (EN)</label>
+          <textarea class="admin-textarea" id="an-content-en" placeholder="News text..."></textarea>
+        </div>
+        <button class="admin-submit" id="an-submit">+ Publicar Notícia</button>
+        <div id="an-feedback" style="font-size:0.82rem;color:var(--lime);text-align:center;min-height:20px"></div>
+      </div>
+    </div>
+
+    <!-- Lista de jogos -->
+    <div class="admin-card" style="grid-column:1/-1">
+      <div class="admin-card-title">📋 Jogos Cadastrados <span style="font-size:1rem;color:var(--tx-3)">(${allGames.length})</span></div>
+      <div class="admin-games-list" id="admin-games-list">
+        ${gamesListHTML}
+      </div>
+    </div>
+  `;
+
+  // Listener — Adicionar jogo
+  el('ag-submit').addEventListener('click', async () => {
+    const name     = el('ag-name').value.trim();
+    const icon     = el('ag-icon').value.trim() || '🎮';
+    const url      = el('ag-url').value.trim();
+    const category = el('ag-cat').value;
+    const featured = el('ag-featured').checked;
+    const fb       = el('ag-feedback');
+
+    if (!name || !url) { fb.textContent = '⚠️ Nome e URL são obrigatórios.'; fb.style.color = 'var(--rose)'; return; }
+
+    el('ag-submit').disabled = true;
+    fb.textContent = 'Salvando...'; fb.style.color = 'var(--tx-3)';
+
+    try {
+      const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+      const { error } = await db.from('games').insert({
+        slug, name, url, icon, category, featured,
+        active: true, added_at: new Date().toISOString()
+      });
+      if (error) throw error;
+
+      fb.textContent = '✅ Jogo adicionado com sucesso!'; fb.style.color = 'var(--lime)';
+      el('ag-name').value = ''; el('ag-url').value = ''; el('ag-icon').value = ''; el('ag-featured').checked = false;
+
+      // Recarrega jogos
+      const { data } = await db.from('games_with_clicks').select('*');
+      allGames = data || allGames;
+      renderGames(); renderLeaderboard(); updateStats();
+      renderAdminPanel();
+    } catch(err) {
+      fb.textContent = '❌ Erro: ' + err.message; fb.style.color = 'var(--rose)';
+    }
+    el('ag-submit').disabled = false;
+  });
+
+  // Listener — Adicionar notícia
+  el('an-submit').addEventListener('click', async () => {
+    const tag        = el('an-tag').value;
+    const title_pt   = el('an-title-pt').value.trim();
+    const content_pt = el('an-content-pt').value.trim();
+    const title_en   = el('an-title-en').value.trim() || title_pt;
+    const content_en = el('an-content-en').value.trim() || content_pt;
+    const fb         = el('an-feedback');
+
+    if (!title_pt || !content_pt) { fb.textContent = '⚠️ Título e conteúdo obrigatórios.'; fb.style.color = 'var(--rose)'; return; }
+
+    el('an-submit').disabled = true;
+    fb.textContent = 'Publicando...'; fb.style.color = 'var(--tx-3)';
+
+    try {
+      const { error } = await db.from('news').insert({
+        tag, title_pt, content_pt, title_en, content_en,
+        published: true, published_at: new Date().toISOString()
+      });
+      if (error) throw error;
+
+      fb.textContent = '✅ Notícia publicada!'; fb.style.color = 'var(--lime)';
+      el('an-title-pt').value = ''; el('an-content-pt').value = '';
+      el('an-title-en').value = ''; el('an-content-en').value = '';
+      await renderNewsSection();
+    } catch(err) {
+      fb.textContent = '❌ Erro: ' + err.message; fb.style.color = 'var(--rose)';
+    }
+    el('an-submit').disabled = false;
+  });
+
+  // Delegação — botões da lista de jogos
+  el('admin-games-list').addEventListener('click', async (e) => {
+    // Toggle destaque
+    const featBtn = e.target.closest('[data-feat]');
+    if (featBtn) {
+      const gameId = featBtn.dataset.feat;
+      const game   = allGames.find(g => g.id === gameId);
+      if (!game) return;
+      const newVal = !game.featured;
+      try {
+        await db.from('games').update({ featured: newVal }).eq('id', gameId);
+        game.featured = newVal;
+        featBtn.classList.toggle('on', newVal);
+        showToast(newVal ? '⭐ Marcado como destaque' : '☆ Removido do destaque');
+        renderGames();
+      } catch(err) { showToast('❌ Erro ao atualizar', 'warn'); }
+      return;
+    }
+
+    // Deletar jogo
+    const delBtn = e.target.closest('[data-del]');
+    if (delBtn) {
+      const gameId = delBtn.dataset.del;
+      const game   = allGames.find(g => g.id === gameId);
+      if (!game) return;
+      if (!confirm(`Remover "${game.name}"?`)) return;
+      try {
+        await db.from('games').update({ active: false }).eq('id', gameId);
+        allGames = allGames.filter(g => g.id !== gameId);
+        delBtn.closest('.admin-game-row').remove();
+        renderGames(); renderLeaderboard(); updateStats();
+        showToast('🗑️ Jogo removido');
+      } catch(err) { showToast('❌ Erro ao remover', 'warn'); }
+    }
+  });
+}
+
+function initAdminPanel() {
+  el('admin-btn').addEventListener('click', openAdminPanel);
+  el('admin-close-btn').addEventListener('click', closeAdminPanel);
+}
+
+// ══════════════════════════════════════════════════════════════
+// PATCH: renderAuthButton com botão de perfil clicável
+// Sobrescreve a função original
+// ══════════════════════════════════════════════════════════════
+function renderAuthButton() {
+  const wrap = el('auth-container');
+  if (!wrap || !_authReady) return;
+  wrap.innerHTML = '';
+
+  const adminBtn = el('admin-btn');
+
+  if (currentUser) {
+    const name   = currentUser.user_metadata?.name || currentUser.email.split('@')[0];
+    const avatar = currentUser.user_metadata?.avatar_url;
+
+    const pill = document.createElement('div');
+    pill.className = 'user-pill';
+    pill.style.cursor = 'pointer';
+    pill.title = 'Ver perfil';
+
+    if (avatar) {
+      const img = document.createElement('img');
+      img.src = avatar; img.className = 'user-avatar'; img.alt = '';
+      pill.appendChild(img);
+    } else {
+      const ini = document.createElement('span');
+      ini.className = 'user-initials';
+      ini.textContent = name.charAt(0).toUpperCase();
+      pill.appendChild(ini);
+    }
+
+    const nameEl = document.createElement('span');
+    nameEl.className = 'user-name';
+    nameEl.textContent = name.split(' ')[0];
+    pill.appendChild(nameEl);
+
+    // Clique no nome/avatar → abre perfil
+    pill.addEventListener('click', openProfileModal);
+
+    const logoutBtn = document.createElement('button');
+    logoutBtn.className = 'nav-btn';
+    logoutBtn.title = t('btn_logout');
+    logoutBtn.textContent = '⏏';
+    logoutBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      await db.auth.signOut();
+      showToast('👋 Até logo!');
+    });
+    pill.appendChild(logoutBtn);
+    wrap.appendChild(pill);
+
+    // Mostra botão admin se for o dono
+    if (adminBtn) adminBtn.style.display = isAdmin() ? 'flex' : 'none';
+  } else {
+    const btn = document.createElement('button');
+    btn.className = 'nav-btn btn-login';
+    btn.innerHTML =
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0">' +
+        '<path d="M12.545 10.239v3.821h5.445c-.712 2.315-2.647 3.972-5.445 3.972a6.033 6.033 0 110-12.064c1.498 0 2.866.549 3.921 1.453l2.814-2.814A9.969 9.969 0 0012.545 2C7.021 2 2.543 6.477 2.543 12s4.478 10 10.002 10c8.396 0 10.249-7.85 9.426-11.748l-9.426-.013z"/>' +
+      '</svg>' + t('btn_login');
+    btn.addEventListener('click', () => {
+      db.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.href } });
+    });
+    wrap.appendChild(btn);
+    if (adminBtn) adminBtn.style.display = 'none';
+  }
+}
