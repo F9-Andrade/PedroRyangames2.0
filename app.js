@@ -5,6 +5,7 @@
    ============================================================ */
 
 // ─── SUPABASE ─────────────────────────────────────────────────
+const ADMIN_EMAIL = 'batistapedro855@gmail.com';
 const SUPABASE_URL  = 'https://jnnlpwuppxhygwqwthud.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impubmxwd3VwcHhoeWd3cXd0aHVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzOTU4MTAsImV4cCI6MjA4OTk3MTgxMH0.1LOxQ9OHZwenL3MyqM7pYXNoReg6B_A1t9-fqgaDbBw';
 const { createClient } = supabase;
