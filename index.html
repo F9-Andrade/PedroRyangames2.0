@@ -15,7 +15,7 @@
 </head>
 <body>
 
-  <!-- ── HEADER ───────────────────────────────────────────── -->
+  <!-- HEADER -->
   <header>
     <nav>
       <a href="#" class="logo" aria-label="Ryan Games Home">
@@ -36,6 +36,8 @@
 
       <div class="nav-controls">
         <div id="auth-container"></div>
+        <!-- Botão Admin (visível só para o dono) -->
+        <button class="nav-btn" id="admin-btn" title="Painel Admin" aria-label="Admin" style="display:none">⚡</button>
         <button class="nav-btn" id="settings-btn" title="Configurações" aria-label="Configurações">⚙</button>
         <button class="hamburger" id="hamburger" aria-label="Menu">
           <span></span><span></span><span></span>
@@ -44,23 +46,15 @@
     </nav>
   </header>
 
-  <!-- ── HERO (split layout) ──────────────────────────────── -->
+  <!-- HERO -->
   <section id="hero">
-
-    <!-- Left: text -->
     <div class="hero-left">
       <span class="hero-eyebrow" data-t="hero_eyebrow">// PORTAL DE JOGOS v3.0</span>
-
       <h1 class="hero-title">
         <span data-t="hero_title_1">RYAN</span>
         <span class="accent" data-t="hero_title_2">GAMES</span>
       </h1>
-
-      <p class="hero-sub" data-t="hero_sub">
-        Sua coleção de jogos favoritos em um só lugar.
-      </p>
-
-      <!-- Live stats inline -->
+      <p class="hero-sub" data-t="hero_sub">Sua coleção de jogos favoritos em um só lugar.</p>
       <div class="hero-stats">
         <div class="hero-stat-item">
           <span class="hero-stat-num" id="chip-games">—</span>
@@ -77,15 +71,12 @@
           <span class="hero-stat-label" data-t="stat_visits">Visitas</span>
         </div>
       </div>
-
       <div class="hero-actions">
-        <a href="#games"       class="btn btn-primary"  data-t="hero_btn_main">Ver Jogos</a>
-        <a href="#leaderboard" class="btn btn-lime"      data-t="hero_btn_sec">Ranking</a>
-        <a href="#achievements" class="btn btn-outline"  data-t="nav_achievements">Conquistas</a>
+        <a href="#games"        class="btn btn-primary" data-t="hero_btn_main">Ver Jogos</a>
+        <a href="#leaderboard"  class="btn btn-lime"    data-t="hero_btn_sec">Ranking</a>
+        <a href="#achievements" class="btn btn-outline" data-t="nav_achievements">Conquistas</a>
       </div>
     </div>
-
-    <!-- Right: decorative orb -->
     <div class="hero-right">
       <div class="hero-orb">
         <div class="orb-icons">
@@ -97,10 +88,8 @@
         </div>
       </div>
     </div>
-
   </section>
 
-  <!-- ── MAIN ─────────────────────────────────────────────── -->
   <main>
 
     <!-- GAMES -->
@@ -110,7 +99,6 @@
         <h2 class="section-title" data-t="title_games">Jogos</h2>
         <div class="section-line"></div>
       </div>
-
       <div class="tabs" role="tablist">
         <button class="tab-btn active" id="tab-all" role="tab">
           <span data-t="tab_all">Todos</span>
@@ -120,16 +108,13 @@
           <span class="tab-badge">0</span>
         </button>
       </div>
-
       <div class="games-toolbar">
         <div class="search-wrapper">
           <span class="search-icon">🔍</span>
-          <input type="search" id="search-input"
-            placeholder="Buscar jogo... (Ctrl+K)" autocomplete="off" />
+          <input type="search" id="search-input" placeholder="Buscar jogo... (Ctrl+K)" autocomplete="off" />
         </div>
         <div class="filter-chips" id="filter-chips"></div>
       </div>
-
       <div id="sort-buttons" class="sort-bar"></div>
       <div id="games-grid" role="list"></div>
     </section>
@@ -141,9 +126,7 @@
         <h2 class="section-title" data-t="title_lb">Ranking de Jogos</h2>
         <div class="section-line"></div>
       </div>
-      <div class="lb-wrapper">
-        <div id="leaderboard-list"></div>
-      </div>
+      <div class="lb-wrapper"><div id="leaderboard-list"></div></div>
     </section>
 
     <!-- ACHIEVEMENTS -->
@@ -203,16 +186,14 @@
 
   </main>
 
-  <!-- ── FOOTER ───────────────────────────────────────────── -->
+  <!-- FOOTER -->
   <footer>
     <div class="footer-inner">
       <div class="footer-logo">
         <div class="footer-logo-mark">R</div>
         <span class="footer-logo-text">RYAN GAMES</span>
       </div>
-      <span class="footer-copy" data-t="footer_copy">
-        © 2025 Ryan Games 3.0 — Todos os direitos reservados
-      </span>
+      <span class="footer-copy" data-t="footer_copy">© 2025 Ryan Games 3.0 — Todos os direitos reservados</span>
       <div class="footer-status">
         <span class="status-dot"></span>
         <span data-t="footer_status">Online</span>
@@ -220,10 +201,22 @@
     </div>
   </footer>
 
-  <!-- BACK TO TOP -->
   <button id="back-to-top" aria-label="Voltar ao topo">↑</button>
 
-  <!-- SETTINGS MODAL -->
+  <!-- ══ MODAL PERFIL ══════════════════════════════════════════ -->
+  <div class="modal-overlay" id="profile-modal" role="dialog" aria-modal="true">
+    <div class="modal-box profile-box">
+      <div class="modal-header">
+        <h3 class="modal-title">Meu Perfil</h3>
+        <button class="modal-close" id="profile-modal-close">✕</button>
+      </div>
+      <div id="profile-content">
+        <!-- preenchido pelo JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MODAL CONFIGURAÇÕES ═══════════════════════════════════ -->
   <div class="modal-overlay" id="settings-modal" role="dialog" aria-modal="true">
     <div class="modal-box">
       <div class="modal-header">
@@ -249,6 +242,20 @@
         <span class="config-label" data-t="cfg_clear">Limpar Dados Locais</span>
         <button class="btn btn-danger" id="clear-data-btn" data-t="cfg_clear_btn">Limpar</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ══ PAINEL ADMIN ══════════════════════════════════════════ -->
+  <div id="admin-panel">
+    <div class="admin-header">
+      <div class="admin-title">
+        ⚡ Painel Admin
+        <span class="admin-badge">RESTRITO</span>
+      </div>
+      <button class="btn btn-outline" id="admin-close-btn" style="font-size:0.8rem;padding:8px 16px">✕ Fechar</button>
+    </div>
+    <div class="admin-body" id="admin-body">
+      <!-- preenchido pelo JS -->
     </div>
   </div>
 
