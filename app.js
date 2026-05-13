@@ -5,8 +5,8 @@
    ============================================================ */
 
 // ─── SUPABASE ─────────────────────────────────────────────────
-const SUPABASE_URL  = 'https://jnnlpwuppxhygwqwthud.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impubmxwd3VwcHhoeWd3cXd0aHVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzOTU4MTAsImV4cCI6MjA4OTk3MTgxMH0.1LOxQ9OHZwenL3MyqM7pYXNoReg6B_A1t9-fqgaDbBw';
+const SUPABASE_URL  = 'https://SEU-PROJETO.supabase.co';
+const SUPABASE_ANON = 'sua-anon-key-aqui';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON);
 
@@ -746,6 +746,7 @@ async function init() {
     initToolbarDelegates();
     initProfileModal();
     initAdminPanel();
+    initExtras();
   }
 }
 
@@ -755,7 +756,7 @@ document.addEventListener('DOMContentLoaded', init);
 // CONFIGURAÇÃO ADMIN
 // Coloque o email da sua conta Google aqui
 // ══════════════════════════════════════════════════════════════
-const ADMIN_EMAIL = 'batistapedro855@gmail.com';
+const ADMIN_EMAIL = 'seu-email@gmail.com';
 
 function isAdmin() {
   return currentUser && currentUser.email === ADMIN_EMAIL;
@@ -1150,4 +1151,579 @@ function renderAuthButton() {
     wrap.appendChild(btn);
     if (adminBtn) adminBtn.style.display = 'none';
   }
+}
+
+// ══════════════════════════════════════════════════════════════
+// JOGO DO DIA
+// ══════════════════════════════════════════════════════════════
+function getGameOfDay() {
+  if (!allGames.length) return null;
+  const dayIndex = Math.floor(Date.now() / 86400000) % allGames.length;
+  return allGames[dayIndex];
+}
+
+function renderGameOfDay() {
+  const wrap = el('game-of-day-wrap');
+  if (!wrap) return;
+  const game = getGameOfDay();
+  if (!game) { wrap.innerHTML = ''; return; }
+
+  wrap.innerHTML = `
+    <div class="game-of-day" id="god-card">
+      <div class="god-badge">🎯 JOGO DO DIA</div>
+      <div class="god-icon">${game.icon}</div>
+      <div class="god-info">
+        <div class="god-label">Destaque de hoje</div>
+        <div class="god-name">${game.name}</div>
+        <div class="god-cat">${game.category}</div>
+      </div>
+      <a href="${game.url}" target="_blank" rel="noopener" class="btn btn-lime" style="flex-shrink:0" onclick="addToHistory('${game.id}')">
+        Jogar agora →
+      </a>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════════════════
+// HISTÓRICO DE JOGOS
+// ══════════════════════════════════════════════════════════════
+function getHistory() {
+  return JSON.parse(localStorage.getItem('rg_history') || '[]');
+}
+
+function addToHistory(gameId) {
+  let hist = getHistory().filter(id => id !== gameId);
+  hist.unshift(gameId);
+  hist = hist.slice(0, 6);
+  localStorage.setItem('rg_history', JSON.stringify(hist));
+  renderHistory();
+}
+
+function renderHistory() {
+  const wrap = el('history-wrap');
+  if (!wrap) return;
+  const hist = getHistory();
+  const games = hist.map(id => allGames.find(g => g.id === id)).filter(Boolean);
+  if (!games.length) { wrap.innerHTML = ''; return; }
+
+  wrap.innerHTML = `
+    <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--tx-3);letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px">
+      Jogados recentemente
+    </div>
+    <div class="history-row">
+      ${games.map(g => `
+        <a class="history-chip" href="${g.url}" target="_blank" rel="noopener" onclick="addToHistory('${g.id}')">
+          <span class="history-chip-icon">${g.icon}</span>
+          ${g.name}
+        </a>`).join('')}
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════════════════
+// BUSCA GLOBAL (SPOTLIGHT)
+// ══════════════════════════════════════════════════════════════
+let spotlightIndex = -1;
+let spotlightResults = [];
+
+function openSpotlight() {
+  el('spotlight-overlay').classList.add('open');
+  setTimeout(() => el('spotlight-input').focus(), 50);
+  renderSpotlightResults('');
+}
+
+function closeSpotlight() {
+  el('spotlight-overlay').classList.remove('open');
+  el('spotlight-input').value = '';
+  spotlightIndex = -1;
+}
+
+function renderSpotlightResults(query) {
+  const wrap = el('spotlight-results');
+  const q = query.toLowerCase().trim();
+
+  spotlightResults = q
+    ? allGames.filter(g => g.name.toLowerCase().includes(q) || g.category.toLowerCase().includes(q))
+    : allGames.slice(0, 8);
+
+  if (!spotlightResults.length) {
+    wrap.innerHTML = `<div class="spotlight-empty">Nenhum jogo encontrado para "${query}"</div>`;
+    return;
+  }
+
+  const label = q ? 'Resultados' : 'Todos os jogos';
+  wrap.innerHTML = `
+    <div class="spotlight-section-label">${label}</div>
+    ${spotlightResults.map((g, i) => `
+      <div class="spotlight-item ${i === spotlightIndex ? 'active' : ''}" data-spot="${g.id}">
+        <div class="spotlight-item-icon">${g.icon}</div>
+        <div class="spotlight-item-info">
+          <div class="spotlight-item-name">${g.name}</div>
+          <div class="spotlight-item-cat">${g.category}</div>
+        </div>
+        <span class="spotlight-item-arrow">→</span>
+      </div>`).join('')}`;
+}
+
+function initSpotlight() {
+  const overlay = el('spotlight-overlay');
+  const input   = el('spotlight-input');
+
+  // Click fora fecha
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeSpotlight();
+  });
+
+  // Delegação nos resultados
+  el('spotlight-results').addEventListener('click', (e) => {
+    const item = e.target.closest('[data-spot]');
+    if (!item) return;
+    const game = allGames.find(g => g.id === item.dataset.spot);
+    if (game) { addToHistory(game.id); window.open(game.url, '_blank', 'noopener'); closeSpotlight(); }
+  });
+
+  // Busca em tempo real
+  let spotTimer;
+  input.addEventListener('input', (e) => {
+    clearTimeout(spotTimer);
+    spotTimer = setTimeout(() => {
+      spotlightIndex = -1;
+      renderSpotlightResults(e.target.value);
+    }, 120);
+  });
+
+  // Navegação por teclado
+  input.addEventListener('keydown', (e) => {
+    const items = el('spotlight-results').querySelectorAll('.spotlight-item');
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      spotlightIndex = Math.min(spotlightIndex + 1, items.length - 1);
+      items.forEach((it, i) => it.classList.toggle('active', i === spotlightIndex));
+      items[spotlightIndex]?.scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      spotlightIndex = Math.max(spotlightIndex - 1, -1);
+      items.forEach((it, i) => it.classList.toggle('active', i === spotlightIndex));
+    } else if (e.key === 'Enter') {
+      const game = spotlightResults[spotlightIndex] || spotlightResults[0];
+      if (game) { addToHistory(game.id); window.open(game.url, '_blank', 'noopener'); closeSpotlight(); }
+    }
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+// NOTIFICAÇÕES IN-APP
+// ══════════════════════════════════════════════════════════════
+function getNotifications() {
+  return JSON.parse(localStorage.getItem('rg_notifs') || '[]');
+}
+function saveNotifications(notifs) {
+  localStorage.setItem('rg_notifs', JSON.stringify(notifs));
+}
+function addNotification(icon, msg) {
+  const notifs = getNotifications();
+  notifs.unshift({ id: Date.now(), icon, msg, read: false, time: new Date().toISOString() });
+  saveNotifications(notifs.slice(0, 20));
+  renderNotifications();
+}
+function renderNotifications() {
+  const list  = el('notif-list');
+  const badge = el('notif-badge');
+  if (!list) return;
+
+  const notifs  = getNotifications();
+  const unread  = notifs.filter(n => !n.read).length;
+  badge.textContent = unread;
+  badge.classList.toggle('show', unread > 0);
+
+  if (!notifs.length) {
+    list.innerHTML = '<div class="notif-empty">Nenhuma notificação ainda.</div>';
+    return;
+  }
+
+  list.innerHTML = notifs.map(n => {
+    const time = new Date(n.time).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    return `
+      <div class="notif-item ${n.read ? '' : 'unread'}" data-notif="${n.id}">
+        <span class="notif-item-icon">${n.icon}</span>
+        <div class="notif-item-text">
+          <div class="notif-item-msg">${n.msg}</div>
+          <div class="notif-item-time">${time}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function initNotifications() {
+  const btn      = el('notif-btn');
+  const dropdown = el('notif-dropdown');
+
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    dropdown.classList.toggle('open');
+    // Marca todas como lidas ao abrir
+    if (dropdown.classList.contains('open')) {
+      const notifs = getNotifications().map(n => ({ ...n, read: true }));
+      saveNotifications(notifs);
+      setTimeout(renderNotifications, 300);
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
+      dropdown.classList.remove('open');
+    }
+  });
+
+  el('notif-clear').addEventListener('click', () => {
+    saveNotifications([]);
+    renderNotifications();
+  });
+
+  renderNotifications();
+}
+
+// ══════════════════════════════════════════════════════════════
+// SISTEMA DE AVALIAÇÃO (ESTRELAS)
+// ══════════════════════════════════════════════════════════════
+function getUserRating(gameId) {
+  const ratings = JSON.parse(localStorage.getItem('rg_ratings') || '{}');
+  return ratings[gameId] || 0;
+}
+function setUserRating(gameId, rating) {
+  const ratings = JSON.parse(localStorage.getItem('rg_ratings') || '{}');
+  ratings[gameId] = rating;
+  localStorage.setItem('rg_ratings', JSON.stringify(ratings));
+}
+
+// Injeta estrelas nos cards depois de renderizar
+function injectStars() {
+  qsa('[data-id]', el('games-grid')).forEach(card => {
+    if (card.querySelector('.stars-row')) return; // já tem
+    const gameId = card.dataset.id;
+    const rating = getUserRating(gameId);
+    const starsHTML = `
+      <div class="stars-row" data-stars="${gameId}">
+        ${[1,2,3,4,5].map(i =>
+          `<span class="star ${rating >= i ? 'on' : ''}" data-star="${i}" data-game="${gameId}">★</span>`
+        ).join('')}
+        <span class="stars-avg">${rating > 0 ? rating + '/5' : 'Avalie'}</span>
+      </div>`;
+    const footer = card.querySelector('.game-card-footer');
+    if (footer) footer.insertAdjacentHTML('beforebegin', starsHTML);
+  });
+}
+
+// Delegação para estrelas (adicionada ao grid)
+function initStarsDelegate() {
+  el('games-grid').addEventListener('click', (e) => {
+    const star = e.target.closest('[data-star]');
+    if (!star) return;
+    e.stopPropagation();
+    const gameId = star.dataset.game;
+    const rating = parseInt(star.dataset.star);
+    setUserRating(gameId, rating);
+
+    // Atualiza visual inline
+    const starsRow = el('games-grid').querySelector(`[data-stars="${gameId}"]`);
+    if (starsRow) {
+      starsRow.querySelectorAll('.star').forEach((s, i) => s.classList.toggle('on', i < rating));
+      const avg = starsRow.querySelector('.stars-avg');
+      if (avg) avg.textContent = rating + '/5';
+    }
+    showToast('⭐ Avaliado com ' + rating + ' estrela' + (rating > 1 ? 's' : '') + '!', 'success');
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+// COMENTÁRIOS
+// ══════════════════════════════════════════════════════════════
+let currentCommentsGameId = null;
+
+async function openCommentsModal(gameId) {
+  const game = allGames.find(g => g.id === gameId);
+  if (!game) return;
+  currentCommentsGameId = gameId;
+  const title = el('comments-modal-title');
+  if (title) title.textContent = `💬 ${game.name}`;
+  el('comments-modal').classList.add('open');
+  await renderComments(gameId);
+}
+
+async function renderComments(gameId) {
+  const wrap = el('comments-content');
+  if (!wrap) return;
+  wrap.innerHTML = '<p style="color:var(--tx-3);font-size:.85rem;padding:16px 0">Carregando...</p>';
+
+  let comments = [];
+  try {
+    const { data } = await db.from('game_comments')
+      .select('*, profiles(username, avatar_url)')
+      .eq('game_id', gameId)
+      .order('created_at', { ascending: false })
+      .limit(20);
+    comments = data || [];
+  } catch(_) {}
+
+  const lang = Pref.lang();
+  const listHTML = comments.length
+    ? comments.map(c => {
+        const name   = c.profiles?.username || 'Usuário';
+        const avatar = c.profiles?.avatar_url;
+        const time   = new Date(c.created_at).toLocaleDateString('pt-BR');
+        const avatarEl = avatar
+          ? `<img src="${avatar}" class="comment-avatar" alt="" />`
+          : `<div class="comment-avatar">${name.charAt(0).toUpperCase()}</div>`;
+        return `
+          <div class="comment-item">
+            <div class="comment-top">
+              ${avatarEl}
+              <span class="comment-name">${name}</span>
+              <span class="comment-time">${time}</span>
+            </div>
+            <div class="comment-text">${c.text}</div>
+          </div>`;
+      }).join('')
+    : `<p style="color:var(--tx-3);font-size:.85rem;text-align:center;padding:20px 0">
+        ${lang === 'en' ? 'No comments yet. Be the first!' : 'Sem comentários ainda. Seja o primeiro!'}
+       </p>`;
+
+  const formHTML = currentUser ? `
+    <div class="comment-form">
+      <textarea class="comment-textarea" id="comment-input" maxlength="280"
+        placeholder="${lang === 'en' ? 'Write a comment...' : 'Escreva um comentário...'}"></textarea>
+      <div class="comment-count"><span id="comment-char">0</span>/280</div>
+      <button class="btn btn-primary" id="comment-submit" style="width:100%">
+        ${lang === 'en' ? 'Send comment' : 'Enviar comentário'}
+      </button>
+    </div>` : `
+    <p style="text-align:center;color:var(--tx-3);font-size:.85rem;padding:12px 0">
+      ${lang === 'en' ? 'Sign in to comment.' : 'Entre para comentar.'}
+    </p>`;
+
+  wrap.innerHTML = `
+    <div class="comments-list">${listHTML}</div>
+    ${formHTML}`;
+
+  if (currentUser) {
+    const input = el('comment-input');
+    const charCount = el('comment-char');
+    input.addEventListener('input', () => { charCount.textContent = input.value.length; });
+
+    el('comment-submit').addEventListener('click', async () => {
+      const text = input.value.trim();
+      if (!text) return;
+      const btn = el('comment-submit');
+      btn.disabled = true; btn.textContent = 'Enviando...';
+      try {
+        await db.from('game_comments').insert({
+          game_id: gameId, user_id: currentUser.id, text
+        });
+        addNotification('💬', `Seu comentário em "${allGames.find(g=>g.id===gameId)?.name}" foi publicado!`);
+        await renderComments(gameId);
+      } catch(err) {
+        showToast('❌ Erro ao enviar: ' + err.message, 'warn');
+        btn.disabled = false;
+        btn.textContent = lang === 'en' ? 'Send comment' : 'Enviar comentário';
+      }
+    });
+  }
+}
+
+function initCommentsModal() {
+  el('comments-modal-close').addEventListener('click', () => el('comments-modal').classList.remove('open'));
+  el('comments-modal').addEventListener('click', (e) => {
+    if (e.target === el('comments-modal')) el('comments-modal').classList.remove('open');
+  });
+}
+
+// Botão de comentar em cada card — delegação no grid
+function initCommentsDelegate() {
+  el('games-grid').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-comment]');
+    if (!btn) return;
+    e.stopPropagation();
+    openCommentsModal(btn.dataset.comment);
+  });
+}
+
+// Injeta botão de comentar nos cards
+function injectCommentButtons() {
+  qsa('[data-id]', el('games-grid')).forEach(card => {
+    if (card.querySelector('[data-comment]')) return;
+    const gameId = card.dataset.id;
+    const footer = card.querySelector('.game-card-footer');
+    if (footer) {
+      const btn = document.createElement('button');
+      btn.dataset.comment = gameId;
+      btn.style.cssText = 'background:transparent;border:none;cursor:pointer;font-size:.8rem;color:var(--tx-3);padding:0 2px;transition:color .2s';
+      btn.title = 'Comentar';
+      btn.textContent = '💬';
+      btn.addEventListener('mouseenter', () => btn.style.color = 'var(--violet-light)');
+      btn.addEventListener('mouseleave', () => btn.style.color = 'var(--tx-3)');
+      footer.appendChild(btn);
+    }
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+// BOTÃO SECRETO 🐕
+// ══════════════════════════════════════════════════════════════
+let konami = [];
+const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown'];
+
+function openSecret() {
+  el('secret-overlay').classList.add('open');
+}
+
+function initSecret() {
+  // Clique no botão invisível
+  el('secret-btn').addEventListener('click', openSecret);
+
+  // Fechar overlay
+  el('secret-close').addEventListener('click', () => el('secret-overlay').classList.remove('open'));
+  el('secret-overlay').addEventListener('click', (e) => {
+    if (e.target === el('secret-overlay')) el('secret-overlay').classList.remove('open');
+  });
+
+  // Sequência Konami: ↑ ↑ ↓ ↓
+  document.addEventListener('keydown', (e) => {
+    konami.push(e.key);
+    konami = konami.slice(-4);
+    if (JSON.stringify(konami) === JSON.stringify(KONAMI)) {
+      openSecret();
+      konami = [];
+    }
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+// ATALHOS DE TECLADO COMPLETOS
+// ══════════════════════════════════════════════════════════════
+function initKeyboardShortcutsExtended() {
+  const sections = ['games','leaderboard','achievements','news'];
+
+  document.addEventListener('keydown', (e) => {
+    // Ignora quando digitando em inputs
+    if (['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) {
+      if (e.key === 'Escape') { e.target.blur(); closeSpotlight(); }
+      return;
+    }
+
+    // Ctrl+K — busca global
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault(); openSpotlight(); return;
+    }
+
+    switch(e.key) {
+      case '?': el('shortcuts-modal').classList.add('open'); break;
+      case 'Escape':
+        // Fecha qualquer modal aberto
+        qsa('.modal-overlay.open, .secret-overlay.open').forEach(m => m.classList.remove('open'));
+        closeSpotlight();
+        el('notif-dropdown').classList.remove('open');
+        break;
+      case '1': el(sections[0])?.scrollIntoView({ behavior:'smooth' }); break;
+      case '2': el(sections[1])?.scrollIntoView({ behavior:'smooth' }); break;
+      case '3': el(sections[2])?.scrollIntoView({ behavior:'smooth' }); break;
+      case '4': el(sections[3])?.scrollIntoView({ behavior:'smooth' }); break;
+      case 't': case 'T': toggleTheme(); break;
+      case 'f': case 'F':
+        if (activeTab === 'all') {
+          activeTab = 'fav';
+          el('tab-fav').classList.add('active');
+          el('tab-all').classList.remove('active');
+        } else {
+          activeTab = 'all';
+          el('tab-all').classList.add('active');
+          el('tab-fav').classList.remove('active');
+        }
+        renderGames();
+        break;
+    }
+  });
+
+  // Fechar modal de atalhos
+  el('shortcuts-modal-close').addEventListener('click', () => el('shortcuts-modal').classList.remove('open'));
+  el('shortcuts-modal').addEventListener('click', (e) => {
+    if (e.target === el('shortcuts-modal')) el('shortcuts-modal').classList.remove('open');
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+// PWA
+// ══════════════════════════════════════════════════════════════
+let pwaPrompt = null;
+
+function initPWA() {
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    pwaPrompt = e;
+    const shown = localStorage.getItem('rg_pwa_dismissed');
+    if (!shown) el('pwa-banner').classList.add('show');
+  });
+
+  el('pwa-install-btn').addEventListener('click', async () => {
+    if (!pwaPrompt) return;
+    pwaPrompt.prompt();
+    const { outcome } = await pwaPrompt.userChoice;
+    if (outcome === 'accepted') {
+      el('pwa-banner').classList.remove('show');
+      addNotification('📱', 'Ryan Games instalado com sucesso!');
+    }
+    pwaPrompt = null;
+  });
+
+  el('pwa-dismiss').addEventListener('click', () => {
+    el('pwa-banner').classList.remove('show');
+    localStorage.setItem('rg_pwa_dismissed', '1');
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+// PATCH: handleGameClick — adiciona ao histórico e notifica
+// ══════════════════════════════════════════════════════════════
+const _origGameClick = handleGameClick;
+async function handleGameClick(game, cardEl) {
+  addToHistory(game.id);
+  await _origGameClick(game, cardEl);
+}
+
+// ══════════════════════════════════════════════════════════════
+// PATCH: checkAndUnlock — notifica ao desbloquear conquista
+// ══════════════════════════════════════════════════════════════
+const _origUnlock = checkAndUnlock;
+async function checkAndUnlock(id, condition) {
+  const was = userAchievements.has(id);
+  await _origUnlock(id, condition);
+  if (!was && userAchievements.has(id)) {
+    const ach = ACHIEVEMENTS_DEF.find(a => a.id === id);
+    if (ach) addNotification('🏅', `Conquista desbloqueada: ${Pref.lang() === 'en' ? ach.title_en : ach.title_pt}`);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// PATCH: renderGames — injeta estrelas e botões de comentar
+// ══════════════════════════════════════════════════════════════
+const _origRenderGames = renderGames;
+function renderGames() {
+  _origRenderGames();
+  requestAnimationFrame(() => {
+    injectStars();
+    injectCommentButtons();
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+// INITS EXTRAS (chamados no init principal)
+// ══════════════════════════════════════════════════════════════
+function initExtras() {
+  initSpotlight();
+  initNotifications();
+  initCommentsModal();
+  initCommentsDelegate();
+  initStarsDelegate();
+  initSecret();
+  initKeyboardShortcutsExtended();
+  initPWA();
+  renderGameOfDay();
+  renderHistory();
 }
