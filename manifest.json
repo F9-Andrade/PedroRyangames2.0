@@ -1,0 +1,22 @@
+{
+  "name": "Ryan Games 3.0",
+  "short_name": "Ryan Games",
+  "description": "Seu portal de jogos favoritos em um só lugar.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#080c1a",
+  "theme_color": "#7c3aed",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192x192/7c3aed/ffffff?text=RG",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://via.placeholder.com/512x512/7c3aed/ffffff?text=RG",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
