@@ -12,6 +12,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
 </head>
 <body>
 
@@ -25,7 +27,6 @@
           <span class="logo-version">v3.0 · PORTAL</span>
         </div>
       </a>
-
       <div class="nav-links" id="nav-links" role="navigation">
         <a href="#games"        data-t="nav_games">JOGOS</a>
         <a href="#leaderboard"  data-t="nav_leaderboard">RANKING</a>
@@ -33,12 +34,23 @@
         <a href="#news"         data-t="nav_news">NOVIDADES</a>
         <a href="#about"        data-t="nav_about">SOBRE</a>
       </div>
-
       <div class="nav-controls">
         <div id="auth-container"></div>
-        <!-- Botão Admin (visível só para o dono) -->
-        <button class="nav-btn" id="admin-btn" title="Painel Admin" aria-label="Admin" style="display:none">⚡</button>
-        <button class="nav-btn" id="settings-btn" title="Configurações" aria-label="Configurações">⚙</button>
+        <!-- Notificações -->
+        <div class="notif-btn-wrap">
+          <button class="nav-btn" id="notif-btn" title="Notificações" aria-label="Notificações">🔔
+            <span class="notif-badge" id="notif-badge"></span>
+          </button>
+          <div class="notif-dropdown" id="notif-dropdown">
+            <div class="notif-header">
+              <span class="notif-title">Notificações</span>
+              <button class="notif-clear" id="notif-clear">Limpar tudo</button>
+            </div>
+            <div class="notif-list" id="notif-list"></div>
+          </div>
+        </div>
+        <button class="nav-btn" id="admin-btn" title="Painel Admin" style="display:none">⚡</button>
+        <button class="nav-btn" id="settings-btn" title="Configurações">⚙</button>
         <button class="hamburger" id="hamburger" aria-label="Menu">
           <span></span><span></span><span></span>
         </button>
@@ -80,10 +92,8 @@
     <div class="hero-right">
       <div class="hero-orb">
         <div class="orb-icons">
-          <span class="orb-icon">🎮</span>
-          <span class="orb-icon">🕹️</span>
-          <span class="orb-icon">🏆</span>
-          <span class="orb-icon">⭐</span>
+          <span class="orb-icon">🎮</span><span class="orb-icon">🕹️</span>
+          <span class="orb-icon">🏆</span><span class="orb-icon">⭐</span>
           <span class="orb-icon">🎯</span>
         </div>
       </div>
@@ -99,10 +109,15 @@
         <h2 class="section-title" data-t="title_games">Jogos</h2>
         <div class="section-line"></div>
       </div>
+
+      <!-- Jogo do dia -->
+      <div id="game-of-day-wrap"></div>
+
+      <!-- Histórico -->
+      <div id="history-wrap"></div>
+
       <div class="tabs" role="tablist">
-        <button class="tab-btn active" id="tab-all" role="tab">
-          <span data-t="tab_all">Todos</span>
-        </button>
+        <button class="tab-btn active" id="tab-all" role="tab"><span data-t="tab_all">Todos</span></button>
         <button class="tab-btn" id="tab-fav" role="tab">
           <span data-t="tab_fav">Favoritos</span>
           <span class="tab-badge">0</span>
@@ -137,9 +152,7 @@
         <div class="section-line"></div>
       </div>
       <div class="ach-progress-wrap">
-        <div class="ach-progress-track">
-          <div class="ach-progress-fill" id="ach-progress-bar"></div>
-        </div>
+        <div class="ach-progress-track"><div class="ach-progress-fill" id="ach-progress-bar"></div></div>
         <span class="ach-progress-label" id="ach-progress-label">0/7</span>
       </div>
       <div class="achievements-grid" id="achievements-grid"></div>
@@ -183,7 +196,6 @@
         </div>
       </div>
     </section>
-
   </main>
 
   <!-- FOOTER -->
@@ -203,20 +215,77 @@
 
   <button id="back-to-top" aria-label="Voltar ao topo">↑</button>
 
-  <!-- ══ MODAL PERFIL ══════════════════════════════════════════ -->
+  <!-- BOTÃO SECRETO — invisível no canto -->
+  <button id="secret-btn" title=""></button>
+
+  <!-- ══ OVERLAY SECRETO (cachorrinho) ═══════════════════════ -->
+  <div class="secret-overlay" id="secret-overlay">
+    <img src="https://i.imgur.com/xKQtVqS.jpeg" alt="oi posso fala" id="secret-img" />
+    <button class="secret-close" id="secret-close">[ clique para fechar ]</button>
+  </div>
+
+  <!-- ══ BUSCA GLOBAL (SPOTLIGHT) ════════════════════════════ -->
+  <div id="spotlight-overlay">
+    <div class="spotlight-box">
+      <div class="spotlight-input-row">
+        <span class="spotlight-icon">🔍</span>
+        <input id="spotlight-input" placeholder="Buscar jogos..." autocomplete="off" />
+        <span class="spotlight-kbd">ESC</span>
+      </div>
+      <div class="spotlight-results" id="spotlight-results"></div>
+      <div class="spotlight-footer">
+        <span class="spotlight-hint">↑↓ <span style="margin-left:2px">navegar</span></span>
+        <span class="spotlight-hint">↵ <span style="margin-left:2px">abrir</span></span>
+        <span class="spotlight-hint">ESC <span style="margin-left:2px">fechar</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MODAL PERFIL ════════════════════════════════════════ -->
   <div class="modal-overlay" id="profile-modal" role="dialog" aria-modal="true">
     <div class="modal-box profile-box">
       <div class="modal-header">
         <h3 class="modal-title">Meu Perfil</h3>
         <button class="modal-close" id="profile-modal-close">✕</button>
       </div>
-      <div id="profile-content">
-        <!-- preenchido pelo JS -->
+      <div id="profile-content"></div>
+    </div>
+  </div>
+
+  <!-- ══ MODAL COMENTÁRIOS ═══════════════════════════════════ -->
+  <div class="modal-overlay" id="comments-modal" role="dialog" aria-modal="true">
+    <div class="modal-box comments-modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title" id="comments-modal-title">Comentários</h3>
+        <button class="modal-close" id="comments-modal-close">✕</button>
+      </div>
+      <div id="comments-content"></div>
+    </div>
+  </div>
+
+  <!-- ══ MODAL ATALHOS ═══════════════════════════════════════ -->
+  <div class="modal-overlay" id="shortcuts-modal" role="dialog" aria-modal="true">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">⌨️ Atalhos</h3>
+        <button class="modal-close" id="shortcuts-modal-close">✕</button>
+      </div>
+      <div class="shortcuts-grid">
+        <div class="shortcut-row"><span>Busca global</span><div class="shortcut-keys"><span class="kbd">Ctrl</span><span class="kbd">K</span></div></div>
+        <div class="shortcut-row"><span>Este painel</span><div class="shortcut-keys"><span class="kbd">?</span></div></div>
+        <div class="shortcut-row"><span>Fechar modal</span><div class="shortcut-keys"><span class="kbd">ESC</span></div></div>
+        <div class="shortcut-row"><span>Ir para Jogos</span><div class="shortcut-keys"><span class="kbd">1</span></div></div>
+        <div class="shortcut-row"><span>Ir para Ranking</span><div class="shortcut-keys"><span class="kbd">2</span></div></div>
+        <div class="shortcut-row"><span>Ir para Conquistas</span><div class="shortcut-keys"><span class="kbd">3</span></div></div>
+        <div class="shortcut-row"><span>Ir para Novidades</span><div class="shortcut-keys"><span class="kbd">4</span></div></div>
+        <div class="shortcut-row"><span>Alternar tema</span><div class="shortcut-keys"><span class="kbd">T</span></div></div>
+        <div class="shortcut-row"><span>Favoritos / Todos</span><div class="shortcut-keys"><span class="kbd">F</span></div></div>
+        <div class="shortcut-row"><span>🐕 Surpresa</span><div class="shortcut-keys"><span class="kbd">↑</span><span class="kbd">↑</span><span class="kbd">↓</span><span class="kbd">↓</span></div></div>
       </div>
     </div>
   </div>
 
-  <!-- ══ MODAL CONFIGURAÇÕES ═══════════════════════════════════ -->
+  <!-- ══ MODAL CONFIGURAÇÕES ════════════════════════════════ -->
   <div class="modal-overlay" id="settings-modal" role="dialog" aria-modal="true">
     <div class="modal-box">
       <div class="modal-header">
@@ -245,18 +314,23 @@
     </div>
   </div>
 
-  <!-- ══ PAINEL ADMIN ══════════════════════════════════════════ -->
+  <!-- ══ PAINEL ADMIN ════════════════════════════════════════ -->
   <div id="admin-panel">
     <div class="admin-header">
-      <div class="admin-title">
-        ⚡ Painel Admin
-        <span class="admin-badge">RESTRITO</span>
-      </div>
+      <div class="admin-title">⚡ Painel Admin <span class="admin-badge">RESTRITO</span></div>
       <button class="btn btn-outline" id="admin-close-btn" style="font-size:0.8rem;padding:8px 16px">✕ Fechar</button>
     </div>
-    <div class="admin-body" id="admin-body">
-      <!-- preenchido pelo JS -->
+    <div class="admin-body" id="admin-body"></div>
+  </div>
+
+  <!-- ══ PWA INSTALL BANNER ══════════════════════════════════ -->
+  <div id="pwa-banner">
+    <div class="pwa-text">
+      <b>Instalar Ryan Games</b>
+      Adicione à tela inicial para acesso rápido!
     </div>
+    <button class="btn btn-primary" id="pwa-install-btn" style="font-size:0.78rem;padding:9px 16px;white-space:nowrap">Instalar</button>
+    <button class="pwa-dismiss" id="pwa-dismiss">✕</button>
   </div>
 
   <div id="toast-container" aria-live="polite"></div>
