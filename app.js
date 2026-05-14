@@ -311,6 +311,7 @@ function renderGames() {
       '</div>'
     );
   }).join('');
+  requestAnimationFrame(() => { if(typeof afterRenderGames==='function') afterRenderGames(); });
 }
 
 // Um único listener no grid — captura cliques de todos os cards
@@ -335,6 +336,9 @@ function initGamesDelegate() {
 }
 
 async function handleGameClick(game, cardEl) {
+  // Adiciona ao historico
+  addToHistory(game.id);
+
   // Feedback visual sem re-render
   cardEl.style.opacity = '0.6';
   setTimeout(() => { if (cardEl) cardEl.style.opacity = ''; }, 250);
@@ -492,6 +496,9 @@ async function checkAndUnlock(id, condition) {
   showToast(t('ach_unlock_msg'), 'success');
   renderAchievements();
   updateProgressBar();
+  // Notifica conquista desbloqueada
+  const _ach = ACHIEVEMENTS_DEF.find(a => a.id === id);
+  if (_ach) addNotification('🏅', (Pref.lang() === 'en' ? _ach.title_en : _ach.title_pt) + ' desbloqueada!');
 }
 
 async function checkAchievements() {
@@ -717,11 +724,16 @@ async function init() {
   // 5. Skeleton loading enquanto busca jogos
   renderSkeletons(8);
 
-  // 5b. Carrega jogos
+  // 5b. Carrega jogos — timeout de 5s para nao travar no skeleton
   try {
-    const { data } = await db.from('games_with_clicks').select('*');
+    const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 5000));
+    const fetchGames = db.from('games_with_clicks').select('*');
+    const { data } = await Promise.race([fetchGames, timeout]);
     allGames = (data && data.length) ? data : LOCAL_GAMES;
-  } catch(_) { allGames = LOCAL_GAMES; }
+  } catch(_) {
+    // Supabase indisponivel ou nao configurado — usa jogos locais
+    allGames = LOCAL_GAMES;
+  }
 
   // 6. Dados do usuário
   if (currentUser) await loadUserData();
@@ -1675,40 +1687,6 @@ function initPWA() {
   el('pwa-dismiss').addEventListener('click', () => {
     el('pwa-banner').classList.remove('show');
     localStorage.setItem('rg_pwa_dismissed', '1');
-  });
-}
-
-// ══════════════════════════════════════════════════════════════
-// PATCH: handleGameClick — adiciona ao histórico e notifica
-// ══════════════════════════════════════════════════════════════
-const _origGameClick = handleGameClick;
-async function handleGameClick(game, cardEl) {
-  addToHistory(game.id);
-  await _origGameClick(game, cardEl);
-}
-
-// ══════════════════════════════════════════════════════════════
-// PATCH: checkAndUnlock — notifica ao desbloquear conquista
-// ══════════════════════════════════════════════════════════════
-const _origUnlock = checkAndUnlock;
-async function checkAndUnlock(id, condition) {
-  const was = userAchievements.has(id);
-  await _origUnlock(id, condition);
-  if (!was && userAchievements.has(id)) {
-    const ach = ACHIEVEMENTS_DEF.find(a => a.id === id);
-    if (ach) addNotification('🏅', `Conquista desbloqueada: ${Pref.lang() === 'en' ? ach.title_en : ach.title_pt}`);
-  }
-}
-
-// ══════════════════════════════════════════════════════════════
-// PATCH: renderGames — injeta estrelas e botões de comentar
-// ══════════════════════════════════════════════════════════════
-const _origRenderGames = renderGames;
-function renderGames() {
-  _origRenderGames();
-  requestAnimationFrame(() => {
-    injectStars();
-    injectCommentButtons();
   });
 }
 
