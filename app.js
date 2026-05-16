@@ -5,8 +5,8 @@
    ============================================================ */
 
 // ─── SUPABASE ─────────────────────────────────────────────────
-const SUPABASE_URL  = 'https://jnnlpwuppxhygwqwthud.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impubmxwd3VwcHhoeWd3cXd0aHVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzOTU4MTAsImV4cCI6MjA4OTk3MTgxMH0.1LOxQ9OHZwenL3MyqM7pYXNoReg6B_A1t9-fqgaDbBw';
+const SUPABASE_URL  = 'https://SEU-PROJETO.supabase.co';
+const SUPABASE_ANON = 'sua-anon-key-aqui';
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON);
 
@@ -1704,4 +1704,746 @@ function initExtras() {
   initPWA();
   renderGameOfDay();
   renderHistory();
+}
+
+// ══════════════════════════════════════════════════════════════
+// SISTEMA SOCIAL — Ryan Games v8
+// Amizades + Chat em tempo real + Grupos
+// ══════════════════════════════════════════════════════════════
+
+// ── ESTADO SOCIAL ────────────────────────────────────────────
+let friends          = [];    // amigos aceitos
+let pendingIn        = [];    // pedidos recebidos
+let pendingOut       = [];    // pedidos enviados
+let channels         = [];    // DMs + grupos que o usuário participa
+let activeChannelId  = null;  // canal aberto no chat
+let realtimeSubs     = [];    // subscriptions realtime ativas
+let typingTimer      = null;  // debounce do typing indicator
+let unreadCounts     = {};    // { channelId: count }
+
+// ── HELPERS ──────────────────────────────────────────────────
+function avatarHTML(user, size = 34) {
+  const name = user.display_name || user.username || user.email?.split('@')[0] || '?';
+  const img  = user.avatar_url;
+  const s    = `width:${size}px;height:${size}px;border-radius:50%;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--violet-subtle);border:2px solid var(--b1);font-size:${Math.round(size*0.38)}px;font-weight:700;color:var(--violet-light);`;
+  return img
+    ? `<div style="${s}"><img src="${img}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" /></div>`
+    : `<div style="${s}">${name.charAt(0).toUpperCase()}</div>`;
+}
+
+function statusDot(status) {
+  const map = { online:'#4ade80', away:'#a3e635', offline:'var(--tx-3)' };
+  const c = map[status] || map.offline;
+  return `<span style="position:absolute;bottom:0;right:0;width:10px;height:10px;border-radius:50%;background:${c};border:2px solid var(--bg-card);"></span>`;
+}
+
+function timeStr(iso) {
+  const d = new Date(iso);
+  return d.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+}
+
+function dateStr(iso) {
+  const d = new Date(iso);
+  const today = new Date();
+  if (d.toDateString() === today.toDateString()) return 'Hoje';
+  const yest = new Date(today); yest.setDate(yest.getDate()-1);
+  if (d.toDateString() === yest.toDateString()) return 'Ontem';
+  return d.toLocaleDateString('pt-BR', { day:'2-digit', month:'short' });
+}
+
+// ── ABRIR / FECHAR PAINEL ────────────────────────────────────
+function openSocialPanel() {
+  if (!currentUser) { showToast('🔒 Entre para usar o chat', 'warn'); return; }
+  el('social-panel').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  loadSocialData();
+}
+
+function closeSocialPanel() {
+  el('social-panel').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ── CARREGA TODOS OS DADOS SOCIAIS ───────────────────────────
+async function loadSocialData() {
+  if (!currentUser) return;
+  await Promise.all([
+    loadFriends(),
+    loadChannels(),
+  ]);
+  renderFriendsList();
+  renderPendingList();
+  renderChannelsList();
+  subscribeRealtime();
+  updateOnlineStatus('online');
+}
+
+// ── STATUS ONLINE ────────────────────────────────────────────
+async function updateOnlineStatus(status) {
+  try { await db.rpc('update_user_status', { p_status: status }); } catch(_) {}
+}
+
+// ── AMIGOS ───────────────────────────────────────────────────
+async function loadFriends() {
+  try {
+    const { data } = await db
+      .from('friendships')
+      .select('*, requester_profile:profiles!requester(id,username,display_name,avatar_url,status), addressee_profile:profiles!addressee(id,username,display_name,avatar_url,status)')
+      .or(`requester.eq.${currentUser.id},addressee.eq.${currentUser.id}`);
+
+    friends   = [];
+    pendingIn = [];
+    pendingOut = [];
+
+    (data || []).forEach(f => {
+      const isMine = f.requester === currentUser.id;
+      const friend = isMine ? f.addressee_profile : f.requester_profile;
+      if (!friend) return;
+
+      const entry = { id: f.id, friend, status: f.status };
+      if (f.status === 'accepted') friends.push(entry);
+      else if (f.status === 'pending' && !isMine) pendingIn.push(entry);
+      else if (f.status === 'pending' && isMine) pendingOut.push(entry);
+    });
+  } catch(e) { console.error('loadFriends:', e); }
+}
+
+function renderFriendsList() {
+  const list  = el('friends-list');
+  const count = el('friends-count');
+  if (!list) return;
+
+  const online  = friends.filter(f => f.friend?.status === 'online');
+  const offline = friends.filter(f => f.friend?.status !== 'online');
+  const sorted  = [...online, ...offline];
+
+  count.textContent = friends.length ? `(${friends.length})` : '';
+
+  if (!sorted.length) {
+    list.innerHTML = `<div style="padding:10px 18px;font-size:.8rem;color:var(--tx-3)">Nenhum amigo ainda.</div>`;
+    return;
+  }
+
+  list.innerHTML = sorted.map(f => {
+    const name   = f.friend.display_name || f.friend.username || 'Usuário';
+    const status = f.friend.status || 'offline';
+    const dot    = { online:'🟢', away:'🟡', offline:'⚫' }[status] || '⚫';
+    return `
+      <div class="social-item" data-friend-id="${f.friend.id}" data-friendship-id="${f.id}">
+        <div style="position:relative;flex-shrink:0">
+          ${avatarHTML(f.friend, 34)}
+          ${statusDot(status)}
+        </div>
+        <div class="social-item-info">
+          <div class="social-item-name">${name}</div>
+          <div class="social-item-sub">${dot} ${status}</div>
+        </div>
+        <div class="social-item-actions">
+          <button class="social-action-btn" data-dm="${f.friend.id}" title="Mensagem">💬</button>
+          <button class="social-action-btn danger" data-unfriend="${f.id}" title="Remover">✕</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderPendingList() {
+  const list    = el('pending-list');
+  const count   = el('pending-count');
+  const section = el('pending-section');
+  if (!list) return;
+
+  const total = pendingIn.length + pendingOut.length;
+  count.textContent = total ? `(${total})` : '';
+  section.style.display = total ? 'block' : 'none';
+  if (!total) return;
+
+  list.innerHTML = [
+    ...pendingIn.map(f => {
+      const name = f.friend.display_name || f.friend.username || 'Usuário';
+      return `
+        <div class="social-item" data-friendship-id="${f.id}">
+          ${avatarHTML(f.friend, 34)}
+          <div class="social-item-info">
+            <div class="social-item-name">${name}</div>
+            <div class="social-item-sub">quer ser seu amigo</div>
+          </div>
+          <div style="display:flex;gap:4px;flex-shrink:0">
+            <button class="social-action-btn" style="color:var(--lime);border-color:var(--lime)" data-accept="${f.id}" title="Aceitar">✓</button>
+            <button class="social-action-btn danger" data-reject="${f.id}" title="Recusar">✕</button>
+          </div>
+        </div>`;
+    }),
+    ...pendingOut.map(f => {
+      const name = f.friend.display_name || f.friend.username || 'Usuário';
+      return `
+        <div class="social-item" style="opacity:.6">
+          ${avatarHTML(f.friend, 34)}
+          <div class="social-item-info">
+            <div class="social-item-name">${name}</div>
+            <div class="social-item-sub">pedido enviado…</div>
+          </div>
+          <button class="social-action-btn danger" data-cancel="${f.id}" title="Cancelar">✕</button>
+        </div>`;
+    }),
+  ].join('');
+
+  // Badge na navbar
+  const badge = el('social-nav-badge');
+  if (badge) { badge.textContent = pendingIn.length; badge.classList.toggle('show', pendingIn.length > 0); }
+}
+
+// ── ENVIAR PEDIDO DE AMIZADE ──────────────────────────────────
+async function sendFriendRequest(addresseeId) {
+  try {
+    const { error } = await db.from('friendships').insert({ requester: currentUser.id, addressee: addresseeId });
+    if (error) throw error;
+    showToast('✅ Pedido de amizade enviado!', 'success');
+    addNotification('👥', 'Pedido de amizade enviado!');
+    await loadFriends();
+    renderPendingList();
+    renderFriendsList();
+  } catch(e) {
+    showToast('❌ ' + (e.message.includes('unique') ? 'Pedido já enviado.' : e.message), 'warn');
+  }
+}
+
+async function respondFriendship(id, accept) {
+  try {
+    if (accept) {
+      await db.from('friendships').update({ status: 'accepted' }).eq('id', id);
+      showToast('✅ Amizade aceita!', 'success');
+    } else {
+      await db.from('friendships').delete().eq('id', id);
+      showToast('Pedido recusado.');
+    }
+    await loadFriends();
+    renderFriendsList();
+    renderPendingList();
+  } catch(e) { showToast('❌ Erro: ' + e.message, 'warn'); }
+}
+
+async function removeFriend(friendshipId) {
+  if (!confirm('Remover amigo?')) return;
+  try {
+    await db.from('friendships').delete().eq('id', friendshipId);
+    showToast('Amigo removido.');
+    await loadFriends();
+    renderFriendsList();
+  } catch(e) { showToast('❌ Erro: ' + e.message, 'warn'); }
+}
+
+// ── BUSCA DE USUÁRIOS ─────────────────────────────────────────
+async function searchUsers(query) {
+  if (!query || query.length < 2) {
+    el('search-results-dropdown').classList.remove('open');
+    return;
+  }
+  try {
+    const { data } = await db.from('profiles')
+      .select('id, username, display_name, avatar_url')
+      .ilike('username', `%${query}%`)
+      .neq('id', currentUser.id)
+      .limit(6);
+
+    const drop = el('search-results-dropdown');
+    if (!data?.length) {
+      drop.innerHTML = `<div style="padding:12px 14px;font-size:.82rem;color:var(--tx-3)">Nenhum usuário encontrado.</div>`;
+    } else {
+      drop.innerHTML = (data || []).map(u => {
+        const name = u.display_name || u.username || 'Usuário';
+        const isFriend = friends.some(f => f.friend.id === u.id);
+        const isPending = pendingOut.some(f => f.friend.id === u.id) || pendingIn.some(f => f.friend.id === u.id);
+        const btnLabel = isFriend ? '✓ Amigo' : isPending ? '⏳' : '+ Adicionar';
+        const btnDisabled = isFriend || isPending;
+        return `
+          <div class="search-result-item">
+            ${avatarHTML(u, 32)}
+            <div style="flex:1;min-width:0">
+              <div style="font-size:.85rem;font-weight:600;color:var(--tx-1)">${name}</div>
+              <div style="font-family:var(--font-mono);font-size:.65rem;color:var(--tx-3)">@${u.username || '?'}</div>
+            </div>
+            <button style="font-size:.72rem;padding:4px 10px;border-radius:var(--r-sm);border:1px solid var(--b2);background:transparent;color:var(--violet-light);cursor:pointer;white-space:nowrap;${btnDisabled?'opacity:.5;cursor:not-allowed':''}"
+              data-add-friend="${u.id}" ${btnDisabled?'disabled':''}>
+              ${btnLabel}
+            </button>
+          </div>`;
+      }).join('');
+    }
+    drop.classList.add('open');
+  } catch(e) { console.error(e); }
+}
+
+// ── CANAIS (DM + GRUPOS) ──────────────────────────────────────
+async function loadChannels() {
+  try {
+    const { data: memberships } = await db
+      .from('channel_members')
+      .select('channel_id, role')
+      .eq('user_id', currentUser.id);
+
+    if (!memberships?.length) { channels = []; return; }
+    const ids = memberships.map(m => m.channel_id);
+
+    const { data } = await db
+      .from('channels')
+      .select('*, channel_members(user_id, role, profiles(id,username,display_name,avatar_url,status))')
+      .in('id', ids);
+
+    channels = data || [];
+  } catch(e) { console.error('loadChannels:', e); }
+}
+
+function getChannelDisplay(ch) {
+  if (ch.type === 'group') return { name: ch.name || 'Grupo', icon: ch.icon || '👥', sub: `${ch.channel_members?.length || 0} membros` };
+  // DM — pega o outro membro
+  const other = ch.channel_members?.find(m => m.user_id !== currentUser.id);
+  const p     = other?.profiles;
+  const name  = p?.display_name || p?.username || 'Usuário';
+  return { name, avatarObj: p, sub: p?.status || 'offline' };
+}
+
+function renderChannelsList() {
+  const list = el('channels-list');
+  if (!list) return;
+  if (!channels.length) {
+    list.innerHTML = `<div style="padding:10px 18px;font-size:.8rem;color:var(--tx-3)">Nenhuma conversa ainda.</div>`;
+    return;
+  }
+  list.innerHTML = channels.map(ch => {
+    const disp   = getChannelDisplay(ch);
+    const unread = unreadCounts[ch.id] || 0;
+    const avatEl = disp.avatarObj
+      ? `<div style="position:relative;flex-shrink:0">${avatarHTML(disp.avatarObj, 34)}${statusDot(disp.avatarObj?.status)}</div>`
+      : `<div style="width:34px;height:34px;border-radius:50%;background:var(--violet-subtle);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">${disp.icon || '👥'}</div>`;
+    return `
+      <div class="social-item ${activeChannelId===ch.id?'active':''}" data-open-channel="${ch.id}">
+        ${avatEl}
+        <div class="social-item-info">
+          <div class="social-item-name">${disp.name}</div>
+          <div class="social-item-sub">${disp.sub}</div>
+        </div>
+        ${unread ? `<span class="unread-badge">${unread}</span>` : ''}
+      </div>`;
+  }).join('');
+}
+
+// ── ABRIR DM COM AMIGO ────────────────────────────────────────
+async function openDM(friendUserId) {
+  try {
+    const { data, error } = await db.rpc('get_or_create_dm', { other_user_id: friendUserId });
+    if (error) throw error;
+    await loadChannels();
+    renderChannelsList();
+    await openChannel(data);
+  } catch(e) { showToast('❌ Erro ao abrir DM: ' + e.message, 'warn'); }
+}
+
+// ── ABRIR CANAL DE CHAT ───────────────────────────────────────
+async function openChannel(channelId) {
+  activeChannelId = channelId;
+  unreadCounts[channelId] = 0;
+  renderChannelsList();
+
+  const ch   = channels.find(c => c.id === channelId);
+  const disp = ch ? getChannelDisplay(ch) : { name: 'Chat', sub: '' };
+  const main = el('social-main');
+  if (!main) return;
+
+  // Header
+  const avatEl = disp.avatarObj
+    ? `<div style="position:relative">${avatarHTML(disp.avatarObj, 36)}${statusDot(disp.avatarObj?.status)}</div>`
+    : `<div style="width:36px;height:36px;border-radius:50%;background:var(--violet-subtle);display:flex;align-items:center;justify-content:center;font-size:1.2rem">${disp.icon||'👥'}</div>`;
+
+  main.innerHTML = `
+    <div class="chat-header">
+      ${avatEl}
+      <div class="chat-header-info">
+        <div class="chat-header-name">${disp.name}</div>
+        <div class="chat-header-sub">${disp.sub}</div>
+      </div>
+    </div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="typing-indicator" id="typing-indicator"></div>
+    <div class="chat-input-area">
+      <div class="chat-input-row">
+        <textarea class="chat-textarea" id="chat-input"
+          placeholder="Mensagem para ${disp.name}..." rows="1"></textarea>
+        <button class="chat-send-btn" id="chat-send-btn">➤</button>
+      </div>
+    </div>`;
+
+  await loadMessages(channelId);
+  initChatInput(channelId);
+  subscribeChannel(channelId);
+}
+
+// ── MENSAGENS ─────────────────────────────────────────────────
+async function loadMessages(channelId) {
+  const wrap = el('chat-messages');
+  if (!wrap) return;
+  wrap.innerHTML = `<div style="text-align:center;color:var(--tx-3);font-size:.8rem;padding:20px">Carregando...</div>`;
+
+  try {
+    const { data } = await db
+      .from('messages')
+      .select('*, profiles(id,username,display_name,avatar_url)')
+      .eq('channel_id', channelId)
+      .order('created_at', { ascending: true })
+      .limit(80);
+
+    renderMessages(data || []);
+    scrollToBottom();
+  } catch(e) { wrap.innerHTML = `<div style="text-align:center;color:var(--rose);font-size:.8rem;padding:20px">Erro ao carregar mensagens.</div>`; }
+}
+
+function renderMessages(msgs) {
+  const wrap = el('chat-messages');
+  if (!wrap) return;
+  if (!msgs.length) {
+    wrap.innerHTML = `<div style="text-align:center;color:var(--tx-3);font-size:.82rem;padding:40px 20px">Nenhuma mensagem ainda. Diga olá! 👋</div>`;
+    return;
+  }
+
+  let html = '';
+  let lastDate = '';
+  let lastSender = '';
+
+  msgs.forEach((msg, i) => {
+    const isOwn    = msg.sender_id === currentUser.id;
+    const profile  = msg.profiles;
+    const name     = profile?.display_name || profile?.username || 'Usuário';
+    const date     = dateStr(msg.created_at);
+    const time     = timeStr(msg.created_at);
+    const consec   = lastSender === msg.sender_id && lastDate === date;
+
+    if (date !== lastDate) {
+      html += `<div class="msg-date-divider">${date}</div>`;
+      lastDate = date;
+    }
+
+    html += `
+      <div class="msg-group ${isOwn ? 'own' : ''}">
+        <div style="flex-shrink:0;align-self:flex-end">
+          ${!consec ? avatarHTML(profile || {}, 32) : '<div style="width:32px"></div>'}
+        </div>
+        <div class="msg-body">
+          ${!consec ? `<div class="msg-meta">${!isOwn ? `<span class="msg-name">${name}</span>` : ''}<span class="msg-time">${time}</span></div>` : ''}
+          <div class="msg-bubble ${consec ? 'consecutive' : ''}">${escapeHTML(msg.content)}</div>
+        </div>
+      </div>`;
+
+    lastSender = msg.sender_id;
+  });
+
+  wrap.innerHTML = html;
+}
+
+function escapeHTML(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function scrollToBottom() {
+  const wrap = el('chat-messages');
+  if (wrap) setTimeout(() => { wrap.scrollTop = wrap.scrollHeight; }, 50);
+}
+
+// ── ENVIAR MENSAGEM ───────────────────────────────────────────
+async function sendMessage(channelId, content) {
+  if (!content.trim()) return;
+  try {
+    await db.from('messages').insert({ channel_id: channelId, sender_id: currentUser.id, content: content.trim() });
+    clearTyping(channelId);
+  } catch(e) { showToast('❌ Erro ao enviar: ' + e.message, 'warn'); }
+}
+
+function initChatInput(channelId) {
+  const input   = el('chat-input');
+  const sendBtn = el('chat-send-btn');
+  if (!input || !sendBtn) return;
+
+  // Auto-resize textarea
+  input.addEventListener('input', () => {
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+    // Typing indicator
+    sendTyping(channelId);
+  });
+
+  input.addEventListener('keydown', async (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      const content = input.value;
+      input.value = '';
+      input.style.height = 'auto';
+      await sendMessage(channelId, content);
+    }
+  });
+
+  sendBtn.addEventListener('click', async () => {
+    const content = input.value;
+    input.value = '';
+    input.style.height = 'auto';
+    await sendMessage(channelId, content);
+  });
+
+  input.focus();
+}
+
+// ── TYPING INDICATOR ──────────────────────────────────────────
+async function sendTyping(channelId) {
+  clearTimeout(typingTimer);
+  try {
+    await db.from('typing_indicators')
+      .upsert({ channel_id: channelId, user_id: currentUser.id, updated_at: new Date().toISOString() });
+    typingTimer = setTimeout(() => clearTyping(channelId), 3000);
+  } catch(_) {}
+}
+
+async function clearTyping(channelId) {
+  try { await db.from('typing_indicators').delete().eq('channel_id', channelId).eq('user_id', currentUser.id); } catch(_) {}
+}
+
+function renderTyping(channelId, typingUsers) {
+  const wrap = el('typing-indicator');
+  if (!wrap || activeChannelId !== channelId) return;
+  const others = typingUsers.filter(u => u.user_id !== currentUser.id);
+  if (!others.length) { wrap.innerHTML = ''; return; }
+  const names = others.map(u => u.username || 'Alguém').join(', ');
+  wrap.innerHTML = `
+    <div class="typing-dots"><span></span><span></span><span></span></div>
+    <span>${names} está digitando...</span>`;
+}
+
+// ── REALTIME SUBSCRIPTIONS ────────────────────────────────────
+function subscribeRealtime() {
+  // Cancela subs antigas
+  realtimeSubs.forEach(s => s.unsubscribe?.());
+  realtimeSubs = [];
+
+  if (!currentUser) return;
+
+  // Escuta novos pedidos de amizade
+  const friendSub = db.channel('friendships-' + currentUser.id)
+    .on('postgres_changes', {
+      event: '*', schema: 'public', table: 'friendships',
+      filter: `addressee=eq.${currentUser.id}`
+    }, async () => {
+      await loadFriends();
+      renderFriendsList();
+      renderPendingList();
+      addNotification('👥', 'Novo pedido de amizade!');
+    })
+    .subscribe();
+
+  realtimeSubs.push(friendSub);
+}
+
+function subscribeChannel(channelId) {
+  // Remove sub anterior do canal
+  const prev = realtimeSubs.find(s => s._channelId === channelId);
+  if (prev) { prev.unsubscribe?.(); }
+
+  // Mensagens em tempo real
+  const msgSub = db.channel('messages-' + channelId)
+    .on('postgres_changes', {
+      event: 'INSERT', schema: 'public', table: 'messages',
+      filter: `channel_id=eq.${channelId}`
+    }, async (payload) => {
+      if (activeChannelId !== channelId) {
+        unreadCounts[channelId] = (unreadCounts[channelId] || 0) + 1;
+        renderChannelsList();
+        return;
+      }
+      // Busca perfil do remetente
+      const { data: profile } = await db.from('profiles').select('*').eq('id', payload.new.sender_id).single();
+      const msg = { ...payload.new, profiles: profile };
+      // Adiciona mensagem ao final sem recarregar tudo
+      appendMessage(msg);
+      scrollToBottom();
+    })
+    .subscribe();
+
+  msgSub._channelId = channelId;
+
+  // Typing indicator em tempo real
+  const typingSub = db.channel('typing-' + channelId)
+    .on('postgres_changes', {
+      event: '*', schema: 'public', table: 'typing_indicators',
+      filter: `channel_id=eq.${channelId}`
+    }, async () => {
+      const { data } = await db.from('typing_indicators')
+        .select('user_id, profiles(username)')
+        .eq('channel_id', channelId);
+      const users = (data || []).map(d => ({ user_id: d.user_id, username: d.profiles?.username }));
+      renderTyping(channelId, users);
+    })
+    .subscribe();
+
+  typingSub._channelId = channelId + '-typing';
+  realtimeSubs.push(msgSub, typingSub);
+}
+
+function appendMessage(msg) {
+  const wrap = el('chat-messages');
+  if (!wrap) return;
+  const isOwn   = msg.sender_id === currentUser.id;
+  const profile = msg.profiles;
+  const name    = profile?.display_name || profile?.username || 'Usuário';
+  const time    = timeStr(msg.created_at);
+
+  const div = document.createElement('div');
+  div.className = `msg-group ${isOwn ? 'own' : ''}`;
+  div.innerHTML = `
+    <div style="flex-shrink:0;align-self:flex-end">${avatarHTML(profile || {}, 32)}</div>
+    <div class="msg-body">
+      <div class="msg-meta">${!isOwn ? `<span class="msg-name">${name}</span>` : ''}<span class="msg-time">${time}</span></div>
+      <div class="msg-bubble">${escapeHTML(msg.content)}</div>
+    </div>`;
+  wrap.appendChild(div);
+}
+
+// ── GRUPOS ────────────────────────────────────────────────────
+function openCreateGroupModal() {
+  const list = el('member-select-list');
+  if (list) {
+    list.innerHTML = friends.map(f => {
+      const name = f.friend.display_name || f.friend.username || 'Usuário';
+      return `
+        <div class="member-select-item" data-member="${f.friend.id}">
+          ${avatarHTML(f.friend, 28)}
+          <span style="font-size:.85rem;font-weight:500;color:var(--tx-1)">${name}</span>
+          <span class="member-check">○</span>
+        </div>`;
+    }).join('') || `<p style="color:var(--tx-3);font-size:.82rem;text-align:center;padding:12px">Adicione amigos antes de criar um grupo.</p>`;
+  }
+  el('create-group-modal').classList.add('open');
+}
+
+async function createGroup() {
+  const name     = el('group-name-input').value.trim();
+  const icon     = el('group-icon-input').value.trim() || '👥';
+  const selected = [...document.querySelectorAll('.member-select-item.selected')].map(el => el.dataset.member);
+  const fb       = el('create-group-feedback');
+
+  if (!name) { fb.textContent = '⚠️ Dê um nome ao grupo.'; fb.style.color = 'var(--rose)'; return; }
+  if (!selected.length) { fb.textContent = '⚠️ Selecione pelo menos 1 amigo.'; fb.style.color = 'var(--rose)'; return; }
+
+  const btn = el('create-group-submit');
+  btn.disabled = true; fb.textContent = 'Criando...'; fb.style.color = 'var(--tx-3)';
+
+  try {
+    // Cria canal
+    const { data: ch, error } = await db.from('channels')
+      .insert({ type: 'group', name, icon, owner_id: currentUser.id })
+      .select().single();
+    if (error) throw error;
+
+    // Adiciona membros
+    const members = [
+      { channel_id: ch.id, user_id: currentUser.id, role: 'owner' },
+      ...selected.map(uid => ({ channel_id: ch.id, user_id: uid, role: 'member' }))
+    ];
+    await db.from('channel_members').insert(members);
+
+    fb.textContent = '✅ Grupo criado!'; fb.style.color = 'var(--lime)';
+    el('group-name-input').value = ''; el('group-icon-input').value = '';
+
+    await loadChannels();
+    renderChannelsList();
+    setTimeout(() => {
+      el('create-group-modal').classList.remove('open');
+      openChannel(ch.id);
+    }, 800);
+  } catch(e) {
+    fb.textContent = '❌ Erro: ' + e.message; fb.style.color = 'var(--rose)';
+    btn.disabled = false;
+  }
+}
+
+// ── INIT SOCIAL ───────────────────────────────────────────────
+function initSocial() {
+  // Abrir/fechar painel
+  el('social-btn').addEventListener('click', openSocialPanel);
+  el('social-close-btn').addEventListener('click', closeSocialPanel);
+
+  // Fechar ao pressionar ESC
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && el('social-panel').classList.contains('open')) closeSocialPanel();
+  });
+
+  // Busca de usuários
+  let searchDebounce;
+  el('user-search-input').addEventListener('input', (e) => {
+    clearTimeout(searchDebounce);
+    searchDebounce = setTimeout(() => searchUsers(e.target.value.trim()), 250);
+  });
+  document.addEventListener('click', (e) => {
+    if (!el('user-search-input').contains(e.target)) {
+      el('search-results-dropdown').classList.remove('open');
+    }
+  });
+
+  // Delegação — resultados de busca (adicionar amigo)
+  el('search-results-dropdown').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-add-friend]');
+    if (btn) { sendFriendRequest(btn.dataset.addFriend); el('search-results-dropdown').classList.remove('open'); el('user-search-input').value = ''; }
+  });
+
+  // Delegação — lista de amigos
+  el('friends-list').addEventListener('click', (e) => {
+    const dmBtn      = e.target.closest('[data-dm]');
+    const unfriendBtn= e.target.closest('[data-unfriend]');
+    if (dmBtn)       openDM(dmBtn.dataset.dm);
+    if (unfriendBtn) removeFriend(unfriendBtn.dataset.unfriend);
+  });
+
+  // Delegação — pedidos pendentes
+  el('pending-list').addEventListener('click', async (e) => {
+    const acceptBtn = e.target.closest('[data-accept]');
+    const rejectBtn = e.target.closest('[data-reject]');
+    const cancelBtn = e.target.closest('[data-cancel]');
+    if (acceptBtn) await respondFriendship(acceptBtn.dataset.accept, true);
+    if (rejectBtn) await respondFriendship(rejectBtn.dataset.reject, false);
+    if (cancelBtn) await respondFriendship(cancelBtn.dataset.cancel, false);
+  });
+
+  // Delegação — canais
+  el('channels-list').addEventListener('click', (e) => {
+    const item = e.target.closest('[data-open-channel]');
+    if (item) openChannel(item.dataset.openChannel);
+  });
+
+  // Criar grupo
+  el('create-group-btn').addEventListener('click', openCreateGroupModal);
+  el('create-group-modal-close').addEventListener('click', () => el('create-group-modal').classList.remove('open'));
+  el('create-group-modal').addEventListener('click', (e) => {
+    if (e.target === el('create-group-modal')) el('create-group-modal').classList.remove('open');
+  });
+  el('member-select-list').addEventListener('click', (e) => {
+    const item = e.target.closest('.member-select-item');
+    if (!item) return;
+    item.classList.toggle('selected');
+    const check = item.querySelector('.member-check');
+    if (check) check.textContent = item.classList.contains('selected') ? '✓' : '○';
+  });
+  el('create-group-submit').addEventListener('click', createGroup);
+
+  // Status offline quando fecha a aba
+  window.addEventListener('beforeunload', () => updateOnlineStatus('offline'));
+}
+
+// ── PATCH: initExtras — adiciona initSocial ───────────────────
+const _origInitExtras = initExtras;
+function initExtras() {
+  _origInitExtras();
+  if (currentUser) initSocial();
+}
+
+// ── PATCH: renderAuthButton — inicializa social após login ────
+const _origRenderAuth = renderAuthButton;
+function renderAuthButton() {
+  _origRenderAuth();
+  // Mostra botão social só quando logado
+  const btn = el('social-btn');
+  if (btn) btn.style.display = currentUser ? 'flex' : 'none';
 }
