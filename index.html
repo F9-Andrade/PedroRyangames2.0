@@ -49,6 +49,12 @@
             <div class="notif-list" id="notif-list"></div>
           </div>
         </div>
+        <!-- Botão Social -->
+        <div class="social-nav-btn">
+          <button class="nav-btn" id="social-btn" title="Amigos e Chat" aria-label="Social">💬
+            <span class="social-nav-badge" id="social-nav-badge"></span>
+          </button>
+        </div>
         <button class="nav-btn" id="admin-btn" title="Painel Admin" style="display:none">⚡</button>
         <button class="nav-btn" id="settings-btn" title="Configurações">⚙</button>
         <button class="hamburger" id="hamburger" aria-label="Menu">
@@ -334,6 +340,82 @@
   </div>
 
   <div id="toast-container" aria-live="polite"></div>
+
+  <!-- ══ PAINEL SOCIAL ══════════════════════════════════════ -->
+  <div id="social-panel">
+
+    <!-- Sidebar esquerda -->
+    <div class="social-sidebar" id="social-sidebar">
+      <div class="social-sidebar-header">
+        <span class="social-sidebar-title">💬 Social</span>
+        <button class="social-close-btn" id="social-close-btn">✕</button>
+      </div>
+
+      <!-- Busca de usuários -->
+      <div class="social-search" style="position:relative">
+        <input class="social-search-input" id="user-search-input"
+          placeholder="🔍 Buscar usuários..." autocomplete="off" />
+        <div class="search-results-dropdown" id="search-results-dropdown"></div>
+      </div>
+
+      <!-- Pedidos pendentes -->
+      <div class="social-section" id="pending-section">
+        <div class="social-section-label">
+          <span>PEDIDOS <span id="pending-count"></span></span>
+        </div>
+        <div id="pending-list"></div>
+      </div>
+
+      <!-- Amigos -->
+      <div class="social-section" id="friends-section">
+        <div class="social-section-label">
+          <span>AMIGOS <span id="friends-count"></span></span>
+        </div>
+        <div id="friends-list"></div>
+      </div>
+
+      <!-- Grupos e DMs -->
+      <div class="social-section" style="flex:1;overflow-y:auto">
+        <div class="social-section-label">
+          <span>CONVERSAS</span>
+          <button id="create-group-btn" title="Criar Grupo">+</button>
+        </div>
+        <div id="channels-list"></div>
+      </div>
+    </div>
+
+    <!-- Área principal do chat -->
+    <div class="social-main" id="social-main">
+      <div class="chat-empty" id="chat-empty">
+        <div class="chat-empty-icon">💬</div>
+        <h3>Bem-vindo ao Social!</h3>
+        <p>Busque um usuário para adicionar como amigo ou clique em uma conversa para começar.</p>
+      </div>
+      <!-- Chat ativo (preenchido pelo JS) -->
+    </div>
+  </div>
+
+  <!-- ══ MODAL CRIAR GRUPO ══════════════════════════════════ -->
+  <div class="modal-overlay" id="create-group-modal" role="dialog" aria-modal="true">
+    <div class="modal-box create-group-box">
+      <div class="modal-header">
+        <h3 class="modal-title">👥 Criar Grupo</h3>
+        <button class="modal-close" id="create-group-modal-close">✕</button>
+      </div>
+      <div class="admin-field" style="margin-bottom:12px">
+        <label class="admin-label">Nome do Grupo</label>
+        <input class="admin-input" id="group-name-input" placeholder="Ex: Amigos do Ryan Games" />
+      </div>
+      <div class="admin-field" style="margin-bottom:4px">
+        <label class="admin-label">Ícone</label>
+        <input class="admin-input" id="group-icon-input" placeholder="👥" style="max-width:80px" />
+      </div>
+      <div class="admin-label" style="padding:12px 0 6px">Adicionar amigos</div>
+      <div class="member-select-list" id="member-select-list"></div>
+      <button class="admin-submit" id="create-group-submit">Criar Grupo</button>
+      <div id="create-group-feedback" style="font-size:.8rem;text-align:center;min-height:18px;margin-top:8px"></div>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="app.js"></script>
