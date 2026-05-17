@@ -35,7 +35,6 @@
         <a href="#about"        data-t="nav_about">SOBRE</a>
       </div>
       <div class="nav-controls">
-        <div id="auth-container"></div>
         <!-- Notificações -->
         <div class="notif-btn-wrap">
           <button class="nav-btn" id="notif-btn" title="Notificações" aria-label="Notificações">🔔
@@ -49,13 +48,16 @@
             <div class="notif-list" id="notif-list"></div>
           </div>
         </div>
-        <!-- Botão Social -->
+        <!-- Social -->
         <div class="social-nav-btn">
-          <button class="nav-btn" id="social-btn" title="Amigos e Chat" aria-label="Social">💬
+          <button class="nav-btn" id="social-btn" title="Amigos e Chat" style="display:none">💬
             <span class="social-nav-badge" id="social-nav-badge"></span>
           </button>
         </div>
         <button class="nav-btn" id="admin-btn" title="Painel Admin" style="display:none">⚡</button>
+        <button class="nav-btn" id="settings-btn" title="Configurações">⚙</button>
+        <!-- Auth container — login ou pill do usuário -->
+        <div id="auth-container"></div>
         <button class="nav-btn" id="settings-btn" title="Configurações">⚙</button>
         <button class="hamburger" id="hamburger" aria-label="Menu">
           <span></span><span></span><span></span>
