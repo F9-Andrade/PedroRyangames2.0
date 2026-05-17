@@ -5,7 +5,7 @@
 // ─── CONFIG ───────────────────────────────────────────────────
 const SUPABASE_URL  = 'https://jnnlpwuppxhygwqwthud.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impubmxwd3VwcHhoeWd3cXd0aHVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzOTU4MTAsImV4cCI6MjA4OTk3MTgxMH0.1LOxQ9OHZwenL3MyqM7pYXNoReg6B_A1t9-fqgaDbBw';
-const ADMIN_EMAIL   = 'seu-email@gmail.com';
+const ADMIN_EMAIL   = 'batistapedro855@gmail.com';
 
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON);
@@ -593,7 +593,14 @@ function renderProfileContent(){
   const achHTML=ACHIEVEMENTS_DEF.map(a=>{const u=userAchievements.has(a.id);return `<div class="profile-ach-icon${u?' unlocked':''}" title="${lang==='en'?a.title_en:a.title_pt}">${u?a.icon:'🔒'}</div>`;}).join('');
   const favGames=allGames.filter(g=>userFavorites.includes(g.id));
   const favHTML=favGames.length?favGames.map(g=>`<a class="profile-fav-row" href="${g.url}" target="_blank" rel="noopener"><span style="font-size:1.2rem">${g.icon}</span><span>${g.name}</span><span style="font-size:.75rem;color:var(--tx-3);margin-left:auto">${g.category}</span></a>`).join(''):`<p class="profile-empty">${lang==='en'?'No favorites yet.':'Nenhum favorito ainda.'}</p>`;
+  // Gera ID curto baseado no uuid (primeiros 8 chars em maiúsculo)
+  const shortId = currentUser.id.replace(/-/g,'').substring(0,8).toUpperCase();
   w.innerHTML=`<div class="profile-header">${avHTML}<div class="profile-info"><div class="profile-name">${name.split(' ')[0].toUpperCase()}</div><div class="profile-email">${currentUser.email}</div></div></div>
+    <div class="profile-id-box">
+      <span class="profile-id-label">Seu ID</span>
+      <span class="profile-id-value" id="profile-id-val">${shortId}</span>
+      <button class="profile-id-copy" onclick="copyUserId('${shortId}')">📋 Copiar</button>
+    </div>
     <div class="profile-stats">
       <div class="profile-stat"><span class="profile-stat-num">${allGames.length}</span><span class="profile-stat-label">${lang==='en'?'Games':'Jogos'}</span></div>
       <div class="profile-stat"><span class="profile-stat-num">${userFavorites.length}</span><span class="profile-stat-label">${lang==='en'?'Favorites':'Favoritos'}</span></div>
@@ -797,9 +804,49 @@ async function createGroup(){
 }
 
 // ─── SOCIAL: INIT ─────────────────────────────────────────────
+// ─── COPIAR ID ────────────────────────────────────────────────
+function copyUserId(id) {
+  navigator.clipboard.writeText(id).then(() => showToast('📋 ID copiado!', 'success')).catch(() => showToast('ID: ' + id));
+}
+
+// ─── ADICIONAR AMIGO POR ID CURTO ────────────────────────────
+async function addFriendById(shortId) {
+  if (!shortId || shortId.length !== 8) { showToast('⚠️ ID inválido. Use os 8 caracteres do ID.', 'warn'); return; }
+  try {
+    // Busca usuário pelo ID curto (primeiros 8 chars do uuid sem hífens)
+    const { data, error } = await db.from('profiles')
+      .select('id, username, display_name, avatar_url')
+      .ilike('id', shortId.toLowerCase() + '%')
+      .limit(5);
+
+    if (error) throw error;
+
+    // Filtra o que bate exatamente com os primeiros 8 chars sem hífen
+    const match = (data || []).find(u =>
+      u.id.replace(/-/g, '').substring(0, 8).toUpperCase() === shortId.toUpperCase()
+    );
+
+    if (!match) { showToast('❌ Usuário não encontrado.', 'warn'); return; }
+    if (match.id === currentUser.id) { showToast('⚠️ Você não pode se adicionar.', 'warn'); return; }
+
+    await sendFriendRequest(match.id);
+  } catch(e) { showToast('❌ Erro: ' + e.message, 'warn'); }
+}
+
 function initSocial(){
   el('social-btn').addEventListener('click',openSocialPanel);
   el('social-close-btn').addEventListener('click',closeSocialPanel);
+  // Adicionar por ID
+  el('add-by-id-btn')?.addEventListener('click', () => {
+    const input = el('add-by-id-input');
+    if (!input) return;
+    addFriendById(input.value.trim().toUpperCase());
+    input.value = '';
+  });
+  el('add-by-id-input')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { addFriendById(e.target.value.trim().toUpperCase()); e.target.value = ''; }
+  });
+
   let sd;el('user-search-input').addEventListener('input',e=>{clearTimeout(sd);sd=setTimeout(()=>searchUsers(e.target.value.trim()),250);});
   document.addEventListener('click',e=>{if(!el('user-search-input')?.contains(e.target))el('search-results-dropdown')?.classList.remove('open');});
   el('search-results-dropdown').addEventListener('click',e=>{const btn=e.target.closest('[data-add-friend]');if(btn){sendFriendRequest(btn.dataset.addFriend);el('search-results-dropdown').classList.remove('open');el('user-search-input').value='';}});
