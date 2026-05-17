@@ -877,7 +877,26 @@ main {
   display: flex; align-items: center; justify-content: center;
 }
 .user-name { font-size: 0.82rem; font-weight: 600; color: var(--tx-2); max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.btn-login { display: flex; align-items: center; gap: 6px; font-size: 0.77rem; padding: 7px 16px; white-space: nowrap; }
+.btn-login {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.78rem; font-weight: 700;
+  padding: 8px 16px; white-space: nowrap;
+  background: var(--violet) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: var(--r-sm);
+  box-shadow: 0 2px 12px rgba(124,58,237,0.35);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all var(--t) var(--ease);
+}
+.btn-login:hover {
+  background: #6d28d9 !important;
+  box-shadow: 0 4px 20px rgba(124,58,237,0.5);
+  transform: translateY(-1px);
+  color: #fff !important;
+  border: none !important;
+}
 
 /* ══════════════════════════════════════════════════════════════
    MODAL
@@ -2031,3 +2050,55 @@ body.light-mode .sk {
   .chat-header-name { font-size: 0.88rem; }
   .msg-body { max-width: 80%; }
 }
+
+
+/* ── USER ID TAG ────────────────────────────────────────────── */
+.profile-id-box {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--bg-raised);
+  border: 1px solid var(--b2);
+  border-radius: var(--r-md);
+  padding: 12px 16px;
+  margin-bottom: 20px;
+}
+.profile-id-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem; color: var(--tx-3);
+  letter-spacing: 0.15em; text-transform: uppercase;
+  flex-shrink: 0;
+}
+.profile-id-value {
+  font-family: var(--font-mono);
+  font-size: 0.9rem; color: var(--violet-light);
+  font-weight: 500; flex: 1;
+  letter-spacing: 0.08em;
+}
+.profile-id-copy {
+  background: var(--violet-subtle); color: var(--violet-light);
+  border: 1px solid var(--b2); border-radius: var(--r-xs);
+  padding: 4px 10px; font-size: 0.72rem; cursor: pointer;
+  font-family: var(--font-mono); transition: all var(--t);
+}
+.profile-id-copy:hover { background: var(--violet); color: #fff; }
+
+/* ── ADICIONAR POR ID ────────────────────────────────────────── */
+.add-by-id-row {
+  display: flex; gap: 8px; padding: 10px 12px;
+  border-bottom: 1px solid var(--b1);
+}
+.add-by-id-input {
+  flex: 1; background: var(--bg-raised);
+  border: 1px solid var(--b1); color: var(--tx-1);
+  font-family: var(--font-mono); font-size: 0.78rem;
+  padding: 7px 10px; border-radius: var(--r-sm);
+  outline: none; transition: border-color var(--t);
+}
+.add-by-id-input:focus { border-color: var(--violet); }
+.add-by-id-input::placeholder { color: var(--tx-3); font-size: 0.72rem; }
+.add-by-id-btn {
+  background: var(--violet); color: #fff; border: none;
+  padding: 7px 14px; border-radius: var(--r-sm);
+  font-size: 0.78rem; font-weight: 700; cursor: pointer;
+  transition: all var(--t); white-space: nowrap;
+}
+.add-by-id-btn:hover { background: #6d28d9; }
