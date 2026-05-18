@@ -811,22 +811,20 @@ function copyUserId(id) {
 
 // ─── ADICIONAR AMIGO POR ID CURTO ────────────────────────────
 async function addFriendById(shortId) {
-  if (!shortId || shortId.length !== 8) { showToast('⚠️ ID inválido. Use os 8 caracteres do ID.', 'warn'); return; }
+  if (!shortId || shortId.length !== 8) { showToast('⚠️ ID deve ter exatamente 8 caracteres.', 'warn'); return; }
   try {
-    // Busca usuário pelo ID curto (primeiros 8 chars do uuid sem hífens)
-    const { data, error } = await db.from('profiles')
-      .select('id, username, display_name, avatar_url')
-      .ilike('id', shortId.toLowerCase() + '%')
-      .limit(5);
+    // Usa a função RPC que criamos no Supabase (find_profile_by_short_id)
+    const { data, error } = await db.rpc('find_profile_by_short_id', {
+      short_id: shortId.toUpperCase()
+    });
 
     if (error) throw error;
 
-    // Filtra o que bate exatamente com os primeiros 8 chars sem hífen
     const match = (data || []).find(u =>
       u.id.replace(/-/g, '').substring(0, 8).toUpperCase() === shortId.toUpperCase()
     );
 
-    if (!match) { showToast('❌ Usuário não encontrado.', 'warn'); return; }
+    if (!match) { showToast('❌ Usuário não encontrado. Verifique o ID.', 'warn'); return; }
     if (match.id === currentUser.id) { showToast('⚠️ Você não pode se adicionar.', 'warn'); return; }
 
     await sendFriendRequest(match.id);
