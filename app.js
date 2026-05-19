@@ -678,10 +678,15 @@ function tStr(iso){return new Date(iso).toLocaleTimeString('pt-BR',{hour:'2-digi
 function dStr(iso){const d=new Date(iso),today=new Date();if(d.toDateString()===today.toDateString())return'Hoje';const y=new Date(today);y.setDate(y.getDate()-1);if(d.toDateString()===y.toDateString())return'Ontem';return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'});}
 
 // ─── SOCIAL: PAINEL ───────────────────────────────────────────
-function openSocialPanel(){if(!currentUser){showToast(t('toast_login_required'),'warn');return;}el('social-panel').classList.add('open');document.body.style.overflow='hidden';loadSocialData();}
+function openSocialPanel(){
+  if(!currentUser){showToast(t('toast_login_required'),'warn');return;}
+  el('social-panel').classList.add('open');
+  document.body.style.overflow='hidden';
+  loadSocialData();
+}
 function closeSocialPanel(){el('social-panel').classList.remove('open');document.body.style.overflow='';}
 async function updateOnlineStatus(status){try{await db.rpc('update_user_status',{p_status:status});}catch(_){}}
-async function loadSocialData(){if(!currentUser)return;await Promise.all([loadFriends(),loadChannels()]);renderFriendsList();renderPendingList();renderChannelsList();subscribeRealtime();updateOnlineStatus('online');}
+async function loadSocialData(){if(!currentUser)return;await Promise.all([loadFriends(),loadChannels()]);renderFriendsList();renderPendingList();renderChannelsList();updateSocialBadge();subscribeRealtime();updateOnlineStatus('online');}
 
 // ─── SOCIAL: AMIZADES ─────────────────────────────────────────
 async function loadFriends(){
@@ -781,7 +786,48 @@ function renderTyping(channelId,users){const w=el('typing-indicator');if(!w||act
 function appendMessage(msg){const w=el('chat-messages');if(!w)return;const isOwn=msg.sender_id===currentUser.id;const p=msg.profiles;const name=p?.display_name||p?.username||'Usuário';const time=tStr(msg.created_at);const div=document.createElement('div');div.className=`msg-group${isOwn?' own':''}`;div.innerHTML=`<div style="flex-shrink:0;align-self:flex-end">${mkAvatar(p||{},32)}</div><div class="msg-body"><div class="msg-meta">${!isOwn?`<span class="msg-name">${name}</span>`:''}<span class="msg-time">${time}</span></div><div class="msg-bubble">${esc(msg.content)}</div></div>`;w.appendChild(div);}
 
 // ─── SOCIAL: REALTIME ─────────────────────────────────────────
-function subscribeRealtime(){realtimeSubs.forEach(s=>s.unsubscribe?.());realtimeSubs=[];if(!currentUser)return;const s=db.channel('friendships-'+currentUser.id).on('postgres_changes',{event:'*',schema:'public',table:'friendships',filter:`addressee=eq.${currentUser.id}`},async()=>{await loadFriends();renderFriendsList();renderPendingList();addNotification('👥','Novo pedido de amizade!');}).subscribe();realtimeSubs.push(s);}
+function subscribeRealtime(){
+  realtimeSubs.forEach(s=>s.unsubscribe?.());
+  realtimeSubs=[];
+  if(!currentUser) return;
+
+  const s = db.channel('friendships-'+currentUser.id)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'friendships',filter:`addressee=eq.${currentUser.id}`},
+      async (payload) => {
+        // Carrega dados atualizados
+        await loadFriends();
+        // Atualiza UI se painel estiver aberto
+        if(el('social-panel')?.classList.contains('open')) {
+          renderFriendsList();
+          renderPendingList();
+        }
+        // Sempre mostra notificação e badge mesmo com painel fechado
+        addNotification('👥', 'Novo pedido de amizade recebido!');
+        showToast('👥 Novo pedido de amizade!', 'success');
+        updateSocialBadge();
+      })
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'friendships',filter:`addressee=eq.${currentUser.id}`},
+      async () => {
+        await loadFriends();
+        if(el('social-panel')?.classList.contains('open')) {
+          renderFriendsList();
+          renderPendingList();
+        }
+        updateSocialBadge();
+      })
+    .subscribe();
+
+  realtimeSubs.push(s);
+}
+
+// Badge no botão social mostrando pedidos pendentes
+function updateSocialBadge() {
+  const badge = el('social-nav-badge');
+  if (!badge) return;
+  const count = pendingIn.length;
+  badge.textContent = count || '';
+  badge.classList.toggle('show', count > 0);
+}
 function subscribeChannel(channelId){
   realtimeSubs=realtimeSubs.filter(s=>{if(s._cid===channelId||s._cid===channelId+'-t'){s.unsubscribe?.();return false;}return true;});
   const ms=db.channel('msg-'+channelId).on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`channel_id=eq.${channelId}`},async payload=>{
@@ -891,8 +937,17 @@ async function init() {
     const was = !!currentUser; currentUser = session?.user || null;
     if (was === !!currentUser) return;
     renderAuthButton();
-    if (currentUser) { await loadUserData(); }
-    else { userFavorites=[]; userAchievements=new Set(); realtimeSubs.forEach(s=>s.unsubscribe?.()); realtimeSubs=[]; }
+    if (currentUser) {
+      await loadUserData();
+      // Inicia realtime de amizades assim que loga — não precisa abrir o painel
+      await loadFriends();
+      updateSocialBadge();
+      subscribeRealtime();
+    } else {
+      userFavorites=[]; userAchievements=new Set();
+      realtimeSubs.forEach(s=>s.unsubscribe?.());
+      realtimeSubs=[];
+    }
     renderGames(); renderAchievements(); updateStats(); updateProgressBar();
   });
 
