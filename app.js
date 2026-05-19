@@ -862,12 +862,31 @@ function updateSocialBadge() {
 }
 function subscribeChannel(channelId){
   realtimeSubs=realtimeSubs.filter(s=>{if(s._cid===channelId||s._cid===channelId+'-t'){s.unsubscribe?.();return false;}return true;});
-  const ms=db.channel('msg-'+channelId).on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`channel_id=eq.${channelId}`},async payload=>{
-    if(activeChannelId!==channelId){unreadCounts[channelId]=(unreadCounts[channelId]||0)+1;renderChannelsList();return;}
-    const{data:profile}=await db.from('profiles').select('*').eq('id',payload.new.sender_id).single().catch(()=>({data:null}));
-    appendMessage({...payload.new,profiles:profile});scrollBottom();
-  }).subscribe();ms._cid=channelId;
-  const ts=db.channel('type-'+channelId).on('postgres_changes',{event:'*',schema:'public',table:'typing_indicators',filter:`channel_id=eq.${channelId}`},async()=>{const{data}=await db.from('typing_indicators').select('user_id,profiles(username)').eq('channel_id',channelId).catch(()=>({data:[]}));renderTyping(channelId,(data||[]).map(d=>({user_id:d.user_id,username:d.profiles?.username})));}).subscribe();ts._cid=channelId+'-t';
+  const ms=db.channel('msg-'+channelId)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},
+      async payload=>{
+        // Filtra client-side
+        if(payload.new.channel_id !== channelId) return;
+        if(activeChannelId!==channelId){
+          unreadCounts[channelId]=(unreadCounts[channelId]||0)+1;
+          renderChannelsList();
+          return;
+        }
+        let profile=null;try{const{data:p}=await db.from('profiles').select('*').eq('id',payload.new.sender_id).single();profile=p;}catch(_){}
+        appendMessage({...payload.new,profiles:profile});
+        scrollBottom();
+      })
+    .subscribe();
+  ms._cid=channelId;
+  const ts=db.channel('type-'+channelId)
+    .on('postgres_changes',{event:'*',schema:'public',table:'typing_indicators'},
+      async payload=>{
+        if(payload.new?.channel_id!==channelId && payload.old?.channel_id!==channelId) return;
+        let data=[];try{const{data:td}=await db.from('typing_indicators').select('user_id,profiles(username)').eq('channel_id',channelId);data=td||[];}catch(_){}
+        renderTyping(channelId,(data||[]).map(d=>({user_id:d.user_id,username:d.profiles?.username})));
+      })
+    .subscribe();
+  ts._cid=channelId+'-t';
   realtimeSubs.push(ms,ts);
 }
 
