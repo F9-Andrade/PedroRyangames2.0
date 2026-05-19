@@ -691,10 +691,39 @@ async function loadSocialData(){if(!currentUser)return;await Promise.all([loadFr
 // ─── SOCIAL: AMIZADES ─────────────────────────────────────────
 async function loadFriends(){
   try{
-    const{data}=await db.from('friendships').select('*,rp:profiles!requester(id,username,display_name,avatar_url,status),ap:profiles!addressee(id,username,display_name,avatar_url,status)').or(`requester.eq.${currentUser.id},addressee.eq.${currentUser.id}`);
-    friends=[];pendingIn=[];pendingOut=[];
-    (data||[]).forEach(f=>{const mine=f.requester===currentUser.id;const friend=mine?f.ap:f.rp;if(!friend)return;const entry={id:f.id,friend};if(f.status==='accepted')friends.push(entry);else if(f.status==='pending'&&!mine)pendingIn.push(entry);else if(f.status==='pending'&&mine)pendingOut.push(entry);});
-  }catch(e){console.error('loadFriends:',e);}
+    // Busca todas as amizades do usuário
+    const{data:rows, error}=await db
+      .from('friendships')
+      .select('id, requester, addressee, status')
+      .or(`requester.eq.${currentUser.id},addressee.eq.${currentUser.id}`);
+
+    if(error) throw error;
+    if(!rows||!rows.length){ friends=[]; pendingIn=[]; pendingOut=[]; return; }
+
+    // Coleta todos os IDs de outros usuários
+    const otherIds=[...new Set(rows.map(f=>f.requester===currentUser.id?f.addressee:f.requester))];
+
+    // Busca perfis separadamente
+    const{data:profiles}=await db
+      .from('profiles')
+      .select('id,username,display_name,avatar_url,status')
+      .in('id',otherIds);
+
+    const profileMap={};
+    (profiles||[]).forEach(p=>{ profileMap[p.id]=p; });
+
+    friends=[]; pendingIn=[]; pendingOut=[];
+    rows.forEach(f=>{
+      const mine=f.requester===currentUser.id;
+      const friendId=mine?f.addressee:f.requester;
+      const friend=profileMap[friendId];
+      if(!friend) return;
+      const entry={id:f.id,friend};
+      if(f.status==='accepted') friends.push(entry);
+      else if(f.status==='pending'&&!mine) pendingIn.push(entry);
+      else if(f.status==='pending'&&mine)  pendingOut.push(entry);
+    });
+  }catch(e){ console.error('loadFriends:',e); }
 }
 function renderFriendsList(){
   const list=el('friends-list');const count=el('friends-count');if(!list)return;
@@ -791,23 +820,26 @@ function subscribeRealtime(){
   realtimeSubs=[];
   if(!currentUser) return;
 
+  // Sem filtro server-side — filtragem feita no cliente
+  // (filtros Realtime podem não funcionar em todos os planos Supabase)
   const s = db.channel('friendships-'+currentUser.id)
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'friendships',filter:`addressee=eq.${currentUser.id}`},
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'friendships'},
       async (payload) => {
-        // Carrega dados atualizados
+        // Só processa se for para este usuário
+        if(payload.new.addressee !== currentUser.id) return;
         await loadFriends();
-        // Atualiza UI se painel estiver aberto
         if(el('social-panel')?.classList.contains('open')) {
           renderFriendsList();
           renderPendingList();
         }
-        // Sempre mostra notificação e badge mesmo com painel fechado
         addNotification('👥', 'Novo pedido de amizade recebido!');
         showToast('👥 Novo pedido de amizade!', 'success');
         updateSocialBadge();
       })
-    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'friendships',filter:`addressee=eq.${currentUser.id}`},
-      async () => {
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'friendships'},
+      async (payload) => {
+        // Só processa se envolver este usuário
+        if(payload.new.addressee !== currentUser.id && payload.new.requester !== currentUser.id) return;
         await loadFriends();
         if(el('social-panel')?.classList.contains('open')) {
           renderFriendsList();
