@@ -861,36 +861,78 @@ function updateSocialBadge() {
   badge.classList.toggle('show', count > 0);
 }
 function subscribeChannel(channelId){
-  realtimeSubs=realtimeSubs.filter(s=>{if(s._cid===channelId||s._cid===channelId+'-t'){s.unsubscribe?.();return false;}return true;});
-  const ms=db.channel('msg-'+channelId)
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},
-      async payload=>{
-        // Filtra client-side
-        if(payload.new.channel_id !== channelId) return;
-        if(activeChannelId!==channelId){
-          unreadCounts[channelId]=(unreadCounts[channelId]||0)+1;
-          renderChannelsList();
-          return;
-        }
-        let profile=null;try{const{data:p}=await db.from('profiles').select('*').eq('id',payload.new.sender_id).single();profile=p;}catch(_){}
-        appendMessage({...payload.new,profiles:profile});
-        scrollBottom();
-      })
-    .subscribe(status => console.log('📡 Mensagens Realtime:', status, channelId));
-  ms._cid=channelId;
-  const ts=db.channel('type-'+channelId)
-    .on('postgres_changes',{event:'*',schema:'public',table:'typing_indicators'},
-      async payload=>{
-        if(payload.new?.channel_id!==channelId && payload.old?.channel_id!==channelId) return;
-        let data=[];try{const{data:td}=await db.from('typing_indicators').select('user_id,profiles(username)').eq('channel_id',channelId);data=td||[];}catch(_){}
-        renderTyping(channelId,(data||[]).map(d=>({user_id:d.user_id,username:d.profiles?.username})));
-      })
+  // Cancela subs antigas deste canal
+  realtimeSubs = realtimeSubs.filter(s => {
+    if(s._cid === channelId || s._cid === channelId+'-t'){
+      try { s.unsubscribe(); } catch(_) {}
+      return false;
+    }
+    return true;
+  });
+
+  // Mensagens em tempo real
+  const ms = db
+    .channel('room-msg-' + channelId)
+    .on('postgres_changes', {
+      event:  'INSERT',
+      schema: 'public',
+      table:  'messages'
+    }, async payload => {
+      if(!payload.new || payload.new.channel_id !== channelId) return;
+
+      if(activeChannelId !== channelId){
+        unreadCounts[channelId] = (unreadCounts[channelId]||0) + 1;
+        renderChannelsList();
+        return;
+      }
+
+      let profile = null;
+      try {
+        const { data: p } = await db
+          .from('profiles')
+          .select('id,username,display_name,avatar_url')
+          .eq('id', payload.new.sender_id)
+          .single();
+        profile = p;
+      } catch(_) {}
+
+      appendMessage({ ...payload.new, profiles: profile });
+      scrollBottom();
+    })
+    .subscribe(status => {
+      console.log('[Realtime messages]', status, channelId.substring(0,8));
+    });
+  ms._cid = channelId;
+
+  // Typing indicator
+  const ts = db
+    .channel('room-type-' + channelId)
+    .on('postgres_changes', {
+      event:  '*',
+      schema: 'public',
+      table:  'typing_indicators'
+    }, async payload => {
+      const cid = payload.new?.channel_id || payload.old?.channel_id;
+      if(cid !== channelId) return;
+      let data = [];
+      try {
+        const { data: td } = await db
+          .from('typing_indicators')
+          .select('user_id, profiles(username)')
+          .eq('channel_id', channelId);
+        data = td || [];
+      } catch(_) {}
+      renderTyping(channelId, data.map(d => ({
+        user_id:  d.user_id,
+        username: d.profiles?.username
+      })));
+    })
     .subscribe();
-  ts._cid=channelId+'-t';
-  realtimeSubs.push(ms,ts);
+  ts._cid = channelId + '-t';
+
+  realtimeSubs.push(ms, ts);
 }
 
-// ─── SOCIAL: GRUPOS ───────────────────────────────────────────
 function openCreateGroupModal(){const list=el('member-select-list');if(!list)return;list.innerHTML=friends.length?friends.map(f=>{const name=f.friend.display_name||f.friend.username||'Usuário';return `<div class="member-select-item" data-member="${f.friend.id}">${mkAvatar(f.friend,28)}<span style="font-size:.85rem;font-weight:500;color:var(--tx-1)">${name}</span><span class="member-check">○</span></div>`;}).join(''):`<p style="color:var(--tx-3);font-size:.82rem;text-align:center;padding:12px">Adicione amigos antes de criar um grupo.</p>`;el('create-group-modal').classList.add('open');}
 async function createGroup(){
   const name=el('group-name-input').value.trim();const icon=el('group-icon-input').value.trim()||'👥';const sel=[...document.querySelectorAll('.member-select-item.selected')].map(e=>e.dataset.member);const fb=el('create-group-feedback');
