@@ -876,7 +876,7 @@ function subscribeChannel(channelId){
         appendMessage({...payload.new,profiles:profile});
         scrollBottom();
       })
-    .subscribe();
+    .subscribe(status => console.log('📡 Mensagens Realtime:', status, channelId));
   ms._cid=channelId;
   const ts=db.channel('type-'+channelId)
     .on('postgres_changes',{event:'*',schema:'public',table:'typing_indicators'},
