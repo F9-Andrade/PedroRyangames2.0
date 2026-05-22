@@ -5,7 +5,7 @@
 // ─── CONFIG ───────────────────────────────────────────────────
 const SUPABASE_URL  = 'https://jnnlpwuppxhygwqwthud.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impubmxwd3VwcHhoeWd3cXd0aHVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzOTU4MTAsImV4cCI6MjA4OTk3MTgxMH0.1LOxQ9OHZwenL3MyqM7pYXNoReg6B_A1t9-fqgaDbBw';
-const ADMIN_EMAIL   = 'batistapedro855@gmail.com';
+const ADMIN_EMAIL   = 'pedro.r.andrade6@aluno.senai.br';
 
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON);
@@ -761,26 +761,70 @@ async function searchUsers(query){
 
 // ─── SOCIAL: CANAIS & CHAT ────────────────────────────────────
 async function loadChannels(){
-  try{const{data:m}=await db.from('channel_members').select('channel_id').eq('user_id',currentUser.id);if(!m?.length){channels=[];return;}const ids=m.map(x=>x.channel_id);const{data}=await db.from('channels').select('*,channel_members(user_id,role,profiles(id,username,display_name,avatar_url,status))').in('id',ids);channels=data||[];}
-  catch(e){console.error('loadChannels:',e);}
+  try {
+    // Busca canais diretamente com join nos membros
+    const { data, error } = await db
+      .from('channel_members')
+      .select('channel_id, role, channels(id, type, name, icon, owner_id, created_at, channel_members(user_id, role, profiles(id,username,display_name,avatar_url,status)))')
+      .eq('user_id', currentUser.id);
+
+    if (error) throw error;
+
+    // Extrai os canais do resultado
+    channels = (data || [])
+      .map(m => m.channels)
+      .filter(Boolean);
+
+    console.log('[loadChannels] carregados:', channels.length, 'canais');
+  } catch(e) {
+    console.error('[loadChannels] erro:', e);
+    channels = [];
+  }
 }
-function getChDisp(ch){if(ch.type==='group')return{name:ch.name||'Grupo',icon:ch.icon||'👥',sub:`${ch.channel_members?.length||0} membros`};const other=ch.channel_members?.find(m=>m.user_id!==currentUser.id);const p=other?.profiles;return{name:p?.display_name||p?.username||'Usuário',avatarObj:p,sub:p?.status||'offline'};}
-function renderChannelsList(){
-  const list=el('channels-list');if(!list)return;
-  if(!channels.length){list.innerHTML=`<div style="padding:10px 18px;font-size:.8rem;color:var(--tx-3)">Nenhuma conversa ainda.</div>`;return;}
-  list.innerHTML=channels.map(ch=>{const d=getChDisp(ch);const unread=unreadCounts[ch.id]||0;const av=d.avatarObj?`<div style="position:relative;flex-shrink:0">${mkAvatar(d.avatarObj,34)}${mkDot(d.avatarObj?.status)}</div>`:`<div style="width:34px;height:34px;border-radius:50%;background:var(--violet-subtle);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">${d.icon||'👥'}</div>`;
-    return `<div class="social-item${activeChannelId===ch.id?' active':''}" data-open-channel="${ch.id}">${av}<div class="social-item-info"><div class="social-item-name">${d.name}</div><div class="social-item-sub">${d.sub}</div></div>${unread?`<span class="unread-badge">${unread}</span>`:''}</div>`;
-  }).join('');
-}
+
 async function openDM(friendUserId){try{const{data,error}=await db.rpc('get_or_create_dm',{other_user_id:friendUserId});if(error)throw error;await loadChannels();renderChannelsList();await openChannel(data);}catch(e){showToast('❌ Erro ao abrir DM: '+e.message,'warn');}}
 async function openChannel(channelId){
-  activeChannelId=channelId;unreadCounts[channelId]=0;renderChannelsList();
-  const ch=channels.find(c=>c.id===channelId);const d=ch?getChDisp(ch):{name:'Chat',sub:''};
-  const main=el('social-main');if(!main)return;
-  const av=d.avatarObj?`<div style="position:relative">${mkAvatar(d.avatarObj,36)}${mkDot(d.avatarObj?.status)}</div>`:`<div style="width:36px;height:36px;border-radius:50%;background:var(--violet-subtle);display:flex;align-items:center;justify-content:center;font-size:1.2rem">${d.icon||'👥'}</div>`;
-  main.innerHTML=`<div class="chat-header">${av}<div class="chat-header-info"><div class="chat-header-name">${d.name}</div><div class="chat-header-sub">${d.sub}</div></div></div><div class="chat-messages" id="chat-messages"></div><div class="typing-indicator" id="typing-indicator"></div><div class="chat-input-area"><div class="chat-input-row"><textarea class="chat-textarea" id="chat-input" placeholder="Mensagem para ${d.name}..." rows="1"></textarea><button class="chat-send-btn" id="chat-send-btn">➤</button></div></div>`;
-  await loadMessages(channelId);initChatInput(channelId);subscribeChannel(channelId);
+  activeChannelId = channelId;
+  unreadCounts[channelId] = 0;
+
+  // Se o canal não está na lista, recarrega
+  if (!channels.find(c => c.id === channelId)) {
+    await loadChannels();
+  }
+
+  renderChannelsList();
+
+  const ch   = channels.find(c => c.id === channelId);
+  const disp = ch ? getChDisp(ch) : { name:'Chat', sub:'' };
+  const main = el('social-main');
+  if (!main) return;
+
+  const av = disp.avatarObj
+    ? `<div style="position:relative">${mkAvatar(disp.avatarObj,36)}${mkDot(disp.avatarObj?.status)}</div>`
+    : `<div style="width:36px;height:36px;border-radius:50%;background:var(--violet-subtle);display:flex;align-items:center;justify-content:center;font-size:1.2rem">${disp.icon||'👥'}</div>`;
+
+  main.innerHTML = `
+    <div class="chat-header">
+      ${av}
+      <div class="chat-header-info">
+        <div class="chat-header-name">${disp.name}</div>
+        <div class="chat-header-sub">${disp.sub}</div>
+      </div>
+    </div>
+    <div class="chat-messages" id="chat-messages"></div>
+    <div class="typing-indicator" id="typing-indicator"></div>
+    <div class="chat-input-area">
+      <div class="chat-input-row">
+        <textarea class="chat-textarea" id="chat-input" placeholder="Mensagem para ${disp.name}..." rows="1"></textarea>
+        <button class="chat-send-btn" id="chat-send-btn">➤</button>
+      </div>
+    </div>`;
+
+  await loadMessages(channelId);
+  initChatInput(channelId);
+  subscribeChannel(channelId);
 }
+
 async function loadMessages(channelId){
   const w=el('chat-messages');if(!w)return;
   w.innerHTML=`<div style="text-align:center;color:var(--tx-3);font-size:.8rem;padding:20px">Carregando...</div>`;
