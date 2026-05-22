@@ -686,6 +686,46 @@ function openSocialPanel(){
 }
 function closeSocialPanel(){el('social-panel').classList.remove('open');document.body.style.overflow='';}
 async function updateOnlineStatus(status){try{await db.rpc('update_user_status',{p_status:status});}catch(_){}}
+function renderChannelsList(){
+  const list = el('channels-list');
+  if (!list) return;
+  if (!channels.length) {
+    list.innerHTML = `<div style="padding:10px 18px;font-size:.8rem;color:var(--tx-3)">Nenhuma conversa ainda.</div>`;
+    return;
+  }
+  list.innerHTML = channels.map(ch => {
+    const d      = getChDisp(ch);
+    const unread = unreadCounts[ch.id] || 0;
+    const av     = d.avatarObj
+      ? `<div style="position:relative;flex-shrink:0">${mkAvatar(d.avatarObj,34)}${mkDot(d.avatarObj?.status)}</div>`
+      : `<div style="width:34px;height:34px;border-radius:50%;background:var(--violet-subtle);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">${d.icon||'👥'}</div>`;
+    return `<div class="social-item${activeChannelId===ch.id?' active':''}" data-open-channel="${ch.id}">
+      ${av}
+      <div class="social-item-info">
+        <div class="social-item-name">${d.name}</div>
+        <div class="social-item-sub">${d.sub}</div>
+      </div>
+      ${unread ? `<span class="unread-badge">${unread}</span>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function getChDisp(ch){
+  if (!ch) return { name:'Chat', icon:'💬', sub:'' };
+  if (ch.type === 'group') return {
+    name: ch.name || 'Grupo',
+    icon: ch.icon || '👥',
+    sub:  `${ch.channel_members?.length||0} membros`
+  };
+  const other = (ch.channel_members||[]).find(m => m.user_id !== currentUser.id);
+  const p     = other?.profiles;
+  return {
+    name:      p?.display_name || p?.username || 'Usuário',
+    avatarObj: p,
+    sub:       p?.status || 'offline'
+  };
+}
+
 async function loadSocialData(){if(!currentUser)return;await Promise.all([loadFriends(),loadChannels()]);renderFriendsList();renderPendingList();renderChannelsList();updateSocialBadge();subscribeRealtime();updateOnlineStatus('online');}
 
 // ─── SOCIAL: AMIZADES ─────────────────────────────────────────
