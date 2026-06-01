@@ -1,0 +1,2826 @@
+﻿window.GAMES_LIST = [
+    {
+        "id":  "1on1soccer",
+        "name":  "1 O N 1 S Oc Ce R",
+        "url":  "games/1on1soccer/index.html",
+        "category":  "esportes_corrida",
+        "featured":  false,
+        "image":  "games/1on1soccer/logo.jpg"
+    },
+    {
+        "id":  "1v1lol",
+        "name":  "1v1.LOL",
+        "url":  "games/1v1lol/index.html",
+        "category":  "casual_clicker",
+        "featured":  true,
+        "image":  "games/1v1lol/logo.png"
+    },
+    {
+        "id":  "2048",
+        "name":  "2048",
+        "url":  "games/2048/index.html",
+        "category":  "mente_puzzle",
+        "featured":  false,
+        "image":  "games/2048/icon.png"
+    },
+    {
+        "id":  "2drocketleague",
+        "name":  "2 D Ro Ck Et Le Ag Ue",
+        "url":  "games/2drocketleague/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/2drocketleague/assets/2000px-Soccer_field_-_empty.svg.png"
+    },
+    {
+        "id":  "60sburgerrun",
+        "name":  "60 S Bu Rg Er Ru N",
+        "url":  "games/60sburgerrun/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  "games/60sburgerrun/icon.png"
+    },
+    {
+        "id":  "achieveunlocked",
+        "name":  "A Ch Ie Ve Un Lo Ck Ed",
+        "url":  "games/achieveunlocked/index.html",
+        "category":  "mente_puzzle",
+        "featured":  false,
+        "image":  "games/achieveunlocked/icon.png"
+    },
+    {
+        "id":  "achieveunlocked2",
+        "name":  "A Ch Ie Ve Un Lo Ck Ed 2",
+        "url":  "games/achieveunlocked2/index.html",
+        "category":  "mente_puzzle",
+        "featured":  false,
+        "image":  "games/achieveunlocked2/icon.png"
+    },
+    {
+        "id":  "adarkroom",
+        "name":  "A Dark Room",
+        "url":  "games/adarkroom/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/adarkroom/favicon.ico"
+    },
+    {
+        "id":  "adofai",
+        "name":  "A Do Fa I",
+        "url":  "games/adofai/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/adofai/icon.png"
+    },
+    {
+        "id":  "adventure-capitalist",
+        "name":  "A Dv En Tu Re C Ap It Al Is T",
+        "url":  "games/adventure-capitalist/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/adventure-capitalist/logo.webp"
+    },
+    {
+        "id":  "ageofwar",
+        "name":  "A Ge Of Wa R",
+        "url":  "games/ageofwar/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/ageofwar/warofage.jpg"
+    },
+    {
+        "id":  "amazing-rope-police",
+        "name":  "A Ma Zi Ng R Op E P Ol Ic E",
+        "url":  "games/amazing-rope-police/index.html",
+        "category":  "mente_puzzle",
+        "featured":  false,
+        "image":  "games/amazing-rope-police/amazing-strange-rope-police-vice-spider-vegas.jpg"
+    },
+    {
+        "id":  "amongus",
+        "name":  "A Mo Ng Us",
+        "url":  "games/amongus/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/amongus/images/crewmate1-sheet0.png"
+    },
+    {
+        "id":  "asciispace",
+        "name":  "ASCII Space Shooter",
+        "url":  "games/asciispace/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "assessmentexamination",
+        "name":  "Assessment Examination",
+        "url":  "games/assessmentexamination/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/assessmentexamination/index.icon.png"
+    },
+    {
+        "id":  "asteroids",
+        "name":  "Asteroids",
+        "url":  "games/asteroids/index.html",
+        "category":  "acao_tiro",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "astray",
+        "name":  "Astray",
+        "url":  "games/astray/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/astray/ball.png"
+    },
+    {
+        "id":  "avalanche",
+        "name":  "A Va La Nc He",
+        "url":  "games/avalanche/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/avalanche/icon.png"
+    },
+    {
+        "id":  "awesometanks",
+        "name":  "A We So Me Ta Nk S",
+        "url":  "games/awesometanks/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "ayun",
+        "name":  "A Yu N",
+        "url":  "games/ayun/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/ayun/favicon.ico"
+    },
+    {
+        "id":  "backcountry",
+        "name":  "Back Country",
+        "url":  "games/backcountry/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "badicecream",
+        "name":  "B Ad Ic Ec Re Am",
+        "url":  "games/badicecream/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/badicecream/assets/badicecream_splash.jpg"
+    },
+    {
+        "id":  "badicecream2",
+        "name":  "B Ad Ic Ec Re Am 2",
+        "url":  "games/badicecream2/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/badicecream2/assets/badicecream_splash.jpg"
+    },
+    {
+        "id":  "badicecream3",
+        "name":  "B Ad Ic Ec Re Am 3",
+        "url":  "games/badicecream3/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/badicecream3/assets/badicecream_splash.jpg"
+    },
+    {
+        "id":  "badpiggies",
+        "name":  "B Ad Pi Gg Ie S",
+        "url":  "games/badpiggies/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/badpiggies/badpiggies.png"
+    },
+    {
+        "id":  "badtimesimulator",
+        "name":  "B Ad Ti Me Si Mu La To R",
+        "url":  "games/badtimesimulator/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/badtimesimulator/icon-114.png"
+    },
+    {
+        "id":  "baldis-basics",
+        "name":  "B Al Di S B As Ic S",
+        "url":  "games/baldis-basics/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/baldis-basics/TemplateData/progressLogo.Dark.png"
+    },
+    {
+        "id":  "baldisbasics",
+        "name":  "Baldi\u0027s Basics",
+        "url":  "games/baldisbasics/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/baldisbasics/TemplateData/progressLogo.Dark.png"
+    },
+    {
+        "id":  "ballisticchickens",
+        "name":  "B Al Li St Ic Ch Ic Ke Ns",
+        "url":  "games/ballisticchickens/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/ballisticchickens/logo.png"
+    },
+    {
+        "id":  "basketball-stars",
+        "name":  "B As Ke Tb Al L S Ta Rs",
+        "url":  "games/basketball-stars/index.html",
+        "category":  "esportes_corrida",
+        "featured":  false,
+        "image":  "games/basketball-stars/icon.png"
+    },
+    {
+        "id":  "basketballlegends",
+        "name":  "Basketball Legends",
+        "url":  "games/basketballlegends/index.html",
+        "category":  "esportes_corrida",
+        "featured":  false,
+        "image":  "games/basketballlegends/favicon.ico"
+    },
+    {
+        "id":  "basketballstars",
+        "name":  "Basketball Stars",
+        "url":  "games/basketballstars/index.html",
+        "category":  "esportes_corrida",
+        "featured":  false,
+        "image":  "games/basketballstars/assets/atlases/x1/ach.png"
+    },
+    {
+        "id":  "basketbros",
+        "name":  "B As Ke Tb Ro S",
+        "url":  "games/basketbros/index.html",
+        "category":  "esportes_corrida",
+        "featured":  false,
+        "image":  "games/basketbros/favicon.png"
+    },
+    {
+        "id":  "basketbrosio",
+        "name":  "BasketBros.io",
+        "url":  "games/basketbrosio/index.html",
+        "category":  "esportes_corrida",
+        "featured":  false,
+        "image":  "games/basketbrosio/favicon.png"
+    },
+    {
+        "id":  "basketrandom",
+        "name":  "Basket Random",
+        "url":  "games/basketrandom/index.html",
+        "category":  "esportes_corrida",
+        "featured":  false,
+        "image":  "games/basketrandom/images/ballline-sheet0.png"
+    },
+    {
+        "id":  "bit-planes",
+        "name":  "B It P La Ne S",
+        "url":  "games/bit-planes/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/bit-planes/bitplanes.png"
+    },
+    {
+        "id":  "bitlife",
+        "name":  "BitLife",
+        "url":  "games/bitlife/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/bitlife/logo.png"
+    },
+    {
+        "id":  "blackholesquare",
+        "name":  "Black Hole Square",
+        "url":  "games/blackholesquare/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/blackholesquare/icon.png"
+    },
+    {
+        "id":  "bloodtournament",
+        "name":  "B Lo Od To Ur Na Me Nt",
+        "url":  "games/bloodtournament/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/bloodtournament/blood-tournament.jpg"
+    },
+    {
+        "id":  "bobtherobber2",
+        "name":  "B Ob Th Er Ob Be R 2",
+        "url":  "games/bobtherobber2/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/bobtherobber2/icon.png"
+    },
+    {
+        "id":  "bounceback",
+        "name":  "Bounce Back",
+        "url":  "games/bounceback/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  "games/bounceback/screenshot.png"
+    },
+    {
+        "id":  "boxingphysics2",
+        "name":  "B Ox In Gp Hy Si Cs 2",
+        "url":  "games/boxingphysics2/index.html",
+        "category":  "esportes_corrida",
+        "featured":  false,
+        "image":  "games/boxingphysics2/icon.png"
+    },
+    {
+        "id":  "boxingrandom",
+        "name":  "Boxing Random",
+        "url":  "games/boxingrandom/index.html",
+        "category":  "esportes_corrida",
+        "featured":  false,
+        "image":  "games/boxingrandom/images/armskin-sheet0.png"
+    },
+    {
+        "id":  "breakingthebank",
+        "name":  "B Re Ak In Gt He Ba Nk",
+        "url":  "games/breakingthebank/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "breaklock",
+        "name":  "Break Lock",
+        "url":  "games/breaklock/index.html",
+        "category":  "mente_puzzle",
+        "featured":  false,
+        "image":  "games/breaklock/assets/icons/icon-144x144.png"
+    },
+    {
+        "id":  "breakout",
+        "name":  "Breakout",
+        "url":  "games/breakout/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/breakout/images/down.png"
+    },
+    {
+        "id":  "btd",
+        "name":  "B Td",
+        "url":  "games/btd/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/btd/logo.webp"
+    },
+    {
+        "id":  "btd2",
+        "name":  "B Td 2",
+        "url":  "games/btd2/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/btd2/logo.webp"
+    },
+    {
+        "id":  "btd3",
+        "name":  "B Td 3",
+        "url":  "games/btd3/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/btd3/icon.png"
+    },
+    {
+        "id":  "btd4",
+        "name":  "Bloons TD 4",
+        "url":  "games/btd4/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/btd4/logo.jpg"
+    },
+    {
+        "id":  "btd5",
+        "name":  "B Td 5",
+        "url":  "games/btd5/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/btd5/logo.jpg"
+    },
+    {
+        "id":  "btd6",
+        "name":  "B Td 6",
+        "url":  "games/btd6/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/btd6/assets/16304bacc0ca28c678ce312c49dfbb97.png"
+    },
+    {
+        "id":  "bubbleshooter",
+        "name":  "B Ub Bl Es Ho Ot Er",
+        "url":  "games/bubbleshooter/index.html",
+        "category":  "acao_tiro",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "burgerandfrights",
+        "name":  "B Ur Ge Ra Nd Fr Ig Ht S",
+        "url":  "games/burgerandfrights/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/burgerandfrights/icon.png"
+    },
+    {
+        "id":  "burritobison",
+        "name":  "B Ur Ri To Bi So N",
+        "url":  "games/burritobison/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/burritobison/Build/logo.png"
+    },
+    {
+        "id":  "captaincallisto",
+        "name":  "Captain Callisto",
+        "url":  "games/captaincallisto/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "celeste",
+        "name":  "C El Es Te",
+        "url":  "games/celeste/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/celeste/icon.png"
+    },
+    {
+        "id":  "cell-machine",
+        "name":  "C El L M Ac Hi Ne",
+        "url":  "games/cell-machine/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/cell-machine/img/icon.png"
+    },
+    {
+        "id":  "championisland",
+        "name":  "C Ha Mp Io Ni Sl An D",
+        "url":  "games/championisland/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/championisland/icon.png"
+    },
+    {
+        "id":  "chess",
+        "name":  "Chess",
+        "url":  "games/chess/index.html",
+        "category":  "mente_puzzle",
+        "featured":  false,
+        "image":  "games/chess/icon.png"
+    },
+    {
+        "id":  "chibiknight",
+        "name":  "C Hi Bi Kn Ig Ht",
+        "url":  "games/chibiknight/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/chibiknight/icon.png"
+    },
+    {
+        "id":  "chromaincident",
+        "name":  "Chroma Incident",
+        "url":  "games/chromaincident/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "chromedino",
+        "name":  "Chrome Dino",
+        "url":  "games/chromedino/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/chromedino/images/default_100_percent/100-disabled.png"
+    },
+    {
+        "id":  "circloo",
+        "name":  "C Ir Cl Oo",
+        "url":  "games/circloo/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/circloo/icon.png"
+    },
+    {
+        "id":  "clickerheroes",
+        "name":  "Clicker Heroes",
+        "url":  "games/clickerheroes/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/clickerheroes/favicon.ico"
+    },
+    {
+        "id":  "cluster-rush",
+        "name":  "C Lu St Er R Us H",
+        "url":  "games/cluster-rush/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/cluster-rush/icon.jpg"
+    },
+    {
+        "id":  "clusterrush",
+        "name":  "Cluster Rush",
+        "url":  "games/clusterrush/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/clusterrush/TemplateData/logo.png"
+    },
+    {
+        "id":  "cmm-client",
+        "name":  "C Mm C Li En T",
+        "url":  "games/cmm-client/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "colorswitch",
+        "name":  "C Ol Or Sw It Ch",
+        "url":  "games/colorswitch/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/colorswitch/colorswitch.png"
+    },
+    {
+        "id":  "commodoreclicker",
+        "name":  "C Om Mo Do Re Cl Ic Ke R",
+        "url":  "games/commodoreclicker/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/commodoreclicker/img/cclicker.png"
+    },
+    {
+        "id":  "connect3",
+        "name":  "Connect 3",
+        "url":  "games/connect3/index.html",
+        "category":  "mente_puzzle",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "cookieclicker",
+        "name":  "Cookie Clicker",
+        "url":  "games/cookieclicker/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/cookieclicker/img/alchemylabIcon.png"
+    },
+    {
+        "id":  "crossyroad",
+        "name":  "Crossy Road",
+        "url":  "games/crossyroad/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  "games/crossyroad/sprites/crossy-road-logo.png"
+    },
+    {
+        "id":  "csgoclicker",
+        "name":  "CS:GO Clicker",
+        "url":  "games/csgoclicker/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/csgoclicker/images/case1.png"
+    },
+    {
+        "id":  "cubefield",
+        "name":  "Cubefield",
+        "url":  "games/cubefield/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/cubefield/assets/splash.png"
+    },
+    {
+        "id":  "cubitomayhem",
+        "name":  "Cubito Mayhem",
+        "url":  "games/cubitomayhem/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "cuttherope",
+        "name":  "Cut The Rope",
+        "url":  "games/cuttherope/index.html",
+        "category":  "mente_puzzle",
+        "featured":  false,
+        "image":  "games/cuttherope/icon.png"
+    },
+    {
+        "id":  "cuttherope-holiday",
+        "name":  "C Ut Th Er Op E H Ol Id Ay",
+        "url":  "games/cuttherope-holiday/index.html",
+        "category":  "mente_puzzle",
+        "featured":  false,
+        "image":  "games/cuttherope-holiday/favicon.ico"
+    },
+    {
+        "id":  "cuttheropeholiday",
+        "name":  "Cut The Rope Holiday",
+        "url":  "games/cuttheropeholiday/index.html",
+        "category":  "mente_puzzle",
+        "featured":  false,
+        "image":  "games/cuttheropeholiday/favicon.ico"
+    },
+    {
+        "id":  "cuttheropetimetravel",
+        "name":  "Cut The Rope Time Travel",
+        "url":  "games/cuttheropetimetravel/index.html",
+        "category":  "mente_puzzle",
+        "featured":  false,
+        "image":  "games/cuttheropetimetravel/favicon.ico"
+    },
+    {
+        "id":  "dadish",
+        "name":  "D Ad Is H",
+        "url":  "games/dadish/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/dadish/favicon.png"
+    },
+    {
+        "id":  "dadish2",
+        "name":  "D Ad Is H 2",
+        "url":  "games/dadish2/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/dadish2/favicon.png"
+    },
+    {
+        "id":  "dadish3",
+        "name":  "D Ad Is H 3",
+        "url":  "games/dadish3/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/dadish3/dadish3/Dadish 3 Poki_texture_0.png"
+    },
+    {
+        "id":  "dante",
+        "name":  "D An Te",
+        "url":  "games/dante/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/dante/icon.png"
+    },
+    {
+        "id":  "deal",
+        "name":  "D Ea L",
+        "url":  "games/deal/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/deal/index.jpg"
+    },
+    {
+        "id":  "death-run-3d",
+        "name":  "D Ea Th R Un 3 D",
+        "url":  "games/death-run-3d/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  "games/death-run-3d/TemplateData/y8-logo.png"
+    },
+    {
+        "id":  "deathrun3d",
+        "name":  "Death Run 3D",
+        "url":  "games/deathrun3d/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  "games/deathrun3d/TemplateData/y8-logo.png"
+    },
+    {
+        "id":  "deepestsword",
+        "name":  "Deepest Sword",
+        "url":  "games/deepestsword/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "dino",
+        "name":  "D In O",
+        "url":  "games/dino/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/dino/icon.png"
+    },
+    {
+        "id":  "dogeminer",
+        "name":  "D Og Em In Er",
+        "url":  "games/dogeminer/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/dogeminer/favicon.ico"
+    },
+    {
+        "id":  "doodlejump",
+        "name":  "Doodle Jump",
+        "url":  "games/doodlejump/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  "games/doodlejump/icon.png"
+    },
+    {
+        "id":  "doom",
+        "name":  "DOOM",
+        "url":  "games/doom/index.html",
+        "category":  "acao_tiro",
+        "featured":  false,
+        "image":  "games/doom/favicon.ico"
+    },
+    {
+        "id":  "drag",
+        "name":  "D Ra G",
+        "url":  "games/drag/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "dragonballdevolution",
+        "name":  "D Ra Go Nb Al Ld Ev Ol Ut Io N",
+        "url":  "games/dragonballdevolution/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/dragonballdevolution/images.jpeg"
+    },
+    {
+        "id":  "drawthehill",
+        "name":  "Draw The Hill",
+        "url":  "games/drawthehill/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/drawthehill/icons/icon-512.png"
+    },
+    {
+        "id":  "drift",
+        "name":  "Drift",
+        "url":  "games/drift/index.html",
+        "category":  "esportes_corrida",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "drift-boss",
+        "name":  "D Ri Ft B Os S",
+        "url":  "games/drift-boss/index.html",
+        "category":  "esportes_corrida",
+        "featured":  false,
+        "image":  "games/drift-boss/icon.png"
+    },
+    {
+        "id":  "drifthunters",
+        "name":  "Drift Hunters",
+        "url":  "games/drifthunters/index.html",
+        "category":  "esportes_corrida",
+        "featured":  true,
+        "image":  "games/drifthunters/logo.png"
+    },
+    {
+        "id":  "drivemad",
+        "name":  "Drive Mad",
+        "url":  "games/drivemad/index.html",
+        "category":  "esportes_corrida",
+        "featured":  true,
+        "image":  "games/drivemad/logo.jpg"
+    },
+    {
+        "id":  "ducklife",
+        "name":  "Duck Life",
+        "url":  "games/ducklife/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "ducklife1",
+        "name":  "D Uc Kl If E 1",
+        "url":  "games/ducklife1/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/ducklife1/ducklife1.png"
+    },
+    {
+        "id":  "ducklife2",
+        "name":  "Duck Life 2",
+        "url":  "games/ducklife2/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/ducklife2/ducklife2.png"
+    },
+    {
+        "id":  "ducklife3",
+        "name":  "Duck Life 3",
+        "url":  "games/ducklife3/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/ducklife3/ducklife3.png"
+    },
+    {
+        "id":  "ducklife4",
+        "name":  "Duck Life 4",
+        "url":  "games/ducklife4/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/ducklife4/icon.png"
+    },
+    {
+        "id":  "ducklife5",
+        "name":  "Duck Life 5",
+        "url":  "games/ducklife5/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/ducklife5/ducklife5.png"
+    },
+    {
+        "id":  "ducklife6",
+        "name":  "D Uc Kl If E 6",
+        "url":  "games/ducklife6/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/ducklife6/ducklife5.png"
+    },
+    {
+        "id":  "earntodie",
+        "name":  "Earn to Die",
+        "url":  "games/earntodie/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/earntodie/loading.png"
+    },
+    {
+        "id":  "edgenotfound",
+        "name":  "Edge Not Found",
+        "url":  "games/edgenotfound/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "eggycar",
+        "name":  "Eggy Car",
+        "url":  "games/eggycar/index.html",
+        "category":  "esportes_corrida",
+        "featured":  false,
+        "image":  "games/eggycar/logo.png"
+    },
+    {
+        "id":  "emulatorjs",
+        "name":  "E Mu La To Rj S",
+        "url":  "games/emulatorjs/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/emulatorjs/logo.png"
+    },
+    {
+        "id":  "escapingtheprison",
+        "name":  "E Sc Ap In Gt He Pr Is On",
+        "url":  "games/escapingtheprison/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "evilglitch",
+        "name":  "Evil Glitch",
+        "url":  "games/evilglitch/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "factoryballs",
+        "name":  "F Ac To Ry Ba Ll S",
+        "url":  "games/factoryballs/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/factoryballs/fac.png"
+    },
+    {
+        "id":  "factoryballsforever",
+        "name":  "Factory Balls Forever",
+        "url":  "games/factoryballsforever/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/factoryballsforever/images/factoryballsforever_atlas_.png"
+    },
+    {
+        "id":  "fancypantsadventures",
+        "name":  "F An Cy Pa Nt Sa Dv En Tu Re S",
+        "url":  "games/fancypantsadventures/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/fancypantsadventures/fpa.webp"
+    },
+    {
+        "id":  "fancypantsadventures2",
+        "name":  "F An Cy Pa Nt Sa Dv En Tu Re S 2",
+        "url":  "games/fancypantsadventures2/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "fireboyandwatergirlforesttemple",
+        "name":  "Fireboy and Watergirl Forest Temple",
+        "url":  "games/fireboyandwatergirlforesttemple/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/fireboyandwatergirlforesttemple/assets/images/branding/branding_logo_kizi.png"
+    },
+    {
+        "id":  "fireboywatergirl",
+        "name":  "F Ir Eb Oy Wa Te Rg Ir L",
+        "url":  "games/fireboywatergirl/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/fireboywatergirl/logo.jpeg"
+    },
+    {
+        "id":  "fireboywatergirl2",
+        "name":  "F Ir Eb Oy Wa Te Rg Ir L 2",
+        "url":  "games/fireboywatergirl2/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/fireboywatergirl2/icon-60x60.png"
+    },
+    {
+        "id":  "fireboywatergirl3",
+        "name":  "F Ir Eb Oy Wa Te Rg Ir L 3",
+        "url":  "games/fireboywatergirl3/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/fireboywatergirl3/icon.png"
+    },
+    {
+        "id":  "fireboywatergirl4",
+        "name":  "F Ir Eb Oy Wa Te Rg Ir L 4",
+        "url":  "games/fireboywatergirl4/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/fireboywatergirl4/assets/images/branding/branding_logo_kizi.png"
+    },
+    {
+        "id":  "flappy2048",
+        "name":  "Flappy 2048",
+        "url":  "games/flappy2048/index.html",
+        "category":  "mente_puzzle",
+        "featured":  false,
+        "image":  "games/flappy2048/favicon.ico"
+    },
+    {
+        "id":  "flappybird",
+        "name":  "Flappy Bird",
+        "url":  "games/flappybird/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/flappybird/logo.png"
+    },
+    {
+        "id":  "flappyplane",
+        "name":  "Flappy Plane",
+        "url":  "games/flappyplane/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/flappyplane/favicon.ico"
+    },
+    {
+        "id":  "fleeingthecomplex",
+        "name":  "F Le Ei Ng Th Ec Om Pl Ex",
+        "url":  "games/fleeingthecomplex/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/fleeingthecomplex/flee.jpg"
+    },
+    {
+        "id":  "flightsimulator",
+        "name":  "Flight Simulator",
+        "url":  "games/flightsimulator/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/flightsimulator/images/GitHub-Mark-64px.png"
+    },
+    {
+        "id":  "flippyfish",
+        "name":  "F Li Pp Yf Is H",
+        "url":  "games/flippyfish/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/flippyfish/icon.png"
+    },
+    {
+        "id":  "fluidsim",
+        "name":  "F Lu Id Si M",
+        "url":  "games/fluidsim/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/fluidsim/icon.png"
+    },
+    {
+        "id":  "fnaf",
+        "name":  "F Na F",
+        "url":  "games/fnaf/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/fnaf/assets/00a70bb1caf8629ba3808e1fb2be6178.png"
+    },
+    {
+        "id":  "fnaf2",
+        "name":  "F Na F 2",
+        "url":  "games/fnaf2/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/fnaf2/project/00fe94ccbb064ff3298fd5dc5679708c.png"
+    },
+    {
+        "id":  "fnaf3",
+        "name":  "F Na F 3",
+        "url":  "games/fnaf3/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/fnaf3/project/00a595f4fb29bafe2ade0cf329ba27dd.png"
+    },
+    {
+        "id":  "fnaf4",
+        "name":  "F Na F 4",
+        "url":  "games/fnaf4/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/fnaf4/project/014bb34d73095e8f46375f83e7ee5ab2.png"
+    },
+    {
+        "id":  "fridaynightfunkin",
+        "name":  "Friday Night Funkin",
+        "url":  "games/fridaynightfunkin/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/fridaynightfunkin/favicon.png"
+    },
+    {
+        "id":  "friendlyfire",
+        "name":  "Friendly Fire",
+        "url":  "games/friendlyfire/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/friendlyfire/assets/appicon.iconset/icon_1024x1024.png"
+    },
+    {
+        "id":  "fruitninja",
+        "name":  "Fruit Ninja",
+        "url":  "games/fruitninja/index.html",
+        "category":  "acao_tiro",
+        "featured":  false,
+        "image":  "games/fruitninja/assets/splash/loading text.png"
+    },
+    {
+        "id":  "funnyballgame",
+        "name":  "F Un Ny Ba Ll Ga Me",
+        "url":  "games/funnyballgame/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/funnyballgame/ball.jpg"
+    },
+    {
+        "id":  "funnymadracing",
+        "name":  "F Un Ny Ma Dr Ac In G",
+        "url":  "games/funnymadracing/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/funnymadracing/logo.webp"
+    },
+    {
+        "id":  "funnyshooter",
+        "name":  "F Un Ny Sh Oo Te R",
+        "url":  "games/funnyshooter/index.html",
+        "category":  "acao_tiro",
+        "featured":  false,
+        "image":  "games/funnyshooter/icon.jpeg"
+    },
+    {
+        "id":  "funnyshooter2",
+        "name":  "F Un Ny Sh Oo Te R 2",
+        "url":  "games/funnyshooter2/index.html",
+        "category":  "acao_tiro",
+        "featured":  false,
+        "image":  "games/funnyshooter2/screenshots/1-small.jpg"
+    },
+    {
+        "id":  "gamemaker",
+        "name":  "G Am Em Ak Er",
+        "url":  "games/gamemaker/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/gamemaker/cta.gif"
+    },
+    {
+        "id":  "gba",
+        "name":  "G Ba",
+        "url":  "games/gba/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/gba/icon.png"
+    },
+    {
+        "id":  "gdlite",
+        "name":  "G Dl It E",
+        "url":  "games/gdlite/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/gdlite/rs/logo-geometry-dash-lite.png"
+    },
+    {
+        "id":  "geometrydash",
+        "name":  "Geometry Dash",
+        "url":  "games/geometrydash/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  true,
+        "image":  "games/geometrydash/logo.png"
+    },
+    {
+        "id":  "geometryrash",
+        "name":  "G Eo Me Tr Yr As H",
+        "url":  "games/geometryrash/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  "games/geometryrash/icon-114.png"
+    },
+    {
+        "id":  "getawayshooter",
+        "name":  "G Et Aw Ay Sh Oo Te R",
+        "url":  "games/getawayshooter/index.html",
+        "category":  "acao_tiro",
+        "featured":  false,
+        "image":  "games/getawayshooter/img/images.jpg"
+    },
+    {
+        "id":  "getawayshootoutnew",
+        "name":  "Getaway Shootout",
+        "url":  "games/getawayshootoutnew/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/getawayshootoutnew/patch/png/null.png"
+    },
+    {
+        "id":  "gladihoppers",
+        "name":  "Gladihoppers",
+        "url":  "games/gladihoppers/index.html",
+        "category":  "acao_tiro",
+        "featured":  false,
+        "image":  "games/gladihoppers/favicon.ico"
+    },
+    {
+        "id":  "golddiggerfrvr",
+        "name":  "G Ol Dd Ig Ge Rf Rv R",
+        "url":  "games/golddiggerfrvr/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/golddiggerfrvr/images.jpeg"
+    },
+    {
+        "id":  "googlesnake",
+        "name":  "Google Snake",
+        "url":  "games/googlesnake/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/googlesnake/assets/apple_00.png"
+    },
+    {
+        "id":  "gopherkart",
+        "name":  "Gopher Kart",
+        "url":  "games/gopherkart/index.html",
+        "category":  "esportes_corrida",
+        "featured":  false,
+        "image":  "games/gopherkart/assets/fonts/bitmapFonts/pixelFont.png"
+    },
+    {
+        "id":  "grindcraft",
+        "name":  "Grindcraft",
+        "url":  "games/grindcraft/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/grindcraft/assets/preloader/preloaderLogo.png"
+    },
+    {
+        "id":  "guiltygear",
+        "name":  "G Ui Lt Yg Ea R",
+        "url":  "games/guiltygear/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/guiltygear/ggx.jpg"
+    },
+    {
+        "id":  "gunmayhem",
+        "name":  "G Un Ma Yh Em",
+        "url":  "games/gunmayhem/index.html",
+        "category":  "acao_tiro",
+        "featured":  false,
+        "image":  "games/gunmayhem/icon.png"
+    },
+    {
+        "id":  "gunmayhem2",
+        "name":  "G Un Ma Yh Em 2",
+        "url":  "games/gunmayhem2/index.html",
+        "category":  "acao_tiro",
+        "featured":  false,
+        "image":  "games/gunmayhem2/icon.png"
+    },
+    {
+        "id":  "gunmayhemredux",
+        "name":  "G Un Ma Yh Em Re Du X",
+        "url":  "games/gunmayhemredux/index.html",
+        "category":  "acao_tiro",
+        "featured":  false,
+        "image":  "games/gunmayhemredux/icon.png"
+    },
+    {
+        "id":  "halloween2016",
+        "name":  "H Al Lo We En 2016",
+        "url":  "games/halloween2016/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/halloween2016/logo.png"
+    },
+    {
+        "id":  "happywheels",
+        "name":  "H Ap Py Wh Ee Ls",
+        "url":  "games/happywheels/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/happywheels/Untitled.jpeg"
+    },
+    {
+        "id":  "helixjump",
+        "name":  "H El Ix Ju Mp",
+        "url":  "games/helixjump/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  "games/helixjump/gameIcon.png"
+    },
+    {
+        "id":  "hexgl",
+        "name":  "HexGL",
+        "url":  "games/hexgl/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/hexgl/favicon.png"
+    },
+    {
+        "id":  "hextris",
+        "name":  "Hextris",
+        "url":  "games/hextris/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/hextris/favicon.ico"
+    },
+    {
+        "id":  "highwaytraffic",
+        "name":  "Highway Traffic",
+        "url":  "games/highwaytraffic/index.html",
+        "category":  "esportes_corrida",
+        "featured":  false,
+        "image":  "games/highwaytraffic/TemplateData/progressLogo.Dark.png"
+    },
+    {
+        "id":  "hillclimbracing2",
+        "name":  "H Il Lc Li Mb Ra Ci Ng 2",
+        "url":  "games/hillclimbracing2/index.html",
+        "category":  "esportes_corrida",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "holeio",
+        "name":  "H Ol Ei O",
+        "url":  "games/holeio/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/holeio/favicon.ico"
+    },
+    {
+        "id":  "idlebreakout",
+        "name":  "I Dl Eb Re Ak Ou T",
+        "url":  "games/idlebreakout/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/idlebreakout/assets/particles/thumbnail.png"
+    },
+    {
+        "id":  "inf",
+        "name":  "I Nf",
+        "url":  "games/inf/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/inf/favicon.ico"
+    },
+    {
+        "id":  "infiltratingtheairship",
+        "name":  "I Nf Il Tr At In Gt He Ai Rs Hi P",
+        "url":  "games/infiltratingtheairship/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "iwbtc",
+        "name":  "I Wb Tc",
+        "url":  "games/iwbtc/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/iwbtc/icon.png"
+    },
+    {
+        "id":  "jetpackjoyride",
+        "name":  "J Et Pa Ck Jo Yr Id E",
+        "url":  "games/jetpackjoyride/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/jetpackjoyride/logo.jpeg"
+    },
+    {
+        "id":  "justfalllol",
+        "name":  "J Us Tf Al Ll Ol",
+        "url":  "games/justfalllol/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/justfalllol/favicon.png"
+    },
+    {
+        "id":  "knifehit",
+        "name":  "K Ni Fe Hi T",
+        "url":  "games/knifehit/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/knifehit/icon.png"
+    },
+    {
+        "id":  "konnekt",
+        "name":  "Konnekt",
+        "url":  "games/konnekt/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "lasthorizon",
+        "name":  "L As Th Or Iz On",
+        "url":  "games/lasthorizon/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/lasthorizon/LastHorizon/LastHorizonCoolMath_texture_0.png"
+    },
+    {
+        "id":  "lazyjump3d",
+        "name":  "L Az Yj Um P 3 D",
+        "url":  "games/lazyjump3d/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  "games/lazyjump3d/icon.png"
+    },
+    {
+        "id":  "learntofly",
+        "name":  "Learn to Fly",
+        "url":  "games/learntofly/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/learntofly/icon.png"
+    },
+    {
+        "id":  "learntofly2",
+        "name":  "L Ea Rn To Fl Y 2",
+        "url":  "games/learntofly2/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/learntofly2/logo.jpg"
+    },
+    {
+        "id":  "learntoflyidle",
+        "name":  "L Ea Rn To Fl Yi Dl E",
+        "url":  "games/learntoflyidle/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/learntoflyidle/icon.jpg"
+    },
+    {
+        "id":  "letssurf",
+        "name":  "Let\u0027s Surf",
+        "url":  "games/letssurf/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/letssurf/resources/icons/android-icon-144x144.png"
+    },
+    {
+        "id":  "linerider",
+        "name":  "L In Er Id Er",
+        "url":  "games/linerider/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/linerider/_v1888.0/test-lines.png"
+    },
+    {
+        "id":  "littlealchemy",
+        "name":  "Little Alchemy",
+        "url":  "games/littlealchemy/index.html",
+        "category":  "mente_puzzle",
+        "featured":  false,
+        "image":  "games/littlealchemy/favicon.ico"
+    },
+    {
+        "id":  "lowsadventures2",
+        "name":  "L Ow Sa Dv En Tu Re S 2",
+        "url":  "games/lowsadventures2/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/lowsadventures2/icon.png"
+    },
+    {
+        "id":  "madalincars",
+        "name":  "M Ad Al In Ca Rs",
+        "url":  "games/madalincars/index.html",
+        "category":  "esportes_corrida",
+        "featured":  false,
+        "image":  "games/madalincars/icon.png"
+    },
+    {
+        "id":  "mario",
+        "name":  "M Ar Io",
+        "url":  "games/mario/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/mario/icon.png"
+    },
+    {
+        "id":  "mcclassic",
+        "name":  "M Cc La Ss Ic",
+        "url":  "games/mcclassic/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/mcclassic/assets/textures/previews/11.png"
+    },
+    {
+        "id":  "mergeroundracers",
+        "name":  "Merge Round Racers",
+        "url":  "games/mergeroundracers/index.html",
+        "category":  "esportes_corrida",
+        "featured":  false,
+        "image":  "games/mergeroundracers/thumb_anim_2x.gif"
+    },
+    {
+        "id":  "metroidzeromission",
+        "name":  "M Et Ro Id Ze Ro Mi Ss Io N",
+        "url":  "games/metroidzeromission/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/metroidzeromission/zero.jpeg"
+    },
+    {
+        "id":  "minecraft-tower-defence-2",
+        "name":  "M In Ec Ra Ft T Ow Er D Ef En Ce 2",
+        "url":  "games/minecraft-tower-defence-2/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "minesweeper",
+        "name":  "M In Es We Ep Er",
+        "url":  "games/minesweeper/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "monkeymart",
+        "name":  "Monkey Mart",
+        "url":  "games/monkeymart/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/monkeymart/back-home.png"
+    },
+    {
+        "id":  "monstertracks",
+        "name":  "M On St Er Tr Ac Ks",
+        "url":  "games/monstertracks/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/monstertracks/webapp/60851784770864E1_0_0.gif"
+    },
+    {
+        "id":  "motoroadrash3d",
+        "name":  "Moto Road Rash 3D",
+        "url":  "games/motoroadrash3d/index.html",
+        "category":  "esportes_corrida",
+        "featured":  false,
+        "image":  "games/motoroadrash3d/style/logo.png"
+    },
+    {
+        "id":  "motox3m",
+        "name":  "Moto X3M",
+        "url":  "games/motox3m/index.html",
+        "category":  "esportes_corrida",
+        "featured":  true,
+        "image":  "games/motox3m/assets/atlases/x1/cars_game.png"
+    },
+    {
+        "id":  "motox3m-pool",
+        "name":  "M Ot Ox 3 M P Oo L",
+        "url":  "games/motox3m-pool/index.html",
+        "category":  "esportes_corrida",
+        "featured":  false,
+        "image":  "games/motox3m-pool/assets/atlases/x1/bikes_texture.png"
+    },
+    {
+        "id":  "motox3m-spooky",
+        "name":  "M Ot Ox 3 M S Po Ok Y",
+        "url":  "games/motox3m-spooky/index.html",
+        "category":  "esportes_corrida",
+        "featured":  false,
+        "image":  "games/motox3m-spooky/icon.png"
+    },
+    {
+        "id":  "motox3m-winter",
+        "name":  "M Ot Ox 3 M W In Te R",
+        "url":  "games/motox3m-winter/index.html",
+        "category":  "esportes_corrida",
+        "featured":  false,
+        "image":  "games/motox3m-winter/assets/atlases/x1/cars_game.png"
+    },
+    {
+        "id":  "ngon",
+        "name":  "N Go N",
+        "url":  "games/ngon/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/ngon/favicon.ico"
+    },
+    {
+        "id":  "ninjavsevilcorp",
+        "name":  "Ninja vs Evil Corp",
+        "url":  "games/ninjavsevilcorp/index.html",
+        "category":  "acao_tiro",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "nutsim",
+        "name":  "N Ut Si M",
+        "url":  "games/nutsim/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/nutsim/images/icon.png"
+    },
+    {
+        "id":  "ocarinaoftime",
+        "name":  "O Ca Ri Na Of Ti Me",
+        "url":  "games/ocarinaoftime/index.html",
+        "category":  "esportes_corrida",
+        "featured":  false,
+        "image":  "games/ocarinaoftime/oc.jpg"
+    },
+    {
+        "id":  "offline-mc",
+        "name":  "O Ff Li Ne M C",
+        "url":  "games/offline-mc/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/offline-mc/logo.png"
+    },
+    {
+        "id":  "offlineparadise",
+        "name":  "O Ff Li Ne Pa Ra Di Se",
+        "url":  "games/offlineparadise/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/offlineparadise/icon.png"
+    },
+    {
+        "id":  "omnombounce",
+        "name":  "Om Nom Bounce",
+        "url":  "games/omnombounce/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  "games/omnombounce/assets/images/logoAzerion.png"
+    },
+    {
+        "id":  "online-mc",
+        "name":  "O Nl In E M C",
+        "url":  "games/online-mc/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/online-mc/logo.png"
+    },
+    {
+        "id":  "osu",
+        "name":  "O Su",
+        "url":  "games/osu/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/osu/icon.png"
+    },
+    {
+        "id":  "osumania",
+        "name":  "O Su Ma Ni A",
+        "url":  "games/osumania/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/osumania/assets/0c697072bf0a65295cd1b94e35454e65.jpg"
+    },
+    {
+        "id":  "ovo",
+        "name":  "OvO",
+        "url":  "games/ovo/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  true,
+        "image":  "games/ovo/images/dialogoverlay-sheet0.png"
+    },
+    {
+        "id":  "ovo2",
+        "name":  "OvO 2",
+        "url":  "games/ovo2/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  "games/ovo2/icons/icon-512.png"
+    },
+    {
+        "id":  "packabunchas",
+        "name":  "Packabunchas",
+        "url":  "games/packabunchas/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "pacman",
+        "name":  "Pac-Man",
+        "url":  "games/pacman/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/pacman/icon.png"
+    },
+    {
+        "id":  "pandemic",
+        "name":  "P An De Mi C",
+        "url":  "games/pandemic/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/pandemic/sddefault.jpg"
+    },
+    {
+        "id":  "pandemic2",
+        "name":  "P An De Mi C 2",
+        "url":  "games/pandemic2/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/pandemic2/pan2.webp"
+    },
+    {
+        "id":  "papasburgeria",
+        "name":  "P Ap As Bu Rg Er Ia",
+        "url":  "games/papasburgeria/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/papasburgeria/images.jpeg"
+    },
+    {
+        "id":  "papasfreezeria",
+        "name":  "P Ap As Fr Ee Ze Ri A",
+        "url":  "games/papasfreezeria/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/papasfreezeria/images.jpeg"
+    },
+    {
+        "id":  "papaspizzeria",
+        "name":  "P Ap As Pi Zz Er Ia",
+        "url":  "games/papaspizzeria/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/papaspizzeria/images.jpeg"
+    },
+    {
+        "id":  "paperio",
+        "name":  "Paper.io",
+        "url":  "games/paperio/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/paperio/icon.png"
+    },
+    {
+        "id":  "particleclicker",
+        "name":  "Particle Clicker",
+        "url":  "games/particleclicker/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/particleclicker/favicon.ico"
+    },
+    {
+        "id":  "pi",
+        "name":  "P I",
+        "url":  "games/pi/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "pizzatower",
+        "name":  "P Iz Za To We R",
+        "url":  "games/pizzatower/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/pizzatower/images/arrow-sheet0.png"
+    },
+    {
+        "id":  "pokemon",
+        "name":  "P Ok Em On",
+        "url":  "games/pokemon/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/pokemon/logo.jpg"
+    },
+    {
+        "id":  "pong",
+        "name":  "P On G",
+        "url":  "games/pong/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "pool",
+        "name":  "P Oo L",
+        "url":  "games/pool/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "poom",
+        "name":  "P Oo M",
+        "url":  "games/poom/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "pre",
+        "name":  "P Re",
+        "url":  "games/pre/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/pre/favicon.ico"
+    },
+    {
+        "id":  "pushback",
+        "name":  "Pushback",
+        "url":  "games/pushback/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/pushback/w.jpg"
+    },
+    {
+        "id":  "q1k3",
+        "name":  "Q1K3",
+        "url":  "games/q1k3/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "r3",
+        "name":  "R3",
+        "url":  "games/r3/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/r3/favicon.png"
+    },
+    {
+        "id":  "racer",
+        "name":  "Racer",
+        "url":  "games/racer/index.html",
+        "category":  "esportes_corrida",
+        "featured":  false,
+        "image":  "games/racer/images/background/hills.png"
+    },
+    {
+        "id":  "radiusraid",
+        "name":  "Radius Raid",
+        "url":  "games/radiusraid/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "redball3",
+        "name":  "R Ed Ba Ll 3",
+        "url":  "games/redball3/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/redball3/redball3.png"
+    },
+    {
+        "id":  "redball4",
+        "name":  "Red Ball 4",
+        "url":  "games/redball4/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/redball4/icon-256.png"
+    },
+    {
+        "id":  "redball4vol2",
+        "name":  "R Ed Ba Ll 4 V Ol 2",
+        "url":  "games/redball4vol2/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/redball4vol2/redball4vol2.webp"
+    },
+    {
+        "id":  "redball4vol3",
+        "name":  "R Ed Ba Ll 4 V Ol 3",
+        "url":  "games/redball4vol3/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/redball4vol3/redball4vol3.webp"
+    },
+    {
+        "id":  "retrobowl",
+        "name":  "Retro Bowl",
+        "url":  "games/retrobowl/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/retrobowl/img/icon.jpg"
+    },
+    {
+        "id":  "retrobowlcollege",
+        "name":  "R Et Ro Bo Wl Co Ll Eg E",
+        "url":  "games/retrobowlcollege/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/retrobowlcollege/html5game/RetroBowl_texture_0.png"
+    },
+    {
+        "id":  "retrohaunt",
+        "name":  "Retro Haunt",
+        "url":  "games/retrohaunt/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "riddleschool",
+        "name":  "R Id Dl Es Ch Oo L",
+        "url":  "games/riddleschool/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/riddleschool/RiddleSchool2.png"
+    },
+    {
+        "id":  "riddleschool2",
+        "name":  "Riddle School 2",
+        "url":  "games/riddleschool2/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/riddleschool2/icon.png"
+    },
+    {
+        "id":  "riddleschool3",
+        "name":  "R Id Dl Es Ch Oo L 3",
+        "url":  "games/riddleschool3/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/riddleschool3/riddle-school-3.webp"
+    },
+    {
+        "id":  "riddleschool4",
+        "name":  "R Id Dl Es Ch Oo L 4",
+        "url":  "games/riddleschool4/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/riddleschool4/Untitled.jpeg"
+    },
+    {
+        "id":  "riddleschool5",
+        "name":  "R Id Dl Es Ch Oo L 5",
+        "url":  "games/riddleschool5/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/riddleschool5/Untitled.jpeg"
+    },
+    {
+        "id":  "riddleschooltransfer",
+        "name":  "R Id Dl Es Ch Oo Lt Ra Ns Fe R",
+        "url":  "games/riddleschooltransfer/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/riddleschooltransfer/Untitled.jpeg"
+    },
+    {
+        "id":  "riddleschooltransfer2",
+        "name":  "R Id Dl Es Ch Oo Lt Ra Ns Fe R 2",
+        "url":  "games/riddleschooltransfer2/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/riddleschooltransfer2/aUntitled.jpeg"
+    },
+    {
+        "id":  "risehigher",
+        "name":  "R Is Eh Ig He R",
+        "url":  "games/risehigher/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/risehigher/branding/logo.png"
+    },
+    {
+        "id":  "ritz",
+        "name":  "Ritz",
+        "url":  "games/ritz/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/ritz/favicon.png"
+    },
+    {
+        "id":  "roadblocks",
+        "name":  "Road Blocks",
+        "url":  "games/roadblocks/index.html",
+        "category":  "mente_puzzle",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "rocketleague",
+        "name":  "R Oc Ke Tl Ea Gu E",
+        "url":  "games/rocketleague/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/rocketleague/splash.webp"
+    },
+    {
+        "id":  "rooftopsnipers",
+        "name":  "Rooftop Snipers",
+        "url":  "games/rooftopsnipers/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/rooftopsnipers/logo.png"
+    },
+    {
+        "id":  "rooftopsnipers2",
+        "name":  "R Oo Ft Op Sn Ip Er S 2",
+        "url":  "games/rooftopsnipers2/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/rooftopsnipers2/icon.png"
+    },
+    {
+        "id":  "ruffle",
+        "name":  "R Uf Fl E",
+        "url":  "games/ruffle/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/ruffle/favicon-180.png"
+    },
+    {
+        "id":  "run",
+        "name":  "R Un",
+        "url":  "games/run/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  "games/run/icon.jpeg"
+    },
+    {
+        "id":  "run2",
+        "name":  "R Un 2",
+        "url":  "games/run2/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  "games/run2/icon.jpg"
+    },
+    {
+        "id":  "run3",
+        "name":  "Run 3",
+        "url":  "games/run3/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  "games/run3/icon.jpeg"
+    },
+    {
+        "id":  "russiancardriver",
+        "name":  "R Us Si An Ca Rd Ri Ve R",
+        "url":  "games/russiancardriver/index.html",
+        "category":  "esportes_corrida",
+        "featured":  false,
+        "image":  "games/russiancardriver/russian-car-driver.webp"
+    },
+    {
+        "id":  "sand",
+        "name":  "S An D",
+        "url":  "games/sand/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/sand/icon.png"
+    },
+    {
+        "id":  "sandtrix",
+        "name":  "S An Dt Ri X",
+        "url":  "games/sandtrix/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/sandtrix/assets/sprites/gui/tab_bigicon.png"
+    },
+    {
+        "id":  "scrapmetal3",
+        "name":  "Scrap Metal 3",
+        "url":  "games/scrapmetal3/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/scrapmetal3/img/1run4progresslogo-light_orig.png"
+    },
+    {
+        "id":  "shadow",
+        "name":  "S Ha Do W",
+        "url":  "games/shadow/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "shuttledeck",
+        "name":  "Shuttle Deck",
+        "url":  "games/shuttledeck/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "sketchbook04",
+        "name":  "Sketchbook 04",
+        "url":  "games/sketchbook04/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "skibiditoilet",
+        "name":  "S Ki Bi Di To Il Et",
+        "url":  "games/skibiditoilet/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/skibiditoilet/logo.png"
+    },
+    {
+        "id":  "skibiditoiletattack",
+        "name":  "S Ki Bi Di To Il Et At Ta Ck",
+        "url":  "games/skibiditoiletattack/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/skibiditoiletattack/logo.png"
+    },
+    {
+        "id":  "skills",
+        "name":  "S Ki Ll S",
+        "url":  "games/skills/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "sleepingbeauty",
+        "name":  "Sleeping Beauty",
+        "url":  "games/sleepingbeauty/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/sleepingbeauty/graphs/complete.png"
+    },
+    {
+        "id":  "slitherio",
+        "name":  "Slither.io",
+        "url":  "games/slitherio/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "slope",
+        "name":  "Slope",
+        "url":  "games/slope/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  "games/slope/TemplateData/y8-logo.png"
+    },
+    {
+        "id":  "slope-ball",
+        "name":  "S Lo Pe B Al L",
+        "url":  "games/slope-ball/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  "games/slope-ball/icon.jpg"
+    },
+    {
+        "id":  "slope2",
+        "name":  "Slope 2",
+        "url":  "games/slope2/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  "games/slope2/slope-2-logo.png"
+    },
+    {
+        "id":  "slope3",
+        "name":  "S Lo Pe 3",
+        "url":  "games/slope3/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "snake",
+        "name":  "Snake",
+        "url":  "games/snake/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/snake/assets/logos/fnbx/snake_arcade/v12/trophy_00.png"
+    },
+    {
+        "id":  "snow",
+        "name":  "S No W",
+        "url":  "games/snow/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/snow/favicon.ico"
+    },
+    {
+        "id":  "snowbattle",
+        "name":  "Snow Battle",
+        "url":  "games/snowbattle/index.html",
+        "category":  "acao_tiro",
+        "featured":  false,
+        "image":  "games/snowbattle/img/logo.png"
+    },
+    {
+        "id":  "snowrider3d",
+        "name":  "S No Wr Id Er 3 D",
+        "url":  "games/snowrider3d/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/snowrider3d/snow.png"
+    },
+    {
+        "id":  "soccerrandom",
+        "name":  "Soccer Random",
+        "url":  "games/soccerrandom/index.html",
+        "category":  "esportes_corrida",
+        "featured":  false,
+        "image":  "games/soccerrandom/images/ballline-sheet0.png"
+    },
+    {
+        "id":  "solitaire",
+        "name":  "Solitaire",
+        "url":  "games/solitaire/index.html",
+        "category":  "mente_puzzle",
+        "featured":  false,
+        "image":  "games/solitaire/img/hover.jpg"
+    },
+    {
+        "id":  "soundboard",
+        "name":  "S Ou Nd Bo Ar D",
+        "url":  "games/soundboard/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/soundboard/img/mlg-favicon.png"
+    },
+    {
+        "id":  "space",
+        "name":  "S Pa Ce",
+        "url":  "games/space/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/space/favicon.ico"
+    },
+    {
+        "id":  "spacecompany",
+        "name":  "Space Company",
+        "url":  "games/spacecompany/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/spacecompany/Icons/asteroidBeltIcon.png"
+    },
+    {
+        "id":  "spacegarden",
+        "name":  "Space Garden",
+        "url":  "games/spacegarden/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "spacehuggers",
+        "name":  "Space Huggers",
+        "url":  "games/spacehuggers/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "spaceinvaders",
+        "name":  "Space Invaders",
+        "url":  "games/spaceinvaders/index.html",
+        "category":  "acao_tiro",
+        "featured":  false,
+        "image":  "games/spaceinvaders/assets/css/skulls.png"
+    },
+    {
+        "id":  "spankthemonkey",
+        "name":  "S Pa Nk Th Em On Ke Y",
+        "url":  "games/spankthemonkey/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "sprinter",
+        "name":  "S Pr In Te R",
+        "url":  "games/sprinter/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/sprinter/icon.jpeg"
+    },
+    {
+        "id":  "stack",
+        "name":  "Stack",
+        "url":  "games/stack/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/stack/icon.png"
+    },
+    {
+        "id":  "stackball",
+        "name":  "Stack Ball",
+        "url":  "games/stackball/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "stealingthediamond",
+        "name":  "S Te Al In Gt He Di Am On D",
+        "url":  "games/stealingthediamond/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "stickman-hook",
+        "name":  "Stickman Hook",
+        "url":  "games/stickman-hook/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  "games/stickman-hook/icon.jpg"
+    },
+    {
+        "id":  "stickmanboost",
+        "name":  "Stickman Boost",
+        "url":  "games/stickmanboost/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/stickmanboost/images/achievementicon-sheet0.png"
+    },
+    {
+        "id":  "stickmanclimb",
+        "name":  "Stickman Climb",
+        "url":  "games/stickmanclimb/index.html",
+        "category":  "esportes_corrida",
+        "featured":  false,
+        "image":  "games/stickmanclimb/NO-PRESSURE-STUDIOS-LOGO-1.0-SMALL.png"
+    },
+    {
+        "id":  "stickmangolf",
+        "name":  "Stickman Golf",
+        "url":  "games/stickmangolf/index.html",
+        "category":  "esportes_corrida",
+        "featured":  false,
+        "image":  "games/stickmangolf/branding/logo.png"
+    },
+    {
+        "id":  "stickmanhook",
+        "name":  "Stickman Hook",
+        "url":  "games/stickmanhook/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  "games/stickmanhook/images/01434c96a36c2c33d787073809c13b8b-CHAR_SuperStick_Miniature.png"
+    },
+    {
+        "id":  "stickmansurvival",
+        "name":  "Stickman Survival",
+        "url":  "games/stickmansurvival/index.html",
+        "category":  "acao_tiro",
+        "featured":  false,
+        "image":  "games/stickmansurvival/icon.png"
+    },
+    {
+        "id":  "subway-surfers-ny",
+        "name":  "S Ub Wa Y S Ur Fe Rs N Y",
+        "url":  "games/subway-surfers-ny/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  "games/subway-surfers-ny/assets/placeholder/icon_00_brody.png"
+    },
+    {
+        "id":  "subwaysurfers",
+        "name":  "Subway Surfers",
+        "url":  "games/subwaysurfers/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  true,
+        "image":  null
+    },
+    {
+        "id":  "subwaysurfersny",
+        "name":  "Subway Surfers New York",
+        "url":  "games/subwaysurfersny/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  "games/subwaysurfersny/assets/placeholder/icon_00_brody.png"
+    },
+    {
+        "id":  "subwaysurferssingapore",
+        "name":  "Subway Surfers Singapore",
+        "url":  "games/subwaysurferssingapore/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  "games/subwaysurferssingapore/assets/images/app-icon-144.png"
+    },
+    {
+        "id":  "superhot",
+        "name":  "S Up Er Ho T",
+        "url":  "games/superhot/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/superhot/icon.png"
+    },
+    {
+        "id":  "supermario64",
+        "name":  "S Up Er Ma Ri O 64",
+        "url":  "games/supermario64/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/supermario64/icon.png"
+    },
+    {
+        "id":  "supermeatboy",
+        "name":  "S Up Er Me At Bo Y",
+        "url":  "games/supermeatboy/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/supermeatboy/icon.png"
+    },
+    {
+        "id":  "supersmashbros",
+        "name":  "S Up Er Sm As Hb Ro S",
+        "url":  "games/supersmashbros/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/supersmashbros/logo.jpg"
+    },
+    {
+        "id":  "supersmashflash",
+        "name":  "S Up Er Sm As Hf La Sh",
+        "url":  "games/supersmashflash/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/supersmashflash/ssf.jpg"
+    },
+    {
+        "id":  "tabs",
+        "name":  "T Ab S",
+        "url":  "games/tabs/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/tabs/unnamed.png"
+    },
+    {
+        "id":  "tanukisunset",
+        "name":  "Tanuki Sunset",
+        "url":  "games/tanukisunset/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/tanukisunset/img/logo.png"
+    },
+    {
+        "id":  "templerun2",
+        "name":  "T Em Pl Er Un 2",
+        "url":  "games/templerun2/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  "games/templerun2/img/icons/icon-128x128.png"
+    },
+    {
+        "id":  "tetris",
+        "name":  "Tetris",
+        "url":  "games/tetris/index.html",
+        "category":  "mente_puzzle",
+        "featured":  false,
+        "image":  "games/tetris/icon.png"
+    },
+    {
+        "id":  "thefinalearth2",
+        "name":  "T He Fi Na Le Ar Th 2",
+        "url":  "games/thefinalearth2/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/thefinalearth2/icons/apple_touch_icon.png"
+    },
+    {
+        "id":  "theimpossiblegame",
+        "name":  "T He Im Po Ss Ib Le Ga Me",
+        "url":  "games/theimpossiblegame/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/theimpossiblegame/image.jpg"
+    },
+    {
+        "id":  "theimpossiblequiz",
+        "name":  "T He Im Po Ss Ib Le Qu Iz",
+        "url":  "games/theimpossiblequiz/index.html",
+        "category":  "mente_puzzle",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "themazeofspacegoblins",
+        "name":  "Maze of Space Goblins",
+        "url":  "games/themazeofspacegoblins/index.html",
+        "category":  "mente_puzzle",
+        "featured":  false,
+        "image":  "games/themazeofspacegoblins/art.png"
+    },
+    {
+        "id":  "thereisnogame",
+        "name":  "T He Re Is No Ga Me",
+        "url":  "games/thereisnogame/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/thereisnogame/images/waiticon-sheet0.png"
+    },
+    {
+        "id":  "thirtydollarwebsite",
+        "name":  "T Hi Rt Yd Ol La Rw Eb Si Te",
+        "url":  "games/thirtydollarwebsite/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/thirtydollarwebsite/assets/action_bg.png"
+    },
+    {
+        "id":  "thisistheonlylevel",
+        "name":  "T Hi Si St He On Ly Le Ve L",
+        "url":  "games/thisistheonlylevel/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/thisistheonlylevel/logo.png"
+    },
+    {
+        "id":  "thisistheonlylevel2",
+        "name":  "T Hi Si St He On Ly Le Ve L 2",
+        "url":  "games/thisistheonlylevel2/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/thisistheonlylevel2/logo.png"
+    },
+    {
+        "id":  "timeshooter",
+        "name":  "Time Shooter",
+        "url":  "games/timeshooter/index.html",
+        "category":  "acao_tiro",
+        "featured":  false,
+        "image":  "games/timeshooter/logo.png"
+    },
+    {
+        "id":  "timeshooter1",
+        "name":  "T Im Es Ho Ot Er 1",
+        "url":  "games/timeshooter1/index.html",
+        "category":  "acao_tiro",
+        "featured":  false,
+        "image":  "games/timeshooter1/logo.png"
+    },
+    {
+        "id":  "timeshooter2",
+        "name":  "Time Shooter 2",
+        "url":  "games/timeshooter2/index.html",
+        "category":  "acao_tiro",
+        "featured":  false,
+        "image":  "games/timeshooter2/ts2.jpg"
+    },
+    {
+        "id":  "timeshooter3",
+        "name":  "Time Shooter 3",
+        "url":  "games/timeshooter3/index.html",
+        "category":  "acao_tiro",
+        "featured":  false,
+        "image":  "games/timeshooter3/logo.png"
+    },
+    {
+        "id":  "tinyfishing",
+        "name":  "Tiny Fishing",
+        "url":  "games/tinyfishing/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/tinyfishing/thumb.png"
+    },
+    {
+        "id":  "tombofthemask",
+        "name":  "Tomb of the Mask",
+        "url":  "games/tombofthemask/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/tombofthemask/progressLogo.Dark.png"
+    },
+    {
+        "id":  "topspeedracing3d",
+        "name":  "Top Speed Racing 3D",
+        "url":  "games/topspeedracing3d/index.html",
+        "category":  "esportes_corrida",
+        "featured":  false,
+        "image":  "games/topspeedracing3d/TemplateData/logo.png"
+    },
+    {
+        "id":  "towermaster",
+        "name":  "Tower Master",
+        "url":  "games/towermaster/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/towermaster/assets/main-index-logo.png"
+    },
+    {
+        "id":  "townscaper",
+        "name":  "T Ow Ns Ca Pe R",
+        "url":  "games/townscaper/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/townscaper/icon.png"
+    },
+    {
+        "id":  "trimps",
+        "name":  "Trimps",
+        "url":  "games/trimps/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/trimps/favicon.ico"
+    },
+    {
+        "id":  "tron",
+        "name":  "T Ro N",
+        "url":  "games/tron/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/tron/icon.png"
+    },
+    {
+        "id":  "tu46",
+        "name":  "T U 46",
+        "url":  "games/tu46/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/tu46/tu-46.webp"
+    },
+    {
+        "id":  "tu95",
+        "name":  "T U 95",
+        "url":  "games/tu95/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/tu95/tu-95.webp"
+    },
+    {
+        "id":  "tube-jumpers",
+        "name":  "T Ub E J Um Pe Rs",
+        "url":  "games/tube-jumpers/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  "games/tube-jumpers/img/icon.jpg"
+    },
+    {
+        "id":  "tunnelrush",
+        "name":  "Tunnel Rush",
+        "url":  "games/tunnelrush/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  true,
+        "image":  "games/tunnelrush/style/progressLogo.Dark.png"
+    },
+    {
+        "id":  "turbowarp",
+        "name":  "T Ur Bo Wa Rp",
+        "url":  "games/turbowarp/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/turbowarp/icon.png"
+    },
+    {
+        "id":  "universal-paperclips",
+        "name":  "U Ni Ve Rs Al P Ap Er Cl Ip S",
+        "url":  "games/universal-paperclips/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/universal-paperclips/universal-paperclips.png"
+    },
+    {
+        "id":  "vex",
+        "name":  "V Ex",
+        "url":  "games/vex/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  "games/vex/icon.png"
+    },
+    {
+        "id":  "vex2",
+        "name":  "V Ex 2",
+        "url":  "games/vex2/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  "games/vex2/icon.png"
+    },
+    {
+        "id":  "vex3",
+        "name":  "Vex 3",
+        "url":  "games/vex3/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  "games/vex3/icon.png"
+    },
+    {
+        "id":  "vex4",
+        "name":  "Vex 4",
+        "url":  "games/vex4/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  "games/vex4/assets/images/cpromo-icon.png"
+    },
+    {
+        "id":  "vex5",
+        "name":  "Vex 5",
+        "url":  "games/vex5/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  "games/vex5/icon.png"
+    },
+    {
+        "id":  "vex6",
+        "name":  "Vex 6",
+        "url":  "games/vex6/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  "games/vex6/icon.png"
+    },
+    {
+        "id":  "vex7",
+        "name":  "V Ex 7",
+        "url":  "games/vex7/index.html",
+        "category":  "plataforma_aventura",
+        "featured":  false,
+        "image":  "games/vex7/icon.jpeg"
+    },
+    {
+        "id":  "wallsmash",
+        "name":  "W Al Ls Ma Sh",
+        "url":  "games/wallsmash/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/wallsmash/icon.png"
+    },
+    {
+        "id":  "watermelongame",
+        "name":  "W At Er Me Lo Ng Am E",
+        "url":  "games/watermelongame/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/watermelongame/assets/fonts/font.png"
+    },
+    {
+        "id":  "wbwwb",
+        "name":  "W Bw Wb",
+        "url":  "games/wbwwb/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/wbwwb/sprites/postcredits/logo.png"
+    },
+    {
+        "id":  "weavesilk",
+        "name":  "W Ea Ve Si Lk",
+        "url":  "games/weavesilk/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/weavesilk/icon.png"
+    },
+    {
+        "id":  "webecomewhatwebehold",
+        "name":  "We Become What We Behold",
+        "url":  "games/webecomewhatwebehold/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/webecomewhatwebehold/sprites/postcredits/logo.png"
+    },
+    {
+        "id":  "webretro",
+        "name":  "W Eb Re Tr O",
+        "url":  "games/webretro/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/webretro/assets/icons/icon102.png"
+    },
+    {
+        "id":  "win11",
+        "name":  "W In 11",
+        "url":  "games/win11/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/win11/favicon.png"
+    },
+    {
+        "id":  "wordle",
+        "name":  "W Or Dl E",
+        "url":  "games/wordle/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/wordle/icon.png"
+    },
+    {
+        "id":  "wordlebot",
+        "name":  "W Or Dl Eb Ot",
+        "url":  "games/wordlebot/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/wordlebot/icon.png"
+    },
+    {
+        "id":  "worldhardestgame2",
+        "name":  "W Or Ld Ha Rd Es Tg Am E 2",
+        "url":  "games/worldhardestgame2/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/worldhardestgame2/images/main_menu.png"
+    },
+    {
+        "id":  "worldshardestgame",
+        "name":  "W Or Ld Sh Ar De St Ga Me",
+        "url":  "games/worldshardestgame/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/worldshardestgame/icon.png"
+    },
+    {
+        "id":  "worldshardestgame2",
+        "name":  "Worlds Hardest Game 2",
+        "url":  "games/worldshardestgame2/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/worldshardestgame2/images/main_menu.png"
+    },
+    {
+        "id":  "xp",
+        "name":  "X P",
+        "url":  "games/xp/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/xp/boot/assets/logo.png"
+    },
+    {
+        "id":  "xx142-b2.exe",
+        "name":  "X X 142 B 2.E Xe",
+        "url":  "games/xx142-b2.exe/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/xx142-b2.exe/icon.png"
+    },
+    {
+        "id":  "xx142b2exe",
+        "name":  "XX142-B2",
+        "url":  "games/xx142b2exe/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  null
+    },
+    {
+        "id":  "yohoho",
+        "name":  "Y Oh Oh O",
+        "url":  "games/yohoho/index.html",
+        "category":  "casual_clicker",
+        "featured":  false,
+        "image":  "games/yohoho/favicon/apple-touch-icon.png"
+    },
+    {
+        "id":  "zombocalypse",
+        "name":  "Z Om Bo Ca Ly Ps E",
+        "url":  "games/zombocalypse/index.html",
+        "category":  "acao_tiro",
+        "featured":  false,
+        "image":  "games/zombocalypse/zombocalypse-2.webp"
+    },
+    {
+        "id":  "zombsroyale",
+        "name":  "Zombs Royale",
+        "url":  "games/zombsroyale/index.html",
+        "category":  "acao_tiro",
+        "featured":  false,
+        "image":  "games/zombsroyale/zomb.png"
+    }
+]

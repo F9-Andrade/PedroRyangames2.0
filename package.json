@@ -1,0 +1,9 @@
+{
+  "name": "ryan-games",
+  "private": true,
+  "description": "Portal local Ryan Games — use npm start para jogar Unity/Godot/WebGL",
+  "scripts": {
+    "start": "npx --yes serve . -l 5500",
+    "serve": "npm start"
+  }
+}

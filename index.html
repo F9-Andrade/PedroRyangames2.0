@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ryan Games - Portal de Jogos</title>
+  <meta name="description" content="Explore e jogue centenas de jogos clássicos, arcade e casuais diretamente no navegador. Rápido, leve e organizado." />
+  <meta name="theme-color" content="#080b11" />
+  
+  <link rel="icon" type="image/png" href="games/chromedino/favicon.png" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <div id="file-protocol-banner" class="file-protocol-banner" hidden role="alert">
+    <div class="file-protocol-banner-inner">
+      <strong>Servidor local necessário</strong>
+      <p>
+        Você abriu o site pelo explorador de arquivos (<code>file://</code>).
+        Jogos Unity, Godot e WebGL <em>não funcionam</em> assim — o navegador bloqueia por segurança.
+      </p>
+      <p class="file-protocol-hint">
+        Na pasta do projeto, execute <code>iniciar-servidor.bat</code> ou no terminal:
+        <code>npx serve . -l 5500</code>
+        Depois acesse <a id="file-protocol-local-link" href="#">http://localhost:5500</a>
+      </p>
+      <button type="button" class="file-protocol-dismiss" id="file-protocol-dismiss">Entendi</button>
+    </div>
+  </div>
+
+  <!-- NAVBAR -->
+  <header id="navbar">
+    <div class="nav-container">
+      <a href="#" class="logo" aria-label="Ryan Games Home">
+        <div class="logo-icon">RG</div>
+        <div class="logo-text">RYAN<span>GAMES</span></div>
+      </a>
+      
+      <nav class="nav-menu" role="navigation">
+        <a href="#library" class="nav-link">Biblioteca</a>
+        <a href="#featured-section" class="nav-link">Destaque</a>
+        <a href="#library" id="nav-favs-link" class="nav-link">Meus Favoritos</a>
+      </nav>
+      
+      <div class="nav-actions">
+        <!-- Spotlight Search Trigger -->
+        <button class="search-trigger" id="search-btn-trigger" title="Buscar jogos (Ctrl+K)" aria-label="Buscar jogo">
+          <span>🔍 Buscar...</span>
+          <span class="search-kbd">Ctrl K</span>
+        </button>
+        
+        <!-- Favorites Shortcut Button -->
+        <button class="favorites-count-btn" id="favs-shortcut" title="Ver Favoritos" aria-label="Meus Favoritos">
+          ⭐ <span class="fav-badge" id="fav-count-badge">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main>
+    <!-- HERO SECTION -->
+    <section class="hero" id="hero">
+      <div class="hero-content">
+        <span class="hero-subtitle">Portal de Jogos Online</span>
+        <h1 class="hero-title">Escolha um jogo e entre direto na partida</h1>
+        <p class="hero-description">
+          Biblioteca grande, rápida e organizada com clássicos, arcade, corrida, puzzle e ação. Sem cadastro — clique e jogue.
+        </p>
+        
+        <div class="hero-stats">
+          <div class="stat-box">
+            <span class="stat-val" id="total-games-stat">—</span>
+            <span class="stat-label">Jogos Prontos</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-val" id="total-favorites-stat">0</span>
+            <span class="stat-label">Favoritos</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-val" id="total-played-stat">0</span>
+            <span class="stat-label">Jogados</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="hero-featured" id="featured-section">
+        <!-- Game of the Day populated by JS -->
+        <div class="featured-card" id="game-of-the-day-card">
+          <div class="featured-badge">Carregando Destaque...</div>
+          <div style="height: 180px; display:flex; align-items:center; justify-content:center;">
+            <span>Aguarde um momento...</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RECENTLY PLAYED SECTION -->
+    <section class="recent-section" id="recent-played-bar" style="display: none;">
+      <span class="recent-label">Recentes</span>
+      <div class="recent-list" id="recent-games-list">
+        <!-- Dynamically populated -->
+      </div>
+    </section>
+
+    <!-- LIBRARY SECTION -->
+    <section class="games-section" id="library">
+      <div class="section-heading-row">
+        <h2 class="section-title">Biblioteca de Jogos</h2>
+        <span class="section-subtitle" id="games-found-count">Carregando jogos...</span>
+      </div>
+
+      <!-- FILTER TOOLBAR -->
+      <div class="toolbar">
+        <!-- Category chips -->
+        <div class="filter-categories" id="categories-container">
+          <button class="filter-chip active" data-category="all">🎮 Todos os Jogos</button>
+          <button class="filter-chip" data-category="esportes_corrida">🏎️ Corrida & Esportes</button>
+          <button class="filter-chip" data-category="acao_tiro">🔫 Ação & Tiro</button>
+          <button class="filter-chip" data-category="plataforma_aventura">🏃 Plataforma & Aventura</button>
+          <button class="filter-chip" data-category="mente_puzzle">🧠 Mente & Puzzle</button>
+          <button class="filter-chip" data-category="casual_clicker">🍪 Casual & Clicker</button>
+        </div>
+
+        <div class="toolbar-controls">
+          <!-- Search box -->
+          <div class="search-box">
+            <span class="search-icon-inside">🔍</span>
+            <input type="text" class="search-input" id="search-input" placeholder="Buscar na biblioteca..." autocomplete="off" />
+          </div>
+
+          <!-- Sort options -->
+          <div class="sort-box">
+            <span class="sort-label">Ordenar:</span>
+            <select class="sort-select" id="sort-select">
+              <option value="name_asc">Nome (A - Z)</option>
+              <option value="name_desc">Nome (Z - A)</option>
+              <option value="plays_desc">Mais Jogados</option>
+              <option value="rating_desc">Melhor Avaliados</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- GAMES GRID -->
+      <div class="games-grid" id="games-grid" role="list">
+        <!-- Dynamic game cards -->
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-container">
+      <div class="footer-left">
+        <span class="footer-logo">RYAN GAMES</span>
+        <span>2026 Ryan Games. Jogue direto pelo navegador.</span>
+      </div>
+      <div class="footer-right">
+        <a href="#hero" class="footer-link">Início</a>
+        <a href="#library" class="footer-link">Biblioteca</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- THEATER PLAYER MODE OVERLAY -->
+  <div class="theater-overlay" id="theater-player" role="dialog" aria-modal="true">
+    <div class="theater-navbar">
+      <div class="theater-game-info">
+        <span class="theater-game-icon" id="theater-game-icon">🎮</span>
+        <div>
+          <h3 class="theater-game-title" id="theater-game-name">Nome do Jogo</h3>
+          <span class="theater-game-meta" id="theater-game-category">Categoria</span>
+        </div>
+      </div>
+      <div class="theater-controls">
+        <!-- Favorite toggle -->
+        <button class="theater-btn theater-btn-fav" id="theater-fav-btn" title="Adicionar aos Favoritos">⭐</button>
+        
+        <!-- Lights toggle -->
+        <button class="theater-btn" id="theater-lights-btn" title="Alternar Modo Cinema (Luzes)">💡</button>
+        
+        <!-- Fullscreen toggle -->
+        <button class="theater-btn" id="theater-fullscreen-btn" title="Tela Cheia">🖥️</button>
+
+        <!-- Open outside iframe -->
+        <button class="theater-btn" id="theater-open-tab-btn" title="Abrir em nova aba">↗</button>
+        
+        <!-- Close button -->
+        <button class="theater-btn theater-btn-close" id="theater-close-btn" title="Fechar Jogo (ESC)">✕ Fechar</button>
+      </div>
+    </div>
+    <div class="theater-viewport">
+      <!-- Game iframe inside viewport -->
+      <div class="player-status" id="player-status" hidden>
+        <div class="loader-ring" aria-hidden="true"></div>
+        <h4 id="player-status-title">Carregando jogo...</h4>
+        <p id="player-status-message">Preparando o player.</p>
+        <div class="player-status-actions">
+          <button class="btn btn-secondary" id="player-retry-btn">Recarregar</button>
+          <button class="btn btn-primary" id="player-open-tab-btn">Abrir em nova aba</button>
+        </div>
+      </div>
+      <iframe
+        src=""
+        class="theater-iframe"
+        id="theater-iframe"
+        title="Player do jogo"
+        allow="autoplay; gamepad; fullscreen; keyboard-map; pointer-lock; screen-wake-lock"
+        allowfullscreen
+        referrerpolicy="no-referrer-when-downgrade"
+        sandbox="allow-scripts allow-same-origin allow-pointer-lock allow-forms allow-popups allow-popups-to-escape-sandbox allow-downloads allow-modals allow-presentation allow-top-navigation-by-user-activation"></iframe>
+    </div>
+  </div>
+
+  <!-- SPOTLIGHT SEARCH SYSTEM (Ctrl + K) -->
+  <div class="spotlight-overlay" id="spotlight-search">
+    <div class="spotlight-box">
+      <div class="spotlight-header">
+        <span class="spotlight-icon">🔍</span>
+        <input type="text" class="spotlight-input" id="spotlight-input" placeholder="Digite para buscar qualquer jogo..." autocomplete="off" />
+        <span class="spotlight-close-kbd">ESC</span>
+      </div>
+      <div class="spotlight-results" id="spotlight-results">
+        <!-- Populated on typing -->
+      </div>
+      <div class="spotlight-footer">
+        <div class="spotlight-footer-hint"><span>↑↓</span> para navegar</div>
+        <div class="spotlight-footer-hint"><span>↵ Enter</span> para abrir</div>
+        <div class="spotlight-footer-hint"><span>ESC</span> para fechar</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATIONS WRAPPER -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Main script -->
+  <script src="games-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

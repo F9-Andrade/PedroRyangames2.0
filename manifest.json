@@ -1,0 +1,22 @@
+{
+  "name": "Ryan Games",
+  "short_name": "Ryan Games",
+  "description": "Portal de jogos no navegador — clássicos, arcade e casuais.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#080b11",
+  "theme_color": "#8b5cf6",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "games/chromedino/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "games/chromedino/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
